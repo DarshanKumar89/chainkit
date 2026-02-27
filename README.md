@@ -1,6 +1,6 @@
 # ChainKit
 
-> **Production-grade blockchain primitives for Rust, TypeScript, Python, and WASM.**
+> **building blockchain primitives for Rust, TypeScript, Python, and WASM.**
 
 ChainKit is a monorepo of four foundational Rust libraries for building blockchain data infrastructure. Each module is an independent Cargo workspace — use one, use all.
 
