@@ -13,9 +13,14 @@ pub mod csdl;
 pub mod memory;
 #[cfg(feature = "remote")]
 pub mod remote;
+#[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
+pub mod sqlite;
 
 pub use csdl::CsdlParser;
 pub use memory::MemoryRegistry;
 
 #[cfg(feature = "remote")]
 pub use remote::AbiFetcher;
+
+#[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
+pub use sqlite::SqliteRegistry;

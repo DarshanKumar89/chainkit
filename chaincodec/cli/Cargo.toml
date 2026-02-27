@@ -16,7 +16,7 @@ path = "src/main.rs"
 [dependencies]
 chaincodec-core     = { workspace = true }
 chaincodec-evm      = { workspace = true }
-chaincodec-registry = { workspace = true }
+chaincodec-registry = { workspace = true, features = ["remote"] }
 
 clap        = { version = "4", features = ["derive"] }
 serde       = { workspace = true }
@@ -26,3 +26,4 @@ anyhow      = { workspace = true }
 hex         = { workspace = true }
 rayon       = { workspace = true }
 walkdir     = "2"
+reqwest     = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }

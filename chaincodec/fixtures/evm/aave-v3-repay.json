@@ -1,0 +1,25 @@
+{
+  "description": "Aave V3 Repay — 500 USDC repaid on Ethereum",
+  "chain": "ethereum",
+  "txHash": "0xb8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9",
+  "logIndex": 2,
+  "blockNumber": 19000070,
+  "blockTimestamp": 1700000840,
+  "contractAddress": "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2",
+  "topics": [
+    "0xa534c8dbe71f871f9f3aecd4b604d8c5cf12f91a9d85b7458f36f9cbc5b7e5c",
+    "0x000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045"
+  ],
+  "data": "0x000000000000000000000000000000000000000000000000000000001dcd65000000000000000000000000000000000000000000000000000000000000000000",
+  "expectedSchema": "AaveV3Repay",
+  "expectedSchemaVersion": 1,
+  "expectedFields": {
+    "reserve": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "user": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+    "repayer": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+    "amount": "500000000",
+    "useATokens": "false"
+  }
+}

@@ -1,0 +1,82 @@
+[package]
+name        = "chaincodec-examples"
+description = "Runnable examples for the ChainCodec SDK"
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+repository.workspace = true
+publish              = false   # examples are not published to crates.io
+
+[dependencies]
+chaincodec-core          = { workspace = true }
+chaincodec-evm           = { workspace = true }
+chaincodec-registry      = { workspace = true, features = ["remote"] }
+chaincodec-stream        = { workspace = true }
+chaincodec-batch         = { workspace = true }
+chaincodec-solana        = { workspace = true }
+chaincodec-cosmos        = { workspace = true }
+chaincodec-observability = { workspace = true }
+
+tokio              = { workspace = true }
+serde_json         = { workspace = true }
+hex                = { workspace = true }
+anyhow             = { workspace = true }
+tracing            = { workspace = true }
+tracing-subscriber = { workspace = true }
+opentelemetry      = { workspace = true }
+
+# ── Existing examples ────────────────────────────────────────────────────────
+
+[[bin]]
+name = "decode_erc20"
+path = "src/bin/decode_erc20.rs"
+
+[[bin]]
+name = "batch_decode"
+path = "src/bin/batch_decode.rs"
+
+[[bin]]
+name = "stream_demo"
+path = "src/bin/stream_demo.rs"
+
+[[bin]]
+name = "fetch_and_decode"
+path = "src/bin/fetch_and_decode.rs"
+
+# ── Feature examples (one per use-case section) ──────────────────────────────
+
+[[bin]]
+name = "decode_call"
+path = "src/bin/decode_call.rs"
+
+[[bin]]
+name = "encode_call"
+path = "src/bin/encode_call.rs"
+
+[[bin]]
+name = "proxy_detect"
+path = "src/bin/proxy_detect.rs"
+
+[[bin]]
+name = "eip712_decode"
+path = "src/bin/eip712_decode.rs"
+
+[[bin]]
+name = "decode_multiprotocol"
+path = "src/bin/decode_multiprotocol.rs"
+
+[[bin]]
+name = "decode_solana"
+path = "src/bin/decode_solana.rs"
+
+[[bin]]
+name = "decode_cosmos"
+path = "src/bin/decode_cosmos.rs"
+
+[[bin]]
+name = "csdl_registry"
+path = "src/bin/csdl_registry.rs"
+
+[[bin]]
+name = "with_observability"
+path = "src/bin/with_observability.rs"

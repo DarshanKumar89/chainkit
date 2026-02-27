@@ -1,0 +1,22 @@
+{
+  "description": "Chainlink ETH/USD AnswerUpdated — price $2000.00000000 (8 decimals)",
+  "chain": "ethereum",
+  "txHash": "0xc9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0",
+  "logIndex": 0,
+  "blockNumber": 19000080,
+  "blockTimestamp": 1700000960,
+  "contractAddress": "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
+  "topics": [
+    "0x0559884fd3a460db3073b7fc896cc77986f16e378210ded43186175bf646fc5f",
+    "0x0000000000000000000000000000000000000000000000000000002e90edd000",
+    "0x0000000000000000000000000000000000000000000000000000000000000001"
+  ],
+  "data": "0x000000000000000000000000000000000000000000000000000000006553f100",
+  "expectedSchema": "ChainlinkAnswerUpdated",
+  "expectedSchemaVersion": 1,
+  "expectedFields": {
+    "current": "200000000000",
+    "roundId": "1",
+    "updatedAt": "1700000000"
+  }
+}

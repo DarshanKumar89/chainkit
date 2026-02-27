@@ -1,0 +1,19 @@
+{
+  "description": "Chainlink OCR2 Transmitted — off-chain report submission",
+  "chain": "ethereum",
+  "txHash": "0xd6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7",
+  "logIndex": 0,
+  "blockNumber": 19000150,
+  "blockTimestamp": 1700001800,
+  "contractAddress": "0x47Fb2585D2C56Fe188D0E6ec628a38b74fCeeEdf",
+  "topics": [
+    "0xb04e63db38c49f2f02bf4e6e7540eda84ee48c0bbd55e36f6a2fcada5e3d7da9"
+  ],
+  "data": "0x0001abc123456789abcdef0123456789abcdef0123456789abcdef01234567890000000000000000000000000000000000000000000000000000000000003039",
+  "expectedSchema": "ChainlinkOCRTransmitted",
+  "expectedSchemaVersion": 1,
+  "expectedFields": {
+    "configDigest": "0x0001abc123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+    "epoch": "12345"
+  }
+}

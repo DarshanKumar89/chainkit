@@ -14,14 +14,17 @@ documentation           = "https://docs.rs/chaincodec-stream"
 chaincodec-core     = { workspace = true }
 chaincodec-registry = { workspace = true }
 
-tokio       = { workspace = true }
-futures     = { workspace = true }
-async-trait = { workspace = true }
-serde       = { workspace = true }
-serde_json  = { workspace = true }
-thiserror   = { workspace = true }
-tracing     = { workspace = true }
-bytes       = { workspace = true }
+tokio             = { workspace = true }
+futures           = { workspace = true }
+async-trait       = { workspace = true }
+serde             = { workspace = true }
+serde_json        = { workspace = true }
+thiserror         = { workspace = true }
+tracing           = { workspace = true }
+bytes             = { workspace = true }
+tokio-tungstenite = { workspace = true }
+url               = { workspace = true }
+hex               = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true }

@@ -26,6 +26,8 @@
 pub mod config;
 pub mod engine;
 pub mod listener;
+pub mod ws_listener;
 
 pub use config::StreamConfig;
 pub use engine::StreamEngine;
+pub use ws_listener::EvmWsListener;

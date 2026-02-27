@@ -1,0 +1,25 @@
+{
+  "description": "Balancer V2 Vault Swap — 1000 USDC in, 0.5 WETH out",
+  "chain": "ethereum",
+  "txHash": "0xe1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2",
+  "logIndex": 0,
+  "blockNumber": 19000100,
+  "blockTimestamp": 1700001200,
+  "contractAddress": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+  "topics": [
+    "0x2170c741c41531aec20e7c107c24eecfdd15e69c9bb0a8dd37b1840b9e0b207b",
+    "0x96646936b91d6b9d7d0c47c496afbf3d6ec7b6f0000000000000000000000001d",
+    "0x000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "0x000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+  ],
+  "data": "0x000000000000000000000000000000000000000000000000000000003b9aca0000000000000000000000000000000000000000000000000006f05b59d3b20000",
+  "expectedSchema": "BalancerV2Swap",
+  "expectedSchemaVersion": 1,
+  "expectedFields": {
+    "poolId": "0x96646936b91d6b9d7d0c47c496afbf3d6ec7b6f0000000000000000000000001d",
+    "tokenIn": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "tokenOut": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    "amountIn": "1000000000",
+    "amountOut": "500000000000000000"
+  }
+}

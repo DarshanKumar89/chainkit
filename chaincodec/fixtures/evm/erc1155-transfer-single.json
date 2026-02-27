@@ -1,0 +1,25 @@
+{
+  "description": "ERC-1155 TransferSingle — token #1234 transfer, 10 units",
+  "chain": "ethereum",
+  "txHash": "0xf6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7",
+  "logIndex": 0,
+  "blockNumber": 19000050,
+  "blockTimestamp": 1700000600,
+  "contractAddress": "0xBd3531dA5CF5857e7Cfaa92426877b022e612cf8",
+  "topics": [
+    "0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62",
+    "0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "0x000000000000000000000000ab5801a7d398351b8be11c439e05c5b3259aec9b",
+    "0x000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+  ],
+  "data": "0x00000000000000000000000000000000000000000000000000000000000004d2000000000000000000000000000000000000000000000000000000000000000a",
+  "expectedSchema": "ERC1155TransferSingle",
+  "expectedSchemaVersion": 1,
+  "expectedFields": {
+    "operator": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+    "from": "0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B",
+    "to": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "id": "1234",
+    "value": "10"
+  }
+}

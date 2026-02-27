@@ -1,0 +1,19 @@
+{
+  "description": "Uniswap V2 USDC/WETH Sync — reserve update after swap",
+  "chain": "ethereum",
+  "txHash": "0xe5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6",
+  "logIndex": 0,
+  "blockNumber": 19000040,
+  "blockTimestamp": 1700000480,
+  "contractAddress": "0x0d4a11d5EEaaC28EC3F61d100daF4d40471f1852",
+  "topics": [
+    "0x1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9fffbbad1"
+  ],
+  "data": "0x000000000000000000000000000000000000000000000000000000003b9aca0000000000000000000000000000000000000000000000000006f05b59d3b20000",
+  "expectedSchema": "UniswapV2Sync",
+  "expectedSchemaVersion": 1,
+  "expectedFields": {
+    "reserve0": "1000000000",
+    "reserve1": "500000000000000000"
+  }
+}

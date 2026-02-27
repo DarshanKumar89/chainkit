@@ -1,0 +1,22 @@
+{
+  "description": "ERC-20 USDC Approval — 1M USDC spending approval",
+  "chain": "ethereum",
+  "txHash": "0xa3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4",
+  "logIndex": 0,
+  "blockNumber": 19000120,
+  "blockTimestamp": 1700001440,
+  "contractAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+  "topics": [
+    "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+    "0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "0x00000000000000000000000087870bca3f3fd6335c3f4ce8392d69350b4fa4e2"
+  ],
+  "data": "0x000000000000000000000000000000000000000000000000000000e8d4a51000",
+  "expectedSchema": "ERC20Approval",
+  "expectedSchemaVersion": 1,
+  "expectedFields": {
+    "owner": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+    "spender": "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2",
+    "value": "1000000000000"
+  }
+}

@@ -17,6 +17,18 @@ ChainKit is a monorepo of four foundational Rust libraries for building blockcha
 
 ---
 
+## Documentation
+
+| Document | Description |
+| --- | --- |
+| [Getting Started](./chaincodec/docs/getting-started.md) | Install, first decode, quickstarts in Rust / TypeScript / Python / CLI |
+| [Examples Walkthrough](./chaincodec/docs/examples.md) | All 13 runnable examples explained with expected output |
+| [CSDL Reference](./chaincodec/docs/csdl-reference.md) | Complete schema format — types, fingerprints, versioning |
+| [Architecture](./chaincodec/docs/architecture.md) | Every crate explained — design decisions and internals |
+| [Use Cases](./chaincodec/docs/use-cases.md) | What to build — indexers, analytics, wallets, security, trading |
+
+---
+
 ## chaincodec — First Module (In Development)
 
 **chaincodec** is ChainKit's flagship module, currently in active development.
@@ -284,22 +296,6 @@ Benchmarks run with `cargo bench --package chaincodec-batch`.
 
 ---
 
-## Competitive Comparison
-
-| Feature | chaincodec | viem | ethers.js | web3.py |
-|---------|-----------|------|-----------|---------|
-| Language | Rust + bindings | TS | TS/JS | Python |
-| Multi-chain | ✅ | ❌ | ❌ | ❌ |
-| Batch decode (parallel) | ✅ Rayon | ❌ | ❌ | ❌ |
-| Schema registry | ✅ CSDL | ❌ | ❌ | ❌ |
-| EIP-712 | ✅ | ✅ | ✅ | ✅ |
-| Proxy detection | ✅ | Partial | Partial | ❌ |
-| Auto ABI fetch | ✅ Sourcify+Etherscan | ❌ | ❌ | ❌ |
-| WASM support | ✅ | ✅ | ❌ | ❌ |
-| Python bindings | ✅ | ❌ | ❌ | N/A |
-| Bundle size (WASM) | ~800KB | ~200KB | ~1.2MB | N/A |
-
----
 
 ## Contributing
 

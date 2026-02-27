@@ -1,0 +1,21 @@
+{
+  "description": "Lido Submitted — 1 ETH staked via Lido, no referral",
+  "chain": "ethereum",
+  "txHash": "0xd0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1",
+  "logIndex": 0,
+  "blockNumber": 19000090,
+  "blockTimestamp": 1700001080,
+  "contractAddress": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
+  "topics": [
+    "0x96a25c8ce0baabc1fdefd93e9ed25d8e092a3332f3aa9a41722b5697231d1d1a",
+    "0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045"
+  ],
+  "data": "0x0000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000000000000",
+  "expectedSchema": "LidoSubmitted",
+  "expectedSchemaVersion": 1,
+  "expectedFields": {
+    "sender": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+    "amount": "1000000000000000000",
+    "referral": "0x0000000000000000000000000000000000000000"
+  }
+}

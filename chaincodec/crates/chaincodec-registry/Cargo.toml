@@ -29,6 +29,10 @@ tokio   = { version = "1", features = ["full"], optional = true }
 [features]
 default = []
 remote  = ["reqwest", "tokio"]
+sqlite  = ["rusqlite"]
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+rusqlite = { workspace = true, optional = true }
 
 [dev-dependencies]
 tokio = { workspace = true }

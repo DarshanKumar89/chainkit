@@ -1,0 +1,22 @@
+{
+  "description": "Chainlink ETH/USD NewRound — aggregation round started",
+  "chain": "ethereum",
+  "txHash": "0xc5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6",
+  "logIndex": 0,
+  "blockNumber": 19000140,
+  "blockTimestamp": 1700001680,
+  "contractAddress": "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
+  "topics": [
+    "0x0109fc6f55cf40689f02fbaad7af7fe7bbac8a3d2186600afc7d3e10cac60271",
+    "0x0000000000000000000000000000000000000000000000000000000000000001",
+    "0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045"
+  ],
+  "data": "0x000000000000000000000000000000000000000000000000000000006553f100",
+  "expectedSchema": "ChainlinkNewRound",
+  "expectedSchemaVersion": 1,
+  "expectedFields": {
+    "roundId": "1",
+    "startedBy": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+    "startedAt": "1700000000"
+  }
+}

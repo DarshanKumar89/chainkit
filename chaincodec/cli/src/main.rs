@@ -162,6 +162,9 @@ enum Commands {
         /// Directory containing fixture JSON files
         #[arg(long, default_value = "./fixtures")]
         fixtures: String,
+        /// Directory containing CSDL schema files (default: ./schemas)
+        #[arg(long, default_value = "./schemas")]
+        schema_dir: String,
         /// Only run fixtures matching this schema name
         #[arg(long)]
         schema: Option<String>,
@@ -244,15 +247,15 @@ async fn main() -> Result<()> {
         }
 
         Commands::DetectProxy { address, rpc, json } => {
-            cmd_detect_proxy(&address, rpc.as_deref(), json)
+            cmd_detect_proxy(&address, rpc.as_deref(), json).await
         }
 
         Commands::Verify { schema, chain, tx, rpc } => {
             cmd_verify::run(&schema, &chain, &tx, rpc.as_deref()).await
         }
 
-        Commands::Test { fixtures, schema, verbose } => {
-            cmd_test::run(&fixtures, schema.as_deref()).await
+        Commands::Test { fixtures, schema_dir, schema, verbose } => {
+            cmd_test::run(&fixtures, &schema_dir, schema.as_deref(), verbose).await
         }
 
         Commands::Bench { schema, iterations, threads } => {
@@ -393,41 +396,175 @@ async fn cmd_fetch_abi(
     output: Option<&str>,
     force_etherscan: bool,
 ) -> Result<()> {
-    println!("Fetching ABI for {} (chain {})", address, chain_id);
-    println!("(remote ABI fetch requires `chaincodec-registry` with `remote` feature)");
-    println!("Try:");
-    println!("  Sourcify:  https://sourcify.dev/server/v2/contract/{}/{}", chain_id, address);
-    println!("  Etherscan: https://api.etherscan.io/api?module=contract&action=getabi&address={}", address);
+    use chaincodec_registry::AbiFetcher;
+
+    println!("Fetching ABI for {} (chain_id={}) ...", address, chain_id);
+
+    let mut fetcher = AbiFetcher::new();
+
+    // Set Etherscan API key from env if available
+    if let Ok(key) = std::env::var("CHAINCODEC_ETHERSCAN_KEY") {
+        fetcher = fetcher.with_etherscan_key(key);
+    }
+
+    // Use chain-specific Etherscan fork
+    let etherscan_base = match chain_id {
+        1       => "https://api.etherscan.io/api",
+        42161   => "https://api.arbiscan.io/api",
+        8453    => "https://api.basescan.org/api",
+        137     => "https://api.polygonscan.com/api",
+        10      => "https://api-optimistic.etherscan.io/api",
+        56      => "https://api.bscscan.com/api",
+        43114   => "https://api.snowtrace.io/api",
+        _       => "https://api.etherscan.io/api",
+    };
+    fetcher = fetcher.with_etherscan_base(etherscan_base);
+
+    let source = if force_etherscan { "Etherscan" } else { "Sourcify → Etherscan (fallback)" };
+    println!("Source: {}", source);
+
+    let abi_json = if force_etherscan {
+        fetcher.fetch_from_etherscan(address).await
+            .map_err(|e| anyhow::anyhow!("{}", e))?
+    } else {
+        fetcher.fetch_abi(chain_id, address).await
+            .map_err(|e| anyhow::anyhow!("{}", e))?
+    };
+
+    let pretty = serde_json::to_string_pretty(
+        &serde_json::from_str::<serde_json::Value>(&abi_json)
+            .context("returned ABI is not valid JSON")?,
+    )?;
+
+    match output {
+        Some(path) => {
+            std::fs::write(path, &pretty)
+                .with_context(|| format!("write ABI to '{}'", path))?;
+            println!("✓ ABI written to '{}'", path);
+        }
+        None => println!("{}", pretty),
+    }
     Ok(())
 }
 
-fn cmd_detect_proxy(address: &str, rpc: Option<&str>, as_json: bool) -> Result<()> {
-    use chaincodec_evm::proxy::{proxy_detection_slots, EIP1967_IMPL_SLOT};
+async fn cmd_detect_proxy(address: &str, rpc: Option<&str>, as_json: bool) -> Result<()> {
+    use chaincodec_evm::proxy::{
+        classify_from_storage, detect_eip1167_clone, proxy_detection_slots, storage_to_address,
+    };
 
     let slots = proxy_detection_slots();
 
-    if as_json {
-        let info = serde_json::json!({
-            "address": address,
-            "storage_slots_to_query": slots.iter().map(|(label, slot)| {
-                serde_json::json!({ "label": label, "slot": slot })
-            }).collect::<Vec<_>>(),
-            "hint": "Call eth_getStorageAt(address, slot, 'latest') for each slot, then pass results to classify_from_storage()"
-        });
-        println!("{}", serde_json::to_string_pretty(&info)?);
-    } else {
-        println!("Proxy detection for: {}", address);
-        println!("\nStorage slots to query:");
-        for (label, slot) in &slots {
-            println!("  {:20} = {}", label, slot);
+    // If no RPC URL, show static slot list
+    let Some(rpc_url) = rpc else {
+        if as_json {
+            let info = serde_json::json!({
+                "address": address,
+                "note": "Pass --rpc <url> for live proxy detection",
+                "storage_slots": slots.iter().map(|(label, slot)| {
+                    serde_json::json!({ "label": label, "slot": slot })
+                }).collect::<Vec<_>>()
+            });
+            println!("{}", serde_json::to_string_pretty(&info)?);
+        } else {
+            println!("Proxy detection for: {}", address);
+            println!("(Pass --rpc <url> for live detection)");
+            println!("\nStorage slots to check:");
+            for (label, slot) in &slots {
+                println!("  {:22} {}", label, slot);
+            }
         }
-        println!("\nUse eth_getStorageAt({}, <slot>, 'latest') for each slot.", address);
-        println!("EIP-1967 impl slot: {}", EIP1967_IMPL_SLOT);
-        if let Some(rpc) = rpc {
-            println!("\nRPC: {} (live detection not yet implemented in CLI)", rpc);
+        return Ok(());
+    };
+
+    // Live detection via JSON-RPC
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(15))
+        .build()?;
+
+    println!("Detecting proxy pattern for {} ...", address);
+
+    // Fetch bytecode to check EIP-1167 minimal proxy
+    let bytecode = rpc_call::<String>(
+        &client,
+        rpc_url,
+        "eth_getCode",
+        serde_json::json!([address, "latest"]),
+    )
+    .await
+    .unwrap_or_default();
+
+    let bytecode_bytes =
+        hex::decode(bytecode.strip_prefix("0x").unwrap_or(&bytecode)).unwrap_or_default();
+
+    let clone_impl = detect_eip1167_clone(&bytecode_bytes);
+
+    // Query each storage slot
+    let mut slot_values: std::collections::HashMap<&str, String> = Default::default();
+    for (label, slot) in &slots {
+        let val = rpc_call::<String>(
+            &client,
+            rpc_url,
+            "eth_getStorageAt",
+            serde_json::json!([address, slot, "latest"]),
+        )
+        .await
+        .unwrap_or_else(|_| "0x".repeat(32));
+        slot_values.insert(label, val);
+    }
+
+    // classify_from_storage takes raw slot hex values (not addresses)
+    let eip1967_impl_raw = slot_values.get("eip1967_impl").map(String::as_str);
+    let eip1967_beacon_raw = slot_values.get("eip1967_beacon").map(String::as_str);
+    let eip1822_raw = slot_values.get("eip1822_proxiable").map(String::as_str);
+
+    let mut info = classify_from_storage(address, eip1967_impl_raw, eip1967_beacon_raw, eip1822_raw);
+
+    // If not classified by storage, check for EIP-1167 clone from bytecode
+    if info.kind == chaincodec_evm::proxy::ProxyKind::Unknown {
+        if let Some(clone_addr) = clone_impl {
+            info.kind = chaincodec_evm::proxy::ProxyKind::Eip1167Clone;
+            info.implementation = Some(clone_addr);
+        }
+    }
+
+    if as_json {
+        println!("{}", serde_json::to_string_pretty(&serde_json::to_value(&info)?)?);
+    } else {
+        println!("  Kind:           {:?}", info.kind);
+        println!("  Implementation: {}", info.implementation.as_deref().unwrap_or("none"));
+        if let Some(slot) = &info.slot {
+            println!("  Via slot:       {}", slot);
         }
     }
     Ok(())
+}
+
+async fn rpc_call<T: serde::de::DeserializeOwned>(
+    client: &reqwest::Client,
+    url: &str,
+    method: &str,
+    params: serde_json::Value,
+) -> Result<T> {
+    #[derive(serde::Deserialize)]
+    struct Resp<T> {
+        result: Option<T>,
+        error: Option<serde_json::Value>,
+    }
+    let body = serde_json::json!({
+        "jsonrpc": "2.0", "id": 1,
+        "method": method, "params": params
+    });
+    let resp: Resp<T> = client
+        .post(url)
+        .json(&body)
+        .send()
+        .await?
+        .json()
+        .await?;
+    if let Some(e) = resp.error {
+        anyhow::bail!("RPC error: {}", e);
+    }
+    resp.result.ok_or_else(|| anyhow::anyhow!("null result from {}", method))
 }
 
 fn cmd_bench(schema: &str, iterations: u64, threads: usize) -> Result<()> {
@@ -624,8 +761,8 @@ fn cmd_info() -> Result<()> {
     println!("                             Avalanche, BSC, and any EVM-compatible chain");
     println!();
     println!("Bindings:");
-    println!("  npm:    @chainfoundry/chaincodec  (napi-rs)");
+    println!("  npm:    @chainkit/chaincodec      (napi-rs)");
     println!("  pypi:   chaincodec                (PyO3/maturin)");
-    println!("  wasm:   @chainfoundry/chaincodec-wasm");
+    println!("  wasm:   @chainkit/chaincodec-wasm (wasm-bindgen)");
     Ok(())
 }

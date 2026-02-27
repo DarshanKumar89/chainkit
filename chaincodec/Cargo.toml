@@ -11,6 +11,7 @@ members = [
     "crates/chaincodec-batch",
     "crates/chaincodec-observability",
     "cli",
+    "examples",
 ]
 
 [workspace.package]
@@ -51,6 +52,13 @@ rayon       = "1"
 
 # Storage
 rocksdb     = { version = "0.22", optional = true }
+rusqlite    = { version = "0.31", features = ["bundled"], optional = true }
+
+# WebSocket
+tokio-tungstenite = { version = "0.24", features = ["native-tls"] }
+
+# Borsh encoding (Solana Anchor IDL)
+borsh       = { version = "1", features = ["derive"] }
 
 # HTTP server (registry-server)
 axum        = { version = "0.7", features = ["macros"] }
@@ -84,6 +92,8 @@ chaincodec-registry     = { path = "crates/chaincodec-registry" }
 chaincodec-stream       = { path = "crates/chaincodec-stream" }
 chaincodec-batch        = { path = "crates/chaincodec-batch" }
 chaincodec-observability = { path = "crates/chaincodec-observability" }
+chaincodec-solana       = { path = "crates/chaincodec-solana" }
+chaincodec-cosmos       = { path = "crates/chaincodec-cosmos" }
 
 [profile.release]
 opt-level   = 3

@@ -1,0 +1,20 @@
+{
+  "description": "WETH Withdrawal — 2 ETH unwrapped on Ethereum mainnet",
+  "chain": "ethereum",
+  "txHash": "0xa1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
+  "logIndex": 1,
+  "blockNumber": 19000011,
+  "blockTimestamp": 1700000132,
+  "contractAddress": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+  "topics": [
+    "0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65",
+    "0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045"
+  ],
+  "data": "0x0000000000000000000000000000000000000000000000001bc16d674ec80000",
+  "expectedSchema": "WETHWithdrawal",
+  "expectedSchemaVersion": 1,
+  "expectedFields": {
+    "src": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+    "wad": "2000000000000000000"
+  }
+}
