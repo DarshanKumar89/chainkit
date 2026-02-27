@@ -1,0 +1,57 @@
+{
+  "name": "@chainkit/chaincodec",
+  "version": "0.1.0",
+  "description": "Universal blockchain ABI decoder — production-grade event & call decoding for Ethereum and EVM chains",
+  "keywords": [
+    "ethereum",
+    "evm",
+    "abi",
+    "decoder",
+    "blockchain",
+    "web3",
+    "chaincodec",
+    "arbitrum",
+    "base",
+    "polygon"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DarshanKumar89/chainkit"
+  },
+  "homepage": "https://github.com/DarshanKumar89/chainkit/tree/main/chaincodec",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "napi": {
+    "name": "chaincodec",
+    "triples": {
+      "defaults": true,
+      "additional": [
+        "x86_64-unknown-linux-musl",
+        "aarch64-unknown-linux-gnu",
+        "aarch64-apple-darwin",
+        "x86_64-pc-windows-msvc"
+      ]
+    }
+  },
+  "files": [
+    "index.d.ts",
+    "index.js",
+    "chaincodec.*.node"
+  ],
+  "scripts": {
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "prepublishOnly": "napi build --platform --release --strip",
+    "version": "napi version && git add -A"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^3.0.0",
+    "typescript": "^5.3.0",
+    "jest": "^29.0.0"
+  },
+  "engines": {
+    "node": ">= 14"
+  }
+}

@@ -1,0 +1,88 @@
+schema UniswapV2Swap:
+  version: 1
+  description: "Uniswap V2 Swap event — emitted on every swap through a V2 pair"
+  chains: [ethereum, arbitrum, base, polygon, optimism, bsc, avalanche]
+  address: null
+  event: Swap
+  fingerprint: "0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822"
+  fields:
+    sender:     { type: address, indexed: true,  description: "Address initiating the swap" }
+    to:         { type: address, indexed: true,  description: "Address receiving output tokens" }
+    amount0In:  { type: uint256, indexed: false, description: "Amount of token0 sent in" }
+    amount1In:  { type: uint256, indexed: false, description: "Amount of token1 sent in" }
+    amount0Out: { type: uint256, indexed: false, description: "Amount of token0 sent out" }
+    amount1Out: { type: uint256, indexed: false, description: "Amount of token1 sent out" }
+  meta:
+    protocol: uniswap-v2
+    category: dex
+    verified: true
+    trust_level: maintainer_verified
+---
+schema UniswapV2Mint:
+  version: 1
+  description: "Uniswap V2 Mint event — liquidity added to a V2 pair"
+  chains: [ethereum, arbitrum, base, polygon, optimism, bsc, avalanche]
+  address: null
+  event: Mint
+  fingerprint: "0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f"
+  fields:
+    sender:  { type: address, indexed: true  }
+    amount0: { type: uint256, indexed: false }
+    amount1: { type: uint256, indexed: false }
+  meta:
+    protocol: uniswap-v2
+    category: dex
+    verified: true
+    trust_level: maintainer_verified
+---
+schema UniswapV2Burn:
+  version: 1
+  description: "Uniswap V2 Burn event — liquidity removed from a V2 pair"
+  chains: [ethereum, arbitrum, base, polygon, optimism, bsc, avalanche]
+  address: null
+  event: Burn
+  fingerprint: "0xdccd412f0b1252819cb1fd330b93224ca42612892bb3f4f789976e6d81936496"
+  fields:
+    sender:  { type: address, indexed: true  }
+    amount0: { type: uint256, indexed: false }
+    amount1: { type: uint256, indexed: false }
+    to:      { type: address, indexed: true  }
+  meta:
+    protocol: uniswap-v2
+    category: dex
+    verified: true
+    trust_level: maintainer_verified
+---
+schema UniswapV2Sync:
+  version: 1
+  description: "Uniswap V2 Sync event — emitted after every state change (swap, mint, burn)"
+  chains: [ethereum, arbitrum, base, polygon, optimism, bsc, avalanche]
+  address: null
+  event: Sync
+  fingerprint: "0x1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9fffbbad1"
+  fields:
+    reserve0: { type: uint112, indexed: false, description: "Updated reserve of token0" }
+    reserve1: { type: uint112, indexed: false, description: "Updated reserve of token1" }
+  meta:
+    protocol: uniswap-v2
+    category: dex
+    verified: true
+    trust_level: maintainer_verified
+---
+schema UniswapV2PairCreated:
+  version: 1
+  description: "Uniswap V2 PairCreated event — emitted by the factory when a new pair is deployed"
+  chains: [ethereum, arbitrum, base, polygon, optimism, bsc, avalanche]
+  address: null
+  event: PairCreated
+  fingerprint: "0x0d3648bd0f6ba80134a33ba9275ac585d9d315f0ad8355cddefde31afa28d0e9"
+  fields:
+    token0:     { type: address, indexed: true  }
+    token1:     { type: address, indexed: true  }
+    pair:       { type: address, indexed: false }
+    pairIndex:  { type: uint256, indexed: false, description: "Sequential pair index" }
+  meta:
+    protocol: uniswap-v2
+    category: dex
+    verified: true
+    trust_level: maintainer_verified

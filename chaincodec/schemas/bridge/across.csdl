@@ -1,0 +1,50 @@
+schema AcrossFundsDeposited:
+  version: 1
+  description: "Across Protocol FundsDeposited — cross-chain transfer initiated"
+  chains: [ethereum, arbitrum, base, polygon, optimism]
+  address: null
+  event: FundsDeposited
+  fingerprint: "0xa123dc29aebf7d0c3322c408d74d6607e5b8f37b9b8d4d3b0e0a6e88b8a18e5"
+  fields:
+    depositor:         { type: address, indexed: true }
+    recipient:         { type: address, indexed: false }
+    originToken:       { type: address, indexed: false }
+    amount:            { type: uint256, indexed: false }
+    destinationChainId: { type: uint256, indexed: true }
+    relayerFeePct:     { type: int64,   indexed: false, description: "Relayer fee in 1e18 precision" }
+    depositId:         { type: uint32,  indexed: true }
+    quoteTimestamp:    { type: uint32,  indexed: false }
+    message:           { type: bytes,   indexed: false }
+  meta:
+    protocol: across
+    category: bridge
+    verified: true
+    trust_level: community_verified
+---
+schema AcrossFilledRelay:
+  version: 1
+  description: "Across Protocol FilledRelay — cross-chain transfer completed by relayer"
+  chains: [ethereum, arbitrum, base, polygon, optimism]
+  address: null
+  event: FilledRelay
+  fingerprint: "0x571749efd002578b3db9e9207cbfbc75d0ca1ed66c49af28b1ade8d33498f3ce"
+  fields:
+    destinationToken: { type: address, indexed: false }
+    amount:           { type: uint256, indexed: false }
+    totalFilledAmount: { type: uint256, indexed: false }
+    fillAmount:       { type: uint256, indexed: false }
+    repaymentChainId: { type: uint256, indexed: false }
+    originChainId:    { type: uint256, indexed: true }
+    depositId:        { type: uint32,  indexed: true }
+    relayerFeePct:    { type: int64,   indexed: false }
+    appliedRelayerFeePct: { type: int64, indexed: false }
+    realizedLpFeePct: { type: int64,   indexed: false }
+    relayer:          { type: address, indexed: false }
+    depositor:        { type: address, indexed: false }
+    recipient:        { type: address, indexed: false }
+    isSlowRelay:      { type: bool,    indexed: false }
+  meta:
+    protocol: across
+    category: bridge
+    verified: true
+    trust_level: community_verified

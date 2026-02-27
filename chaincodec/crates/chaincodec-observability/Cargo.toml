@@ -1,0 +1,23 @@
+[package]
+name        = "chaincodec-observability"
+description = "OpenTelemetry metrics, tracing, and structured logging for ChainCodec"
+keywords    = ["observability", "opentelemetry", "metrics", "tracing"]
+categories  = ["development-tools::profiling"]
+version.workspace       = true
+edition.workspace       = true
+license.workspace       = true
+repository.workspace    = true
+homepage.workspace      = true
+documentation           = "https://docs.rs/chaincodec-observability"
+
+[dependencies]
+chaincodec-core = { workspace = true }
+
+opentelemetry          = { workspace = true }
+opentelemetry-otlp     = { workspace = true }
+opentelemetry_sdk      = { workspace = true }
+tracing                = { workspace = true }
+tracing-opentelemetry  = { workspace = true }
+tracing-subscriber     = { workspace = true }
+serde                  = { workspace = true }
+tokio                  = { workspace = true }

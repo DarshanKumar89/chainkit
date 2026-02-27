@@ -1,0 +1,11 @@
+{
+  "description": "Unknown 4-byte selector — returns RawRevert with 0.0 confidence",
+  "chain": "ethereum",
+  "txHash": "0xabc0000000000000000000000000000000000000000000000000000000000008",
+  "blockNumber": 19000050,
+  "contractAddress": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+  "revertData": "0xdeadbeef0000000000000000000000000000000000000000000000000000000000001234",
+  "expectedKind": "RawRevert",
+  "expectedSelector": "deadbeef",
+  "expectedConfidence": 0.0
+}

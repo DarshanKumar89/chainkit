@@ -1,0 +1,58 @@
+[workspace]
+resolver = "2"
+
+members = [
+    "crates/chainrpc-core",
+    "crates/chainrpc-http",
+    "crates/chainrpc-ws",
+    "crates/chainrpc-providers",
+    "cli",
+]
+
+[workspace.package]
+version      = "0.1.0"
+edition      = "2021"
+license      = "MIT"
+repository   = "https://github.com/DarshanKumar89/chainkit"
+homepage     = "https://github.com/DarshanKumar89/chainkit"
+authors      = ["ChainKit Contributors"]
+rust-version = "1.75"
+
+[workspace.dependencies]
+# Async runtime
+tokio       = { version = "1", features = ["full"] }
+futures     = "0.3"
+async-trait = "0.1"
+
+# HTTP client
+reqwest     = { version = "0.12", features = ["json"] }
+
+# WebSocket
+tokio-tungstenite = { version = "0.23", features = ["native-tls"] }
+
+# Serialization
+serde       = { version = "1", features = ["derive"] }
+serde_json  = "1"
+
+# Error handling
+thiserror   = "1"
+anyhow      = "1"
+
+# Observability
+tracing     = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Timing / retry
+tokio-retry = "0.3"
+
+# Internal crates
+chainrpc-core      = { path = "crates/chainrpc-core" }
+chainrpc-http      = { path = "crates/chainrpc-http" }
+chainrpc-ws        = { path = "crates/chainrpc-ws" }
+chainrpc-providers = { path = "crates/chainrpc-providers" }
+
+[profile.release]
+opt-level     = 3
+lto           = "thin"
+codegen-units = 1
+strip         = "symbols"

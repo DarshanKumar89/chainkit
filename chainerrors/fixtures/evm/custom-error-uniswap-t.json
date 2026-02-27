@@ -1,0 +1,14 @@
+{
+  "description": "Uniswap V3 T() custom error — tick out of range",
+  "chain": "ethereum",
+  "txHash": "0xabc0000000000000000000000000000000000000000000000000000000000007",
+  "blockNumber": 19000040,
+  "contractAddress": "0x1F98431c8aD98523631AE4a59f267346ea31F984",
+  "revertData": "0xf7c3865a",
+  "expectedKind": "CustomError",
+  "expectedErrorName": "T",
+  "expectedFields": {},
+  "expectedConfidence": 0.95,
+  "expectedSelector": "f7c3865a",
+  "note": "selector = keccak256('T()')[..4] = 0xf7c3865a"
+}

@@ -1,0 +1,90 @@
+schema GMXSwap:
+  version: 1
+  description: "GMX V1 Swap event — emitted by GMX Router on token swap"
+  chains: [arbitrum, avalanche]
+  address: null
+  event: Swap
+  fingerprint: "0xcd3829a3813dc3cdd188fd3d01dcf3268c16be2fdd2dd21d0665418816e46062"
+  fields:
+    account:    { type: address, indexed: false }
+    tokenIn:    { type: address, indexed: false }
+    tokenOut:   { type: address, indexed: false }
+    amountIn:   { type: uint256, indexed: false }
+    amountOut:  { type: uint256, indexed: false }
+    amountOutAfterFees: { type: uint256, indexed: false }
+    feeBasisPoints: { type: uint256, indexed: false }
+  meta:
+    protocol: gmx
+    category: perps
+    verified: true
+    trust_level: community_verified
+---
+schema GMXIncreasePosition:
+  version: 1
+  description: "GMX V1 IncreasePosition event"
+  chains: [arbitrum, avalanche]
+  address: null
+  event: IncreasePosition
+  fingerprint: "0x2fe68525253654c21998f35787a8d0f361905ef647c854092430ab65f2f15022"
+  fields:
+    key:         { type: bytes32, indexed: false }
+    account:     { type: address, indexed: false }
+    collateralToken: { type: address, indexed: false }
+    indexToken:  { type: address, indexed: false }
+    collateralDelta: { type: uint256, indexed: false }
+    sizeDelta:   { type: uint256, indexed: false }
+    isLong:      { type: bool,    indexed: false }
+    price:       { type: uint256, indexed: false }
+    fee:         { type: uint256, indexed: false }
+  meta:
+    protocol: gmx
+    category: perps
+    verified: true
+    trust_level: community_verified
+---
+schema GMXDecreasePosition:
+  version: 1
+  description: "GMX V1 DecreasePosition event"
+  chains: [arbitrum, avalanche]
+  address: null
+  event: DecreasePosition
+  fingerprint: "0x93d75d64d1f84fc6f430a64fc578bdd4c1e090e90ea2d51773e626d19de56d30"
+  fields:
+    key:         { type: bytes32, indexed: false }
+    account:     { type: address, indexed: false }
+    collateralToken: { type: address, indexed: false }
+    indexToken:  { type: address, indexed: false }
+    collateralDelta: { type: uint256, indexed: false }
+    sizeDelta:   { type: uint256, indexed: false }
+    isLong:      { type: bool,    indexed: false }
+    price:       { type: uint256, indexed: false }
+    fee:         { type: uint256, indexed: false }
+  meta:
+    protocol: gmx
+    category: perps
+    verified: true
+    trust_level: community_verified
+---
+schema GMXLiquidatePosition:
+  version: 1
+  description: "GMX V1 LiquidatePosition event"
+  chains: [arbitrum, avalanche]
+  address: null
+  event: LiquidatePosition
+  fingerprint: "0x2e1f85a64a2f22cf2f0c42584e97239e4cf95f1fef54a12f6c5fb6e7db40c3a"
+  fields:
+    key:             { type: bytes32, indexed: false }
+    account:         { type: address, indexed: false }
+    collateralToken: { type: address, indexed: false }
+    indexToken:      { type: address, indexed: false }
+    isLong:          { type: bool,    indexed: false }
+    size:            { type: uint256, indexed: false }
+    collateral:      { type: uint256, indexed: false }
+    reserveAmount:   { type: uint256, indexed: false }
+    realisedPnl:     { type: int256,  indexed: false }
+    markPrice:       { type: uint256, indexed: false }
+  meta:
+    protocol: gmx
+    category: perps
+    verified: true
+    trust_level: community_verified

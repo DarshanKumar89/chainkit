@@ -1,0 +1,57 @@
+schema BalancerV2Swap:
+  version: 1
+  description: "Balancer V2 Swap event — emitted by the Vault on every swap"
+  chains: [ethereum, arbitrum, polygon, base, optimism, avalanche]
+  address:
+    - "0xBA12222222228d8Ba445958a75a0704d566BF2C8"  # Balancer V2 Vault (all chains)
+  event: Swap
+  fingerprint: "0x2170c741c41531aec20e7c107c24eecfdd15e69c9bb0a8dd37b1840b9e0b207b"
+  fields:
+    poolId:      { type: bytes32, indexed: true,  description: "Unique pool identifier" }
+    tokenIn:     { type: address, indexed: true,  description: "Token sent into the vault" }
+    tokenOut:    { type: address, indexed: true,  description: "Token received from the vault" }
+    amountIn:    { type: uint256, indexed: false, description: "Amount of tokenIn" }
+    amountOut:   { type: uint256, indexed: false, description: "Amount of tokenOut" }
+  meta:
+    protocol: balancer-v2
+    category: dex
+    verified: true
+    trust_level: maintainer_verified
+---
+schema BalancerV2PoolBalanceChanged:
+  version: 1
+  description: "Balancer V2 PoolBalanceChanged — liquidity add/remove event"
+  chains: [ethereum, arbitrum, polygon, base, optimism]
+  address:
+    - "0xBA12222222228d8Ba445958a75a0704d566BF2C8"
+  event: PoolBalanceChanged
+  fingerprint: "0xe5ce249087ce04f05a957192435400fd97868dba0e6a4b4c049abf8af80a0c0d"
+  fields:
+    poolId:       { type: bytes32,   indexed: true }
+    liquidityProvider: { type: address, indexed: true }
+    tokens:       { type: address[], indexed: false }
+    deltas:       { type: int256[],  indexed: false, description: "Change in each token (positive = in)" }
+    protocolFeeAmounts: { type: uint256[], indexed: false }
+  meta:
+    protocol: balancer-v2
+    category: dex
+    verified: true
+    trust_level: maintainer_verified
+---
+schema BalancerV2PoolRegistered:
+  version: 1
+  description: "Balancer V2 PoolRegistered — emitted when a new pool is registered with the Vault"
+  chains: [ethereum, arbitrum, polygon, base, optimism]
+  address:
+    - "0xBA12222222228d8Ba445958a75a0704d566BF2C8"
+  event: PoolRegistered
+  fingerprint: "0x3c13bc30b8e878c53fd2a36b679409c073afd75950be43d8858768e956fbc20e"
+  fields:
+    poolId:      { type: bytes32, indexed: true }
+    poolAddress: { type: address, indexed: true }
+    specialization: { type: uint8, indexed: false, description: "0=general, 1=minimal-swap-info, 2=two-token" }
+  meta:
+    protocol: balancer-v2
+    category: dex
+    verified: true
+    trust_level: maintainer_verified

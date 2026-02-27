@@ -1,0 +1,56 @@
+schema CompoundGovernorProposalCreated:
+  version: 1
+  description: "Compound Governor Bravo ProposalCreated event"
+  chains: [ethereum, arbitrum, polygon]
+  address: null
+  event: ProposalCreated
+  fingerprint: "0x7d84a6263ae0d98d3329bd7b46bb4e8d6f98cd35a7adb45c274c8b7fd5ebd5e0"
+  fields:
+    proposalId:  { type: uint256,   indexed: false }
+    proposer:    { type: address,   indexed: false }
+    targets:     { type: address[], indexed: false }
+    values:      { type: uint256[], indexed: false }
+    signatures:  { type: string[],  indexed: false }
+    calldatas:   { type: bytes[],   indexed: false }
+    startBlock:  { type: uint256,   indexed: false }
+    endBlock:    { type: uint256,   indexed: false }
+    description: { type: string,    indexed: false }
+  meta:
+    protocol: compound-governor
+    category: governance
+    verified: true
+    trust_level: maintainer_verified
+---
+schema CompoundGovernorVoteCast:
+  version: 1
+  description: "Compound Governor Bravo VoteCast event"
+  chains: [ethereum, arbitrum, polygon]
+  address: null
+  event: VoteCast
+  fingerprint: "0xb8e138887d0aa13bab447e82de9d5c1777041ecd21ca36ba824ff1e6c07ddda4"
+  fields:
+    voter:      { type: address, indexed: true }
+    proposalId: { type: uint256, indexed: false }
+    support:    { type: uint8,   indexed: false, description: "0=against, 1=for, 2=abstain" }
+    votes:      { type: uint256, indexed: false, description: "Voting power used" }
+    reason:     { type: string,  indexed: false }
+  meta:
+    protocol: compound-governor
+    category: governance
+    verified: true
+    trust_level: maintainer_verified
+---
+schema CompoundGovernorProposalExecuted:
+  version: 1
+  description: "Compound Governor Bravo ProposalExecuted event"
+  chains: [ethereum, arbitrum, polygon]
+  address: null
+  event: ProposalExecuted
+  fingerprint: "0x712ae1383f79ac853f8d882153778e0260ef8f03b504e2866e0593e04d2b291f"
+  fields:
+    proposalId: { type: uint256, indexed: false }
+  meta:
+    protocol: compound-governor
+    category: governance
+    verified: true
+    trust_level: maintainer_verified

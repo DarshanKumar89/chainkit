@@ -1,0 +1,33 @@
+schema CompoundV3Supply:
+  version: 1
+  description: "Compound V3 (Comet) Supply event"
+  chains: [ethereum, arbitrum, base, polygon]
+  address: null
+  event: Supply
+  fingerprint: "0xd1cf3d156d5f8f0d50f6c122ed609cec09d35c9d7d8b0b02af5f9ce0df9d849"
+  fields:
+    from:   { type: address, indexed: true  }
+    dst:    { type: address, indexed: true  }
+    amount: { type: uint256, indexed: false }
+  meta:
+    protocol: compound-v3
+    category: lending
+    verified: true
+    trust_level: community_verified
+---
+schema CompoundV3Withdraw:
+  version: 1
+  description: "Compound V3 (Comet) Withdraw event"
+  chains: [ethereum, arbitrum, base, polygon]
+  address: null
+  event: Withdraw
+  fingerprint: "0x9b1bfa7fa9ee420a16e124f794c35ac9f90472acc99140eb2f6447c714cad8eb"
+  fields:
+    src:    { type: address, indexed: true  }
+    to:     { type: address, indexed: true  }
+    amount: { type: uint256, indexed: false }
+  meta:
+    protocol: compound-v3
+    category: lending
+    verified: true
+    trust_level: community_verified

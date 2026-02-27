@@ -1,0 +1,13 @@
+{
+  "description": "Solidity assert(false) panic (Panic(0x01))",
+  "chain": "polygon",
+  "txHash": "0xabc0000000000000000000000000000000000000000000000000000000000010",
+  "blockNumber": 50000000,
+  "contractAddress": "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
+  "revertData": "0x4e487b710000000000000000000000000000000000000000000000000000000000000001",
+  "expectedKind": "Panic",
+  "expectedPanicCode": 1,
+  "expectedMeaning": "assert() called with false condition",
+  "expectedConfidence": 1.0,
+  "expectedSelector": "4e487b71"
+}

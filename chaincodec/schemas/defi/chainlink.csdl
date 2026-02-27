@@ -1,0 +1,49 @@
+schema ChainlinkAnswerUpdated:
+  version: 1
+  description: "Chainlink AnswerUpdated event — oracle price feed update"
+  chains: [ethereum, arbitrum, base, polygon, optimism, avalanche, bsc]
+  address: null
+  event: AnswerUpdated
+  fingerprint: "0x0559884fd3a460db3073b7fc896cc77986f16e378210ded43186175bf646fc5f"
+  fields:
+    current:     { type: int256,  indexed: true,  description: "New answer value (scaled by decimals)" }
+    roundId:     { type: uint256, indexed: true,  description: "Round ID for this update" }
+    updatedAt:   { type: uint256, indexed: false, description: "Unix timestamp of update" }
+  meta:
+    protocol: chainlink
+    category: oracle
+    verified: true
+    trust_level: maintainer_verified
+---
+schema ChainlinkNewRound:
+  version: 1
+  description: "Chainlink NewRound event — new aggregation round started"
+  chains: [ethereum, arbitrum, base, polygon, optimism, avalanche, bsc]
+  address: null
+  event: NewRound
+  fingerprint: "0x0109fc6f55cf40689f02fbaad7af7fe7bbac8a3d2186600afc7d3e10cac60271"
+  fields:
+    roundId:     { type: uint256, indexed: true }
+    startedBy:   { type: address, indexed: true, description: "Oracle that started the round" }
+    startedAt:   { type: uint256, indexed: false }
+  meta:
+    protocol: chainlink
+    category: oracle
+    verified: true
+    trust_level: maintainer_verified
+---
+schema ChainlinkOCRTransmitted:
+  version: 1
+  description: "Chainlink OCR2 Transmitted — off-chain aggregation report submitted"
+  chains: [ethereum, arbitrum, base, polygon, optimism, avalanche, bsc]
+  address: null
+  event: Transmitted
+  fingerprint: "0xb04e63db38c49f2f02bf4e6e7540eda84ee48c0bbd55e36f6a2fcada5e3d7da9"
+  fields:
+    configDigest: { type: bytes32, indexed: false }
+    epoch:        { type: uint32,  indexed: false }
+  meta:
+    protocol: chainlink-ocr
+    category: oracle
+    verified: true
+    trust_level: maintainer_verified

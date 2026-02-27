@@ -1,0 +1,13 @@
+{
+  "description": "Solidity 0.8 array index out-of-bounds panic (Panic(0x32))",
+  "chain": "ethereum",
+  "txHash": "0xabc0000000000000000000000000000000000000000000000000000000000004",
+  "blockNumber": 19000010,
+  "contractAddress": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+  "revertData": "0x4e487b710000000000000000000000000000000000000000000000000000000000000032",
+  "expectedKind": "Panic",
+  "expectedPanicCode": 50,
+  "expectedMeaning": "out-of-bounds array access",
+  "expectedConfidence": 1.0,
+  "expectedSelector": "4e487b71"
+}

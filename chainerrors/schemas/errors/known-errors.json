@@ -1,0 +1,77 @@
+[
+  {
+    "name": "Error",
+    "signature": "Error(string)",
+    "selector": [8, 195, 121, 160],
+    "inputs": [{ "name": "message", "ty": "string" }],
+    "source": "solidity-builtin",
+    "suggestion": null
+  },
+  {
+    "name": "Panic",
+    "signature": "Panic(uint256)",
+    "selector": [78, 72, 123, 113],
+    "inputs": [{ "name": "code", "ty": "uint256" }],
+    "source": "solidity-builtin",
+    "suggestion": null
+  },
+  {
+    "name": "OwnableUnauthorizedAccount",
+    "signature": "OwnableUnauthorizedAccount(address)",
+    "selector": [17, 140, 218, 167],
+    "inputs": [{ "name": "account", "ty": "address" }],
+    "source": "openzeppelin-v5",
+    "suggestion": "Only the contract owner can call this function."
+  },
+  {
+    "name": "OwnableInvalidOwner",
+    "signature": "OwnableInvalidOwner(address)",
+    "selector": [31, 218, 122, 195],
+    "inputs": [{ "name": "owner", "ty": "address" }],
+    "source": "openzeppelin-v5",
+    "suggestion": null
+  },
+  {
+    "name": "ERC20InsufficientBalance",
+    "signature": "ERC20InsufficientBalance(address,uint256,uint256)",
+    "selector": [228, 80, 211, 140],
+    "inputs": [
+      { "name": "sender", "ty": "address" },
+      { "name": "balance", "ty": "uint256" },
+      { "name": "needed", "ty": "uint256" }
+    ],
+    "source": "openzeppelin-v5",
+    "suggestion": "The sender does not have enough token balance."
+  },
+  {
+    "name": "ERC20InsufficientAllowance",
+    "signature": "ERC20InsufficientAllowance(address,uint256,uint256)",
+    "selector": [251, 197, 100, 181],
+    "inputs": [
+      { "name": "spender", "ty": "address" },
+      { "name": "allowance", "ty": "uint256" },
+      { "name": "needed", "ty": "uint256" }
+    ],
+    "source": "openzeppelin-v5",
+    "suggestion": "Increase allowance with approve() before calling transferFrom()."
+  },
+  {
+    "name": "ReentrancyGuardReentrantCall",
+    "signature": "ReentrancyGuardReentrantCall()",
+    "selector": [62, 63, 107, 2],
+    "inputs": [],
+    "source": "openzeppelin-v5",
+    "suggestion": "Reentrancy detected. Do not call this function recursively."
+  },
+  {
+    "name": "AccessControlUnauthorizedAccount",
+    "signature": "AccessControlUnauthorizedAccount(address,bytes32)",
+    "selector": [232, 177, 120, 195],
+    "inputs": [
+      { "name": "account", "ty": "address" },
+      { "name": "neededRole", "ty": "bytes32" }
+    ],
+    "source": "openzeppelin-v5",
+    "suggestion": "Grant the required role with grantRole() before calling."
+  }
+]

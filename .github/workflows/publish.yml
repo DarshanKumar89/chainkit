@@ -1,0 +1,296 @@
+name: Publish chaincodec
+
+# Triggered by pushing a version tag, e.g.: git tag chaincodec-v0.1.0 && git push --tags
+on:
+  push:
+    tags:
+      - 'chaincodec-v[0-9]+.[0-9]+.[0-9]+'
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 1: Publish Rust crates to crates.io in dependency order
+  #
+  #   chaincodec-core
+  #     ↳ chaincodec-registry   chaincodec-evm
+  #         ↳ chaincodec-batch  chaincodec-stream
+  #             ↳ chaincodec-observability
+  #                 ↳ chaincodec-cli
+  #
+  # 30-second sleeps let crates.io finish indexing before dependent crates
+  # resolve the freshly published version.
+  # ─────────────────────────────────────────────────────────────────────────────
+  publish-rust:
+    name: Publish Rust crates to crates.io
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-publish-${{ hashFiles('chaincodec/Cargo.lock') }}
+
+      - name: Publish chaincodec-core
+        working-directory: chaincodec
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: cargo publish -p chaincodec-core
+
+      - name: Wait for crates.io to index chaincodec-core
+        run: sleep 30
+
+      - name: Publish chaincodec-registry
+        working-directory: chaincodec
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: cargo publish -p chaincodec-registry
+
+      - name: Publish chaincodec-evm
+        working-directory: chaincodec
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: cargo publish -p chaincodec-evm
+
+      - name: Wait for crates.io to index chaincodec-registry + chaincodec-evm
+        run: sleep 30
+
+      - name: Publish chaincodec-batch
+        working-directory: chaincodec
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: cargo publish -p chaincodec-batch
+
+      - name: Publish chaincodec-stream
+        working-directory: chaincodec
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: cargo publish -p chaincodec-stream
+
+      - name: Publish chaincodec-observability
+        working-directory: chaincodec
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: cargo publish -p chaincodec-observability
+
+      - name: Wait for crates.io to index batch + stream + observability
+        run: sleep 30
+
+      - name: Publish chaincodec-cli
+        working-directory: chaincodec
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: cargo publish -p chaincodec-cli
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 2: Build Node.js native .node files for all supported platforms
+  #
+  # Matrix targets:
+  #   linux-x64-gnu   — Ubuntu / most Linux servers
+  #   linux-x64-musl  — Alpine / Docker-minimal images
+  #   linux-arm64-gnu — AWS Graviton, Raspberry Pi 4
+  #   macos-x64       — Intel Macs
+  #   macos-arm64     — Apple Silicon (M1/M2/M3)
+  #   windows-x64     — Windows servers / desktops
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-node-bindings:
+    name: Build Node bindings · ${{ matrix.settings.name }}
+    runs-on: ${{ matrix.settings.host }}
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - name: linux-x64-gnu
+            host: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            build: >
+              cd chaincodec/bindings/node &&
+              npx napi build --platform --release --target x86_64-unknown-linux-gnu
+
+          - name: linux-x64-musl
+            host: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            build: |
+              sudo apt-get install -y musl-tools
+              rustup target add x86_64-unknown-linux-musl
+              cd chaincodec/bindings/node
+              npx napi build --platform --release --target x86_64-unknown-linux-musl
+
+          - name: linux-arm64-gnu
+            host: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            build: |
+              sudo apt-get install -y gcc-aarch64-linux-gnu
+              rustup target add aarch64-unknown-linux-gnu
+              cd chaincodec/bindings/node
+              CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc \
+                npx napi build --platform --release --target aarch64-unknown-linux-gnu
+
+          - name: macos-x64
+            host: macos-latest
+            target: x86_64-apple-darwin
+            build: |
+              rustup target add x86_64-apple-darwin
+              cd chaincodec/bindings/node
+              npx napi build --platform --release --target x86_64-apple-darwin
+
+          - name: macos-arm64
+            host: macos-latest
+            target: aarch64-apple-darwin
+            build: |
+              rustup target add aarch64-apple-darwin
+              cd chaincodec/bindings/node
+              npx napi build --platform --release --target aarch64-apple-darwin
+
+          - name: windows-x64
+            host: windows-latest
+            target: x86_64-pc-windows-msvc
+            build: >
+              cd chaincodec/bindings/node &&
+              npx napi build --platform --release --target x86_64-pc-windows-msvc
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.settings.target }}
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: chaincodec/bindings/node/package.json
+
+      - name: Install napi-rs CLI and dependencies
+        working-directory: chaincodec/bindings/node
+        run: npm install
+
+      - name: Build native module
+        shell: bash
+        run: ${{ matrix.settings.build }}
+
+      - name: Upload .node artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bindings-${{ matrix.settings.name }}
+          path: chaincodec/bindings/node/*.node
+          if-no-files-found: error
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 3: Collect all .node files and publish @chainkit/chaincodec to npm
+  # ─────────────────────────────────────────────────────────────────────────────
+  publish-npm:
+    name: Publish @chainkit/chaincodec to npm
+    runs-on: ubuntu-latest
+    needs: [build-node-bindings]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Download all platform .node artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: chaincodec/bindings/node/artifacts
+
+      - name: Move .node files into package root
+        working-directory: chaincodec/bindings/node
+        run: |
+          find artifacts -name '*.node' -exec mv {} . \;
+          echo "Collected binaries:"
+          ls -la *.node
+
+      - name: Install package dependencies
+        working-directory: chaincodec/bindings/node
+        run: npm install
+
+      - name: Publish to npm
+        working-directory: chaincodec/bindings/node
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 4: Create a GitHub Release with install instructions
+  # ─────────────────────────────────────────────────────────────────────────────
+  github-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [publish-rust, publish-npm]
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        shell: bash
+        run: echo "version=${GITHUB_REF_NAME#chaincodec-v}" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: chaincodec v${{ steps.version.outputs.version }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+          body: |
+            ## chaincodec v${{ steps.version.outputs.version }}
+
+            Production-grade EVM ABI decoder — universal event log & function call decoding
+            for Rust, TypeScript/Node.js, Python, and WASM.
+
+            ### Install
+
+            **Rust (Cargo.toml)**
+            ```toml
+            [dependencies]
+            chaincodec-core     = "${{ steps.version.outputs.version }}"
+            chaincodec-evm      = "${{ steps.version.outputs.version }}"
+            chaincodec-registry = "${{ steps.version.outputs.version }}"
+            ```
+
+            **npm / Node.js**
+            ```bash
+            npm install @chainkit/chaincodec
+            ```
+
+            **Python (pip)**
+            ```bash
+            pip install chaincodec
+            ```
+
+            **CLI**
+            ```bash
+            cargo install chaincodec-cli
+            ```
+
+            ### Published crates
+
+            | Crate | crates.io |
+            |-------|-----------|
+            | chaincodec-core | https://crates.io/crates/chaincodec-core |
+            | chaincodec-evm | https://crates.io/crates/chaincodec-evm |
+            | chaincodec-registry | https://crates.io/crates/chaincodec-registry |
+            | chaincodec-batch | https://crates.io/crates/chaincodec-batch |
+            | chaincodec-stream | https://crates.io/crates/chaincodec-stream |
+            | chaincodec-observability | https://crates.io/crates/chaincodec-observability |
+            | chaincodec-cli | https://crates.io/crates/chaincodec-cli |
+
+            **npm:** https://www.npmjs.com/package/@chainkit/chaincodec

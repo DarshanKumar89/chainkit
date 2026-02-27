@@ -1,0 +1,22 @@
+{
+  "description": "USDC Transfer on Ethereum mainnet",
+  "chain": "ethereum",
+  "txHash": "0xa9d1e08c7793af67e9d92fe308d5697fb81d3e43ce35d8ba6dd0ebc4e3b7f3e2",
+  "logIndex": 4,
+  "blockNumber": 19000000,
+  "blockTimestamp": 1700000000,
+  "contractAddress": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+  "topics": [
+    "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+    "0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "0x000000000000000000000000ab5801a7d398351b8be11c439e05c5b3259aec9b"
+  ],
+  "data": "0x000000000000000000000000000000000000000000000000000000003b9aca00",
+  "expectedSchema": "ERC20Transfer",
+  "expectedSchemaVersion": 1,
+  "expectedFields": {
+    "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+    "to": "0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B",
+    "value": "1000000000"
+  }
+}

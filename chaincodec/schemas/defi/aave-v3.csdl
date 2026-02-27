@@ -1,0 +1,58 @@
+schema AaveV3Supply:
+  version: 1
+  description: "Aave V3 Supply event — emitted when a user supplies assets to the pool"
+  chains: [ethereum, arbitrum, polygon, base, optimism, avalanche]
+  address: null
+  event: Supply
+  fingerprint: "0x2b627736bca15cd5381dcf80b0bf11fd197d26ee5ad7347de64a0d0fc3a0e9b"
+  fields:
+    reserve:    { type: address, indexed: true  }
+    user:       { type: address, indexed: false }
+    onBehalfOf: { type: address, indexed: true  }
+    amount:     { type: uint256, indexed: false }
+    referralCode: { type: uint16, indexed: true }
+  meta:
+    protocol: aave-v3
+    category: lending
+    verified: true
+    trust_level: maintainer_verified
+---
+schema AaveV3Borrow:
+  version: 1
+  description: "Aave V3 Borrow event — emitted when a user borrows assets"
+  chains: [ethereum, arbitrum, polygon, base, optimism, avalanche]
+  address: null
+  event: Borrow
+  fingerprint: "0xb3d084820fb1a9decffb176436bd02b1b4a5d2b7a2b6eca9e6d6dda0da1f89"
+  fields:
+    reserve:        { type: address, indexed: true  }
+    user:           { type: address, indexed: false }
+    onBehalfOf:     { type: address, indexed: true  }
+    amount:         { type: uint256, indexed: false }
+    interestRateMode: { type: uint256, indexed: false }
+    borrowRate:     { type: uint256, indexed: false }
+    referralCode:   { type: uint16,  indexed: true  }
+  meta:
+    protocol: aave-v3
+    category: lending
+    verified: true
+    trust_level: maintainer_verified
+---
+schema AaveV3Repay:
+  version: 1
+  description: "Aave V3 Repay event — emitted when a user repays borrowed assets"
+  chains: [ethereum, arbitrum, polygon, base, optimism, avalanche]
+  address: null
+  event: Repay
+  fingerprint: "0xa534c8dbe71f871f9f3aecd4b604d8c5cf12f91a9d85b7458f36f9cbc5b7e5c"
+  fields:
+    reserve:    { type: address, indexed: true  }
+    user:       { type: address, indexed: true  }
+    repayer:    { type: address, indexed: true  }
+    amount:     { type: uint256, indexed: false }
+    useATokens: { type: bool,    indexed: false }
+  meta:
+    protocol: aave-v3
+    category: lending
+    verified: true
+    trust_level: maintainer_verified

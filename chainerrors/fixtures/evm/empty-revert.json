@@ -1,0 +1,10 @@
+{
+  "description": "Bare revert with no message (empty returndata)",
+  "chain": "ethereum",
+  "txHash": "0xabc0000000000000000000000000000000000000000000000000000000000005",
+  "blockNumber": 19000020,
+  "contractAddress": "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
+  "revertData": "0x",
+  "expectedKind": "Empty",
+  "expectedConfidence": 0.5
+}

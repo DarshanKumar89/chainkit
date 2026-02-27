@@ -1,0 +1,20 @@
+schema BlurOrdersMatched:
+  version: 1
+  description: "Blur Exchange OrdersMatched event — NFT trade on Blur"
+  chains: [ethereum]
+  address:
+    - "0x000000000000Ad05Ccc4F10045630fb830B95127"  # Blur Exchange
+  event: OrdersMatched
+  fingerprint: "0x61cbb2a3dee0b6064c2e681aadd61677fb4ef319f0b547508d495626f5a62f64"
+  fields:
+    maker:      { type: address, indexed: true }
+    taker:      { type: address, indexed: true }
+    sell:       { type: bytes32, indexed: false, description: "Sell order hash" }
+    sellHash:   { type: bytes32, indexed: false }
+    buy:        { type: bytes32, indexed: false, description: "Buy order hash" }
+    buyHash:    { type: bytes32, indexed: false }
+  meta:
+    protocol: blur
+    category: nft-marketplace
+    verified: true
+    trust_level: community_verified

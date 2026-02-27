@@ -1,0 +1,75 @@
+schema CurveTokenExchange:
+  version: 1
+  description: "Curve Finance TokenExchange event — StableSwap pools (DAI/USDC/USDT, etc.)"
+  chains: [ethereum, arbitrum, polygon, optimism, avalanche]
+  address: null
+  event: TokenExchange
+  fingerprint: "0x8b3e96f2b889fa771c53c981b40daf005f63f637f1869f707052d15a3dd97140"
+  fields:
+    buyer:         { type: address, indexed: true }
+    sold_id:       { type: int128,  indexed: false, description: "Index of token sold" }
+    tokens_sold:   { type: uint256, indexed: false, description: "Amount sold" }
+    bought_id:     { type: int128,  indexed: false, description: "Index of token bought" }
+    tokens_bought: { type: uint256, indexed: false, description: "Amount received" }
+  meta:
+    protocol: curve
+    category: dex
+    verified: true
+    trust_level: maintainer_verified
+---
+schema CurveTokenExchangeUnderlying:
+  version: 1
+  description: "Curve Finance TokenExchangeUnderlying — for metapools using underlying assets"
+  chains: [ethereum, arbitrum, polygon]
+  address: null
+  event: TokenExchangeUnderlying
+  fingerprint: "0xd013ca23e77a65003c2c659c5442c00c805371b7fc1ebd4c206c41d1536bd90b"
+  fields:
+    buyer:         { type: address, indexed: true }
+    sold_id:       { type: int128,  indexed: false }
+    tokens_sold:   { type: uint256, indexed: false }
+    bought_id:     { type: int128,  indexed: false }
+    tokens_bought: { type: uint256, indexed: false }
+  meta:
+    protocol: curve
+    category: dex
+    verified: true
+    trust_level: maintainer_verified
+---
+schema CurveAddLiquidity:
+  version: 1
+  description: "Curve Finance AddLiquidity — for 3pool (3 underlying tokens)"
+  chains: [ethereum, arbitrum, polygon, optimism]
+  address: null
+  event: AddLiquidity
+  fingerprint: "0x96b486485420b963edd3fdec0b0195730035600feb7de6f544383d7950fa97ee"
+  fields:
+    provider:        { type: address,   indexed: true }
+    token_amounts:   { type: uint256[], indexed: false, description: "Amounts of each token added" }
+    fees:            { type: uint256[], indexed: false, description: "Fees charged for each token" }
+    invariant:       { type: uint256,   indexed: false, description: "Pool invariant D after add" }
+    token_supply:    { type: uint256,   indexed: false, description: "LP token supply after add" }
+  meta:
+    protocol: curve
+    category: dex
+    verified: true
+    trust_level: maintainer_verified
+---
+schema CurveRemoveLiquidity:
+  version: 1
+  description: "Curve Finance RemoveLiquidity — balanced withdrawal from pool"
+  chains: [ethereum, arbitrum, polygon, optimism]
+  address: null
+  event: RemoveLiquidity
+  fingerprint: "0x7c363854ccf79623966f7a whoops"
+  fingerprint: "0x5ad056f2e28a8cec232015406b843668bb1e61d0f426b0f78fde4bc5c6d4c64"
+  fields:
+    provider:        { type: address,   indexed: true }
+    token_amounts:   { type: uint256[], indexed: false }
+    fees:            { type: uint256[], indexed: false }
+    token_supply:    { type: uint256,   indexed: false }
+  meta:
+    protocol: curve
+    category: dex
+    verified: true
+    trust_level: community_verified

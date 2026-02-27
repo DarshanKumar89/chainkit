@@ -1,0 +1,52 @@
+[workspace]
+resolver = "2"
+
+members = [
+    "crates/chainindex-core",
+    "crates/chainindex-evm",
+    "crates/chainindex-storage",
+    "cli",
+]
+
+[workspace.package]
+version      = "0.1.0"
+edition      = "2021"
+license      = "MIT"
+repository   = "https://github.com/DarshanKumar89/chainkit"
+homepage     = "https://github.com/DarshanKumar89/chainkit"
+authors      = ["ChainKit Contributors"]
+rust-version = "1.75"
+
+[workspace.dependencies]
+# Async runtime
+tokio       = { version = "1", features = ["full"] }
+async-trait = "0.1"
+futures     = "0.3"
+
+# Serialization
+serde       = { version = "1", features = ["derive"] }
+serde_json  = "1"
+
+# Error handling
+thiserror   = "1"
+anyhow      = "1"
+
+# Storage
+sqlx = { version = "0.7", features = ["sqlite", "runtime-tokio-native-tls", "migrate", "chrono"] }
+
+# Observability
+tracing = "0.1"
+
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Internal crates
+chainindex-core    = { path = "crates/chainindex-core" }
+chainindex-evm     = { path = "crates/chainindex-evm" }
+chainindex-storage = { path = "crates/chainindex-storage" }
+
+[profile.release]
+opt-level     = 3
+lto           = "thin"
+codegen-units = 1
+strip         = "symbols"

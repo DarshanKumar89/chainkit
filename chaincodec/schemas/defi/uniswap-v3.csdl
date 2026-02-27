@@ -1,0 +1,63 @@
+schema UniswapV3Swap:
+  version: 2
+  description: "Uniswap V3 Swap event — emitted on every swap through a V3 pool"
+  supersedes: UniswapV2Swap
+  deprecated: false
+  chains: [ethereum, arbitrum, polygon, base, optimism]
+  address: null
+  event: Swap
+  fingerprint: "0xc42079f94a6350d7e6235f29174924f928cc2ac818eb64fed8004e115fbcca67"
+  fields:
+    sender:       { type: address, indexed: true,  description: "Address that initiated the swap" }
+    recipient:    { type: address, indexed: true,  description: "Address that received the output tokens" }
+    amount0:      { type: int256,  indexed: false, description: "Change in token0 (negative = token0 sold)" }
+    amount1:      { type: int256,  indexed: false, description: "Change in token1 (negative = token1 sold)" }
+    sqrtPriceX96: { type: uint160, indexed: false, description: "Pool sqrt price after the swap (Q64.96)" }
+    liquidity:    { type: uint128, indexed: false, description: "Pool liquidity after the swap" }
+    tick:         { type: int24,   indexed: false, description: "Current tick after the swap" }
+  meta:
+    protocol: uniswap-v3
+    category: dex
+    verified: true
+    trust_level: maintainer_verified
+---
+schema UniswapV3Mint:
+  version: 1
+  description: "Uniswap V3 Mint event — emitted when liquidity is added to a pool"
+  chains: [ethereum, arbitrum, polygon, base, optimism]
+  address: null
+  event: Mint
+  fingerprint: "0x7a53080ba414158be7ec69b987b5fb7d07dee101fe85488f0853ae16239d0bde"
+  fields:
+    sender:      { type: address, indexed: false }
+    owner:       { type: address, indexed: true  }
+    tickLower:   { type: int24,   indexed: true  }
+    tickUpper:   { type: int24,   indexed: true  }
+    amount:      { type: uint128, indexed: false }
+    amount0:     { type: uint256, indexed: false }
+    amount1:     { type: uint256, indexed: false }
+  meta:
+    protocol: uniswap-v3
+    category: dex
+    verified: true
+    trust_level: maintainer_verified
+---
+schema UniswapV3Burn:
+  version: 1
+  description: "Uniswap V3 Burn event — emitted when liquidity is removed from a pool"
+  chains: [ethereum, arbitrum, polygon, base, optimism]
+  address: null
+  event: Burn
+  fingerprint: "0x0c396cd989a39f4459b5fa1aed6a9a8dcdbc45908acfd67e028cd568da98982c"
+  fields:
+    owner:     { type: address, indexed: true  }
+    tickLower: { type: int24,   indexed: true  }
+    tickUpper: { type: int24,   indexed: true  }
+    amount:    { type: uint128, indexed: false }
+    amount0:   { type: uint256, indexed: false }
+    amount1:   { type: uint256, indexed: false }
+  meta:
+    protocol: uniswap-v3
+    category: dex
+    verified: true
+    trust_level: maintainer_verified

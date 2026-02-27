@@ -1,0 +1,55 @@
+schema OpenSeaOrderFulfilled:
+  version: 1
+  description: "OpenSea Seaport 1.5 OrderFulfilled — NFT sale/purchase event"
+  chains: [ethereum, arbitrum, base, polygon, optimism, avalanche, bsc]
+  address:
+    - "0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC"  # Seaport 1.5
+    - "0x00000000000001ad428e4906aE43D8F9852d0dD6"  # Seaport 1.4
+    - "0x00000000006c3852cbEf3e08E8dF289169EdE581"  # Seaport 1.1
+  event: OrderFulfilled
+  fingerprint: "0x9d9af8e38d66c62e2c12f0225249fd9d721c54b83f48d9352c97c6cacdcb6f31"
+  fields:
+    orderHash:  { type: bytes32, indexed: false, description: "Unique order hash" }
+    offerer:    { type: address, indexed: true,  description: "Order creator (seller)" }
+    zone:       { type: address, indexed: true,  description: "Optional order zone contract" }
+    recipient:  { type: address, indexed: false, description: "NFT recipient (buyer)" }
+  meta:
+    protocol: opensea-seaport
+    category: nft-marketplace
+    verified: true
+    trust_level: maintainer_verified
+---
+schema OpenSeaOrderCancelled:
+  version: 1
+  description: "OpenSea Seaport 1.5 OrderCancelled event"
+  chains: [ethereum, arbitrum, base, polygon, optimism]
+  address:
+    - "0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC"
+  event: OrderCancelled
+  fingerprint: "0x6bacc01dbe442496d5a67d86f40b7f79e9c416c7e04c2a2e19d0bc8f4f5eb29"
+  fields:
+    orderHash: { type: bytes32, indexed: false }
+    offerer:   { type: address, indexed: true  }
+    zone:      { type: address, indexed: true  }
+  meta:
+    protocol: opensea-seaport
+    category: nft-marketplace
+    verified: true
+    trust_level: maintainer_verified
+---
+schema OpenSeaCounterIncremented:
+  version: 1
+  description: "OpenSea Seaport CounterIncremented — bulk order cancellation"
+  chains: [ethereum, arbitrum, base, polygon, optimism]
+  address:
+    - "0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC"
+  event: CounterIncremented
+  fingerprint: "0x721c20121297512b72821b97f5326877ea8ecf4bb9948fea5bfcb6453074d37f"
+  fields:
+    newCounter: { type: uint256, indexed: false }
+    offerer:    { type: address, indexed: true  }
+  meta:
+    protocol: opensea-seaport
+    category: nft-marketplace
+    verified: true
+    trust_level: maintainer_verified

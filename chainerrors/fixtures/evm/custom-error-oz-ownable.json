@@ -1,0 +1,16 @@
+{
+  "description": "OpenZeppelin OwnableUnauthorizedAccount custom error",
+  "chain": "ethereum",
+  "txHash": "0xabc0000000000000000000000000000000000000000000000000000000000006",
+  "blockNumber": 19000030,
+  "contractAddress": "0xBc4CA0EdA7647A8aB7C2061c2E118A18a936f13D",
+  "revertData": "0x118cdaa7000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045",
+  "expectedKind": "CustomError",
+  "expectedErrorName": "OwnableUnauthorizedAccount",
+  "expectedFields": {
+    "account": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
+  },
+  "expectedConfidence": 0.95,
+  "expectedSelector": "118cdaa7",
+  "note": "selector = keccak256('OwnableUnauthorizedAccount(address)')[..4]"
+}

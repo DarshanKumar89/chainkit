@@ -1,0 +1,38 @@
+schema StargateSwap:
+  version: 1
+  description: "Stargate Finance Swap event — cross-chain token transfer"
+  chains: [ethereum, arbitrum, base, polygon, optimism, avalanche, bsc]
+  address: null
+  event: Swap
+  fingerprint: "0x34660fc8af304464529f48a778e03d03e4d34bcd5f9b6f0cfbf3cd238c642f7"
+  fields:
+    chainId:     { type: uint16,  indexed: true,  description: "Destination chain LayerZero ID" }
+    dstPoolId:   { type: uint256, indexed: true,  description: "Destination pool ID" }
+    from:        { type: address, indexed: true }
+    amountSD:    { type: uint256, indexed: false, description: "Amount in shared decimals" }
+    eqReward:    { type: uint256, indexed: false }
+    eqFee:       { type: uint256, indexed: false }
+    protocolFee: { type: uint256, indexed: false }
+    lpFee:       { type: uint256, indexed: false }
+  meta:
+    protocol: stargate
+    category: bridge
+    verified: true
+    trust_level: community_verified
+---
+schema StargateSwapRemote:
+  version: 1
+  description: "Stargate Finance SwapRemote — cross-chain swap received"
+  chains: [ethereum, arbitrum, base, polygon, optimism, avalanche, bsc]
+  address: null
+  event: SwapRemote
+  fingerprint: "0xfb2b592367452f1c437675bed47f5e1e6c25188c17d7ba01a12eb030bc41ccef"
+  fields:
+    to:          { type: address, indexed: true }
+    amountSD:    { type: uint256, indexed: false }
+    mintAmountSD: { type: uint256, indexed: false }
+  meta:
+    protocol: stargate
+    category: bridge
+    verified: true
+    trust_level: community_verified

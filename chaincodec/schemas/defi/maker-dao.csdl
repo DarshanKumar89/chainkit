@@ -1,0 +1,57 @@
+schema MakerDAOLogNote:
+  version: 1
+  description: "MakerDAO LogNote — generic DSNote event used across many MCD contracts"
+  chains: [ethereum]
+  address: null
+  event: LogNote
+  fingerprint: "0x644843f351d3fba4abcd60109eaff9f54bac8fb8ccf0a0bfdc16a3a93b3d3b48"
+  fields:
+    sig:  { type: bytes4,   indexed: true, description: "Function selector that emitted this note" }
+    usr:  { type: address,  indexed: true, description: "msg.sender" }
+    arg1: { type: bytes32,  indexed: true, description: "First call argument" }
+    arg2: { type: bytes32,  indexed: true, description: "Second call argument" }
+    data: { type: bytes,    indexed: false, description: "Full calldata" }
+  meta:
+    protocol: maker-dao
+    category: lending
+    verified: true
+    trust_level: maintainer_verified
+---
+schema MakerCDPManagerOpen:
+  version: 1
+  description: "MakerDAO CDPManager NewCdp — vault opened"
+  chains: [ethereum]
+  address:
+    - "0x5ef30b9986345249bc32d8928B7ee64DE9435E39"  # CDPManager
+  event: NewCdp
+  fingerprint: "0xd6be0bc178658a382ff4f91c8c68b542aa6b71685b8fe427966b87745c3ea7a2"
+  fields:
+    usr:  { type: address, indexed: true,  description: "CDP owner" }
+    own:  { type: address, indexed: true,  description: "Underlying address" }
+    cdp:  { type: uint256, indexed: false, description: "CDP ID" }
+  meta:
+    protocol: maker-dao
+    category: lending
+    verified: true
+    trust_level: maintainer_verified
+---
+schema MakerVatFrob:
+  version: 1
+  description: "MakerDAO Vat Frob — vault collateral/debt adjustment"
+  chains: [ethereum]
+  address:
+    - "0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B"  # Vat
+  event: Frob
+  fingerprint: "0x7cdd3fde00000000000000000000000000000000000000000000000000000000"
+  fields:
+    ilk: { type: bytes32, indexed: true,  description: "Collateral type identifier" }
+    u:   { type: address, indexed: false, description: "Vault owner" }
+    v:   { type: address, indexed: false, description: "Collateral source" }
+    w:   { type: address, indexed: false, description: "DAI destination" }
+    dink: { type: int256, indexed: false, description: "Change in collateral (ink)" }
+    dart: { type: int256, indexed: false, description: "Change in debt (art)" }
+  meta:
+    protocol: maker-dao
+    category: lending
+    verified: true
+    trust_level: community_verified

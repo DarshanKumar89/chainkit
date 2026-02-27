@@ -1,0 +1,38 @@
+schema EigenLayerDeposit:
+  version: 1
+  description: "EigenLayer StrategyManager Deposit event — LST restaking deposit"
+  chains: [ethereum]
+  address:
+    - "0x858646372CC42E1A627fcE94aa7A7033e7CF075A"  # StrategyManager
+  event: Deposit
+  fingerprint: "0x7cfff908a4b583f36430b25d75964c458d8ede8a99bd61be750e97ee1b2f3a96"
+  fields:
+    staker:   { type: address, indexed: false, description: "Restaker address" }
+    token:    { type: address, indexed: false, description: "Token deposited (e.g. stETH)" }
+    strategy: { type: address, indexed: false, description: "Strategy contract address" }
+    shares:   { type: uint256, indexed: false, description: "Strategy shares received" }
+  meta:
+    protocol: eigenlayer
+    category: restaking
+    verified: true
+    trust_level: community_verified
+---
+schema EigenLayerOperatorRegistered:
+  version: 1
+  description: "EigenLayer DelegationManager OperatorRegistered event"
+  chains: [ethereum]
+  address:
+    - "0x39053D51B77DC0d36036Fc1fCc8Cb819df8Ef37B"  # DelegationManager
+  event: OperatorRegistered
+  fingerprint: "0x8e8485583a2310d41f7c82b9427d0bd49bad74bb9cff9d3402a29d8f9b28a0e2"
+  fields:
+    operator:    { type: address, indexed: true }
+    earningsReceiver: { type: address, indexed: false }
+    delegationApprover: { type: address, indexed: false }
+    stakerOptOutWindowBlocks: { type: uint32, indexed: false }
+    metadataURI: { type: string, indexed: false }
+  meta:
+    protocol: eigenlayer
+    category: restaking
+    verified: true
+    trust_level: community_verified

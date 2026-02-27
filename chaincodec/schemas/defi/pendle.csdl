@@ -1,0 +1,38 @@
+schema PendleSwap:
+  version: 1
+  description: "Pendle Finance Swap event — yield trading on AMM"
+  chains: [ethereum, arbitrum, base, optimism, bsc]
+  address: null
+  event: Swap
+  fingerprint: "0x829000a5bc6a12d46e30cdcecd7c56b1efd88f6d7d059da6734a04f3764557c"
+  fields:
+    caller:      { type: address, indexed: true }
+    receiver:    { type: address, indexed: true }
+    netPtOut:    { type: int256,  indexed: false, description: "Net PT tokens (negative = sold)" }
+    netSyOut:    { type: int256,  indexed: false, description: "Net SY tokens" }
+    netSyFee:    { type: uint256, indexed: false, description: "Swap fee in SY tokens" }
+    netSyToReserve: { type: uint256, indexed: false }
+  meta:
+    protocol: pendle
+    category: yield
+    verified: true
+    trust_level: community_verified
+---
+schema PendleMint:
+  version: 1
+  description: "Pendle Finance Mint — PT + YT minted from SY"
+  chains: [ethereum, arbitrum, base, optimism, bsc]
+  address: null
+  event: Mint
+  fingerprint: "0x3c3c3d81c96e6df25d9e0c30e48c5a7416b0e6e0b2c17028c89ae3248d2aba30"
+  fields:
+    caller:     { type: address, indexed: true }
+    receiver:   { type: address, indexed: true }
+    netSyIn:    { type: uint256, indexed: false }
+    netPtOut:   { type: uint256, indexed: false }
+    netYtOut:   { type: uint256, indexed: false }
+  meta:
+    protocol: pendle
+    category: yield
+    verified: true
+    trust_level: community_verified

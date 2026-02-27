@@ -1,0 +1,63 @@
+schema MorphoSupply:
+  version: 1
+  description: "Morpho Blue Supply event"
+  chains: [ethereum, base]
+  address:
+    - "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb"  # Morpho Blue
+  event: Supply
+  fingerprint: "0xedf8870433c83823eb071d3df1caa8d008f12f6440918c20d75a3602cda30fe0"
+  fields:
+    id:         { type: bytes32, indexed: true,  description: "Market ID" }
+    caller:     { type: address, indexed: true }
+    onBehalf:   { type: address, indexed: true }
+    assets:     { type: uint256, indexed: false }
+    shares:     { type: uint256, indexed: false }
+  meta:
+    protocol: morpho-blue
+    category: lending
+    verified: true
+    trust_level: community_verified
+---
+schema MorphoBorrow:
+  version: 1
+  description: "Morpho Blue Borrow event"
+  chains: [ethereum, base]
+  address:
+    - "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb"
+  event: Borrow
+  fingerprint: "0x570954540bed6b1304a87dfe815a5eda4a648f7097a16240dcd85c9b5fd42a43"
+  fields:
+    id:         { type: bytes32, indexed: true }
+    caller:     { type: address, indexed: true }
+    onBehalf:   { type: address, indexed: true }
+    receiver:   { type: address, indexed: false }
+    assets:     { type: uint256, indexed: false }
+    shares:     { type: uint256, indexed: false }
+  meta:
+    protocol: morpho-blue
+    category: lending
+    verified: true
+    trust_level: community_verified
+---
+schema MorphoLiquidate:
+  version: 1
+  description: "Morpho Blue Liquidate event"
+  chains: [ethereum, base]
+  address:
+    - "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb"
+  event: Liquidate
+  fingerprint: "0xa4946ede45d0c6f06a0f5ce92c9ad3b4751452d2fe0e25575e5a4d0c7f4c0a1"
+  fields:
+    id:                   { type: bytes32, indexed: true }
+    caller:               { type: address, indexed: true }
+    borrower:             { type: address, indexed: true }
+    repaidAssets:         { type: uint256, indexed: false }
+    repaidShares:         { type: uint256, indexed: false }
+    seizedAssets:         { type: uint256, indexed: false }
+    badDebtAssets:        { type: uint256, indexed: false }
+    badDebtShares:        { type: uint256, indexed: false }
+  meta:
+    protocol: morpho-blue
+    category: lending
+    verified: true
+    trust_level: community_verified

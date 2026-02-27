@@ -1,0 +1,31 @@
+[package]
+name        = "chaincodec-batch"
+description = "High-throughput batch decode engine for ChainCodec — Rayon parallel processing"
+keywords    = ["blockchain", "batch", "decoder", "analytics", "rayon"]
+categories  = ["cryptography::cryptocurrencies", "concurrency"]
+version.workspace       = true
+edition.workspace       = true
+license.workspace       = true
+repository.workspace    = true
+homepage.workspace      = true
+documentation           = "https://docs.rs/chaincodec-batch"
+
+[dependencies]
+chaincodec-core     = { workspace = true }
+chaincodec-registry = { workspace = true }
+
+rayon       = { workspace = true }
+serde       = { workspace = true }
+serde_json  = { workspace = true }
+thiserror   = { workspace = true }
+tracing     = { workspace = true }
+
+[[bench]]
+name = "throughput"
+harness = false
+
+[dev-dependencies]
+tokio               = { workspace = true }
+chaincodec-evm      = { workspace = true }
+hex                 = { workspace = true }
+criterion           = { version = "0.5", features = ["html_reports"] }

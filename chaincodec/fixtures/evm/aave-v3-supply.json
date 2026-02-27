@@ -1,0 +1,22 @@
+{
+  "description": "Aave V3 USDC supply on Ethereum mainnet",
+  "chain": "ethereum",
+  "txHash": "0xb3a2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3",
+  "logIndex": 1,
+  "blockNumber": 19000002,
+  "blockTimestamp": 1700000024,
+  "contractAddress": "0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2",
+  "topics": [
+    "0x2b627736bca15cd5381dcf80b0bf11fd197d26ee5ad7347de64a0d0fc3a0e9b",
+    "0x000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "0x0000000000000000000000000000000000000000000000000000000000000000"
+  ],
+  "data": "0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000077359400",
+  "expectedSchema": "AaveV3Supply",
+  "expectedSchemaVersion": 1,
+  "expectedFields": {
+    "reserve": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "amount": "2000000000"
+  }
+}

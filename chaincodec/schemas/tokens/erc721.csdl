@@ -1,0 +1,34 @@
+schema ERC721Transfer:
+  version: 1
+  description: "ERC-721 NFT Transfer event"
+  chains: [ethereum, arbitrum, base, polygon, optimism]
+  address: null
+  event: Transfer
+  fingerprint: "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+  deprecated: false
+  fields:
+    from:    { type: address, indexed: true  }
+    to:      { type: address, indexed: true  }
+    tokenId: { type: uint256, indexed: true  }
+  meta:
+    protocol: erc721
+    category: nft
+    verified: true
+    trust_level: maintainer_verified
+---
+schema ERC721Approval:
+  version: 1
+  description: "ERC-721 single-token approval event"
+  chains: [ethereum, arbitrum, base, polygon, optimism]
+  address: null
+  event: Approval
+  fingerprint: "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925"
+  fields:
+    owner:    { type: address, indexed: true }
+    approved: { type: address, indexed: true }
+    tokenId:  { type: uint256, indexed: true }
+  meta:
+    protocol: erc721
+    category: nft
+    verified: true
+    trust_level: maintainer_verified

@@ -1,0 +1,26 @@
+[package]
+name        = "chaincodec-core"
+description = "Core decoder traits, type normalizer, and shared primitives for ChainCodec"
+keywords    = ["blockchain", "decoder", "abi", "ethereum", "cross-chain"]
+categories  = ["cryptography::cryptocurrencies", "encoding"]
+version.workspace       = true
+edition.workspace       = true
+license.workspace       = true
+repository.workspace    = true
+homepage.workspace      = true
+documentation           = "https://docs.rs/chaincodec-core"
+
+[dependencies]
+serde       = { workspace = true }
+serde_json  = { workspace = true }
+thiserror   = { workspace = true }
+async-trait = { workspace = true }
+bytes       = { workspace = true }
+hex         = { workspace = true }
+chrono      = { workspace = true }
+uuid        = { workspace = true }
+sha2        = { workspace = true }
+tiny-keccak = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }

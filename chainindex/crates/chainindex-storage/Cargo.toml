@@ -1,0 +1,31 @@
+[package]
+name        = "chainindex-storage"
+description = "Storage backends for ChainIndex (memory, SQLite, Postgres)"
+keywords    = ["ethereum", "indexer", "sqlite", "storage", "blockchain"]
+categories  = ["cryptography::cryptocurrencies", "database"]
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+repository.workspace = true
+
+[dependencies]
+chainindex-core = { workspace = true }
+tokio           = { workspace = true }
+async-trait     = { workspace = true }
+serde           = { workspace = true }
+serde_json      = { workspace = true }
+thiserror       = { workspace = true }
+tracing         = { workspace = true }
+chrono          = { workspace = true }
+
+# SQLite (optional)
+sqlx = { workspace = true, optional = true }
+
+[features]
+default = ["memory"]
+memory  = []
+sqlite  = ["dep:sqlx"]
+# postgres = ["dep:sqlx"]  # enable when postgres feature is ready
+
+[dev-dependencies]
+tokio = { workspace = true }

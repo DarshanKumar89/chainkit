@@ -1,0 +1,15 @@
+[package]
+name        = "chaincodec-solana"
+description = "Solana / Anchor IDL decoder for ChainCodec (Phase 2)"
+keywords    = ["solana", "anchor", "idl", "decoder", "blockchain"]
+categories  = ["cryptography::cryptocurrencies"]
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+repository.workspace = true
+
+[dependencies]
+chaincodec-core = { workspace = true }
+serde           = { workspace = true }
+serde_json      = { workspace = true }
+thiserror       = { workspace = true }

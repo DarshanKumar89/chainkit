@@ -1,0 +1,37 @@
+schema WETHDeposit:
+  version: 1
+  description: "WETH Deposit event — emitted when ETH is wrapped to WETH"
+  chains: [ethereum, arbitrum, base, polygon, optimism, avalanche]
+  address:
+    - "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"  # Ethereum mainnet
+    - "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"  # Arbitrum
+    - "0x4200000000000000000000000000000000000006"  # Base/OP/other rollups
+  event: Deposit
+  fingerprint: "0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c"
+  fields:
+    dst:   { type: address, indexed: true,  description: "Recipient of WETH" }
+    wad:   { type: uint256, indexed: false, description: "Amount of ETH deposited (wei)" }
+  meta:
+    protocol: weth
+    category: token
+    verified: true
+    trust_level: maintainer_verified
+---
+schema WETHWithdrawal:
+  version: 1
+  description: "WETH Withdrawal event — emitted when WETH is unwrapped to ETH"
+  chains: [ethereum, arbitrum, base, polygon, optimism, avalanche]
+  address:
+    - "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+    - "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"
+    - "0x4200000000000000000000000000000000000006"
+  event: Withdrawal
+  fingerprint: "0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65"
+  fields:
+    src: { type: address, indexed: true,  description: "Address redeeming WETH" }
+    wad: { type: uint256, indexed: false, description: "Amount of WETH burned (wei)" }
+  meta:
+    protocol: weth
+    category: token
+    verified: true
+    trust_level: maintainer_verified

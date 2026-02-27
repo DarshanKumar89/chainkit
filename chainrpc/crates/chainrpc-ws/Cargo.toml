@@ -1,0 +1,20 @@
+[package]
+name        = "chainrpc-ws"
+description = "WebSocket JSON-RPC transport with auto-reconnect for ChainRPC"
+keywords    = ["ethereum", "rpc", "websocket", "subscribe", "blockchain"]
+categories  = ["cryptography::cryptocurrencies", "network-programming"]
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+repository.workspace = true
+
+[dependencies]
+chainrpc-core         = { workspace = true }
+tokio                 = { workspace = true }
+tokio-tungstenite     = { workspace = true }
+async-trait           = { workspace = true }
+futures               = { workspace = true }
+serde                 = { workspace = true }
+serde_json            = { workspace = true }
+thiserror             = { workspace = true }
+tracing               = { workspace = true }

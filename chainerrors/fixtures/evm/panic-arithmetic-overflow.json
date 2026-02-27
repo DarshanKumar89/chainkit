@@ -1,0 +1,13 @@
+{
+  "description": "Solidity 0.8 arithmetic overflow panic (Panic(0x11))",
+  "chain": "ethereum",
+  "txHash": "0xabc0000000000000000000000000000000000000000000000000000000000002",
+  "blockNumber": 19000001,
+  "contractAddress": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+  "revertData": "0x4e487b710000000000000000000000000000000000000000000000000000000000000011",
+  "expectedKind": "Panic",
+  "expectedPanicCode": 17,
+  "expectedMeaning": "arithmetic overflow or underflow",
+  "expectedConfidence": 1.0,
+  "expectedSelector": "4e487b71"
+}

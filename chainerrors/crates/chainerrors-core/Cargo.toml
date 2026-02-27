@@ -1,0 +1,15 @@
+[package]
+name        = "chainerrors-core"
+description = "Core types and traits for the ChainErrors blockchain error decoder"
+keywords    = ["ethereum", "evm", "error", "revert", "blockchain"]
+categories  = ["cryptography::cryptocurrencies"]
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+repository.workspace = true
+
+[dependencies]
+serde      = { workspace = true }
+serde_json = { workspace = true }
+thiserror  = { workspace = true }
+hex        = { workspace = true }

@@ -1,0 +1,57 @@
+name: chainerrors
+
+on:
+  push:
+    paths:
+      - 'chainerrors/**'
+      - '.github/workflows/chainerrors.yml'
+  pull_request:
+    paths:
+      - 'chainerrors/**'
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  test:
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        rust: [stable]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust ${{ matrix.rust }}
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ matrix.rust }}
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            chainerrors/target
+          key: ${{ runner.os }}-cargo-chainerrors-${{ hashFiles('chainerrors/Cargo.lock') }}
+
+      - name: Format check
+        working-directory: chainerrors
+        run: cargo fmt --check
+
+      - name: Clippy
+        working-directory: chainerrors
+        run: cargo clippy --workspace -- -D warnings
+
+      - name: Test
+        working-directory: chainerrors
+        run: cargo test --workspace
+
+      - name: Build release
+        working-directory: chainerrors
+        run: cargo build --workspace --release

@@ -1,0 +1,37 @@
+[build-system]
+requires = ["maturin>=1.4,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "chaincodec"
+version = "0.1.0"
+description = "Universal blockchain ABI decoder — production-grade EVM event & call decoding"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.8"
+keywords = ["ethereum", "evm", "abi", "blockchain", "decoder", "web3"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Internet",
+]
+
+[project.urls]
+Homepage = "https://github.com/DarshanKumar89/chainkit"
+Repository = "https://github.com/DarshanKumar89/chainkit"
+Documentation = "https://github.com/DarshanKumar89/chainkit/tree/main/chaincodec"
+"Bug Tracker" = "https://github.com/DarshanKumar89/chainkit/issues"
+
+[tool.maturin]
+python-source = "python"
+module-name = "chaincodec._chaincodec"
+features = ["extension-module"]

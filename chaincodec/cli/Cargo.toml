@@ -1,0 +1,28 @@
+[package]
+name        = "chaincodec-cli"
+description = "ChainCodec command-line tool — verify schemas, run golden tests, benchmark decode"
+keywords    = ["blockchain", "cli", "decoder", "schema"]
+categories  = ["command-line-utilities", "cryptography::cryptocurrencies"]
+version.workspace       = true
+edition.workspace       = true
+license.workspace       = true
+repository.workspace    = true
+homepage.workspace      = true
+
+[[bin]]
+name = "chaincodec"
+path = "src/main.rs"
+
+[dependencies]
+chaincodec-core     = { workspace = true }
+chaincodec-evm      = { workspace = true }
+chaincodec-registry = { workspace = true }
+
+clap        = { version = "4", features = ["derive"] }
+serde       = { workspace = true }
+serde_json  = { workspace = true }
+tokio       = { workspace = true }
+anyhow      = { workspace = true }
+hex         = { workspace = true }
+rayon       = { workspace = true }
+walkdir     = "2"

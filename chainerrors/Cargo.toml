@@ -1,0 +1,55 @@
+[workspace]
+resolver = "2"
+
+members = [
+    "crates/chainerrors-core",
+    "crates/chainerrors-evm",
+    "crates/chainerrors-solana",
+    "cli",
+]
+
+[workspace.package]
+version      = "0.1.0"
+edition      = "2021"
+license      = "MIT"
+repository   = "https://github.com/DarshanKumar89/chainkit"
+homepage     = "https://github.com/DarshanKumar89/chainkit"
+authors      = ["ChainKit Contributors"]
+rust-version = "1.75"
+
+[workspace.dependencies]
+# Async runtime
+tokio       = { version = "1", features = ["full"] }
+
+# EVM / ABI decoding
+alloy-core       = { version = "0.8", features = ["abi"] }
+alloy-json-abi   = { version = "0.8" }
+alloy-primitives = { version = "0.8" }
+
+# Serialization
+serde       = { version = "1", features = ["derive"] }
+serde_json  = "1"
+
+# HTTP client (4byte.directory)
+reqwest     = { version = "0.12", features = ["json"] }
+
+# Error handling
+thiserror   = "1"
+anyhow      = "1"
+
+# Hashing
+hex         = "0.4"
+tiny-keccak = { version = "2", features = ["keccak"] }
+
+# Observability
+tracing     = "0.1"
+
+# Internal crates
+chainerrors-core = { path = "crates/chainerrors-core" }
+chainerrors-evm  = { path = "crates/chainerrors-evm" }
+
+[profile.release]
+opt-level     = 3
+lto           = "thin"
+codegen-units = 1
+strip         = "symbols"

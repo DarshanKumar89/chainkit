@@ -1,0 +1,34 @@
+[package]
+name        = "chaincodec-registry"
+description = "Schema Registry for ChainCodec — CSDL parser, in-memory store, version management"
+keywords    = ["blockchain", "schema", "registry", "abi"]
+categories  = ["cryptography::cryptocurrencies", "encoding"]
+version.workspace       = true
+edition.workspace       = true
+license.workspace       = true
+repository.workspace    = true
+homepage.workspace      = true
+documentation           = "https://docs.rs/chaincodec-registry"
+
+[dependencies]
+chaincodec-core = { workspace = true }
+
+serde       = { workspace = true }
+serde_json  = { workspace = true }
+serde_yaml  = { workspace = true }
+indexmap    = { workspace = true }
+thiserror   = { workspace = true }
+sha2        = { workspace = true }
+tiny-keccak = { workspace = true }
+hex         = { workspace = true }
+
+# Optional: HTTP client for remote ABI fetching (Sourcify, Etherscan)
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false, optional = true }
+tokio   = { version = "1", features = ["full"], optional = true }
+
+[features]
+default = []
+remote  = ["reqwest", "tokio"]
+
+[dev-dependencies]
+tokio = { workspace = true }

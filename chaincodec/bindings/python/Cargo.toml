@@ -1,0 +1,23 @@
+[package]
+name    = "chaincodec-python"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Python bindings for ChainCodec — PyO3"
+
+[lib]
+name = "chaincodec"
+crate-type = ["cdylib"]
+
+[dependencies]
+chaincodec-core     = { path = "../../crates/chaincodec-core" }
+chaincodec-evm      = { path = "../../crates/chaincodec-evm" }
+chaincodec-registry = { path = "../../crates/chaincodec-registry" }
+
+pyo3    = { version = "0.22", features = ["extension-module"] }
+serde   = { version = "1", features = ["derive"] }
+serde_json = "1"
+hex     = "0.4"
+
+[features]
+extension-module = ["pyo3/extension-module"]

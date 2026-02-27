@@ -1,0 +1,36 @@
+[package]
+name        = "chainerrors-evm"
+description = "EVM revert/panic/custom error decoder — built on alloy-rs"
+keywords    = ["ethereum", "evm", "error", "revert", "solidity"]
+categories  = ["cryptography::cryptocurrencies"]
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+repository.workspace = true
+
+[dependencies]
+chainerrors-core = { workspace = true }
+
+alloy-core       = { workspace = true }
+alloy-json-abi   = { workspace = true }
+alloy-primitives = { workspace = true }
+
+serde      = { workspace = true }
+serde_json = { workspace = true }
+thiserror  = { workspace = true }
+hex        = { workspace = true }
+tracing    = { workspace = true }
+
+# 4byte.directory integration (behind feature flag for no-std compat)
+reqwest = { workspace = true, optional = true }
+tokio   = { workspace = true, optional = true }
+
+[features]
+default = []
+# Enable async 4byte.directory lookup
+fourbyte = ["dep:reqwest", "dep:tokio"]
+
+[dev-dependencies]
+tokio      = { workspace = true }
+serde_json = { workspace = true }
+hex        = { workspace = true }

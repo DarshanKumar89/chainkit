@@ -1,0 +1,96 @@
+[workspace]
+resolver = "2"
+
+members = [
+    "crates/chaincodec-core",
+    "crates/chaincodec-evm",
+    "crates/chaincodec-solana",
+    "crates/chaincodec-cosmos",
+    "crates/chaincodec-registry",
+    "crates/chaincodec-stream",
+    "crates/chaincodec-batch",
+    "crates/chaincodec-observability",
+    "cli",
+]
+
+[workspace.package]
+version       = "0.1.0"
+edition       = "2021"
+license       = "MIT"
+repository    = "https://github.com/DarshanKumar89/chainkit"
+homepage      = "https://github.com/DarshanKumar89/chainkit/tree/main/chaincodec"
+documentation = "https://docs.rs/chaincodec-core"
+authors       = ["ChainCodec Contributors"]
+rust-version  = "1.75"
+
+[workspace.dependencies]
+# Async runtime
+tokio       = { version = "1", features = ["full"] }
+
+# EVM / ABI decoding
+alloy-core  = { version = "0.8", features = ["abi"] }
+alloy-json-abi = { version = "0.8" }
+alloy-primitives = { version = "0.8" }
+
+# Serialization
+serde       = { version = "1", features = ["derive"] }
+serde_json  = "1"
+serde_yaml  = "0.9"
+
+# Hashing / crypto
+sha2        = "0.10"
+tiny-keccak = { version = "2", features = ["keccak"] }
+hex         = "0.4"
+
+# Error handling
+thiserror   = "1"
+anyhow      = "1"
+
+# Parallelism
+rayon       = "1"
+
+# Storage
+rocksdb     = { version = "0.22", optional = true }
+
+# HTTP server (registry-server)
+axum        = { version = "0.7", features = ["macros"] }
+tower       = "0.4"
+tower-http  = { version = "0.5", features = ["cors", "trace"] }
+
+# Observability
+opentelemetry             = "0.23"
+opentelemetry-otlp        = { version = "0.16", features = ["tonic"] }
+opentelemetry_sdk         = { version = "0.23", features = ["rt-tokio"] }
+tracing                   = "0.1"
+tracing-opentelemetry     = "0.24"
+tracing-subscriber        = { version = "0.3", features = ["env-filter", "json"] }
+
+# Ordered maps (preserves insertion order, used for schema field ordering)
+indexmap    = { version = "2", features = ["serde"] }
+
+# Misc
+uuid        = { version = "1", features = ["v4"] }
+chrono      = { version = "0.4", features = ["serde"] }
+semver      = { version = "1", features = ["serde"] }
+url         = "2"
+bytes       = "1"
+futures     = "0.3"
+async-trait = "0.1"
+
+# Internal crates
+chaincodec-core         = { path = "crates/chaincodec-core" }
+chaincodec-evm          = { path = "crates/chaincodec-evm" }
+chaincodec-registry     = { path = "crates/chaincodec-registry" }
+chaincodec-stream       = { path = "crates/chaincodec-stream" }
+chaincodec-batch        = { path = "crates/chaincodec-batch" }
+chaincodec-observability = { path = "crates/chaincodec-observability" }
+
+[profile.release]
+opt-level   = 3
+lto         = "thin"
+codegen-units = 1
+strip       = "symbols"
+
+[profile.bench]
+inherits    = "release"
+debug       = true

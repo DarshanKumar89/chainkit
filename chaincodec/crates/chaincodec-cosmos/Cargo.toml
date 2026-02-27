@@ -1,0 +1,15 @@
+[package]
+name        = "chaincodec-cosmos"
+description = "Cosmos / CosmWasm event decoder for ChainCodec (Phase 2)"
+keywords    = ["cosmos", "cosmwasm", "decoder", "blockchain"]
+categories  = ["cryptography::cryptocurrencies"]
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+repository.workspace = true
+
+[dependencies]
+chaincodec-core = { workspace = true }
+serde           = { workspace = true }
+serde_json      = { workspace = true }
+thiserror       = { workspace = true }

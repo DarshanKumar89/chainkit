@@ -1,0 +1,19 @@
+[package]
+name        = "chainrpc-cli"
+description = "CLI for ChainRPC — test RPC providers from the terminal"
+keywords    = ["ethereum", "rpc", "cli", "blockchain"]
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+repository.workspace = true
+
+[[bin]]
+name = "chainrpc"
+path = "src/main.rs"
+
+[dependencies]
+chainrpc-core      = { workspace = true }
+chainrpc-http      = { workspace = true }
+chainrpc-providers = { workspace = true }
+tokio              = { workspace = true }
+serde_json         = { workspace = true }

@@ -1,0 +1,19 @@
+[package]
+name        = "chainerrors-cli"
+description = "CLI for ChainErrors — decode EVM reverts from the terminal"
+keywords    = ["ethereum", "evm", "error", "revert", "cli"]
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+repository.workspace = true
+
+[[bin]]
+name = "chainerrors"
+path = "src/main.rs"
+
+[dependencies]
+chainerrors-core = { workspace = true }
+chainerrors-evm  = { workspace = true }
+
+serde_json = { workspace = true }
+hex        = { workspace = true }

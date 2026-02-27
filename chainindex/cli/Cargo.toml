@@ -1,0 +1,18 @@
+[package]
+name        = "chainindex-cli"
+description = "CLI for ChainIndex — inspect and manage indexer state"
+keywords    = ["ethereum", "indexer", "cli", "blockchain"]
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+repository.workspace = true
+
+[[bin]]
+name = "chainindex"
+path = "src/main.rs"
+
+[dependencies]
+chainindex-core    = { workspace = true }
+chainindex-storage = { workspace = true }
+tokio              = { workspace = true }
+serde_json         = { workspace = true }

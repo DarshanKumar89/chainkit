@@ -1,0 +1,58 @@
+# ── Rust ──────────────────────────────────────────────────────────────────────
+target/
+**/*.rs.bk
+Cargo.lock
+
+# ── Node.js ───────────────────────────────────────────────────────────────────
+node_modules/
+*.node
+dist/
+.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp
+.pnp.js
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+.env
+
+# ── WASM ──────────────────────────────────────────────────────────────────────
+pkg/
+*.wasm
+
+# ── IDE / Editor ──────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── CI / Artifacts ────────────────────────────────────────────────────────────
+criterion/
+flamegraph.svg
+perf.data
+
+# ── Secrets ───────────────────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+secrets.toml
+
+/local-planning
+local-planning
+.clause
+.qodo

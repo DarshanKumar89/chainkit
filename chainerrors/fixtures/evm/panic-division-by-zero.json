@@ -1,0 +1,13 @@
+{
+  "description": "Solidity 0.8 division by zero panic (Panic(0x12))",
+  "chain": "arbitrum",
+  "txHash": "0xabc0000000000000000000000000000000000000000000000000000000000003",
+  "blockNumber": 18000000,
+  "contractAddress": "0x912CE59144191C1204E64559FE8253a0e49E6548",
+  "revertData": "0x4e487b710000000000000000000000000000000000000000000000000000000000000012",
+  "expectedKind": "Panic",
+  "expectedPanicCode": 18,
+  "expectedMeaning": "division or modulo by zero",
+  "expectedConfidence": 1.0,
+  "expectedSelector": "4e487b71"
+}

@@ -1,0 +1,35 @@
+schema ERC20Transfer:
+  version: 1
+  description: "ERC-20 standard Transfer event — emitted on every token transfer"
+  chains: [ethereum, arbitrum, base, polygon, optimism, avalanche, bsc]
+  address: null
+  event: Transfer
+  fingerprint: "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+  deprecated: false
+  fields:
+    from:   { type: address, indexed: true,  description: "Sender address" }
+    to:     { type: address, indexed: true,  description: "Recipient address" }
+    value:  { type: uint256, indexed: false, description: "Token amount in smallest unit" }
+  meta:
+    protocol: erc20
+    category: token
+    verified: true
+    trust_level: maintainer_verified
+---
+schema ERC20Approval:
+  version: 1
+  description: "ERC-20 standard Approval event — emitted when an allowance is set"
+  chains: [ethereum, arbitrum, base, polygon, optimism, avalanche, bsc]
+  address: null
+  event: Approval
+  fingerprint: "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925"
+  deprecated: false
+  fields:
+    owner:   { type: address, indexed: true }
+    spender: { type: address, indexed: true }
+    value:   { type: uint256, indexed: false }
+  meta:
+    protocol: erc20
+    category: token
+    verified: true
+    trust_level: maintainer_verified

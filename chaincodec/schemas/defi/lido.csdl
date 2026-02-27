@@ -1,0 +1,74 @@
+schema LidoSubmitted:
+  version: 1
+  description: "Lido stETH Submitted event — emitted when ETH is staked via Lido"
+  chains: [ethereum]
+  address:
+    - "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84"  # stETH
+  event: Submitted
+  fingerprint: "0x96a25c8ce0baabc1fdefd93e9ed25d8e092a3332f3aa9a41722b5697231d1d1a"
+  fields:
+    sender:        { type: address, indexed: true, description: "Address that sent ETH" }
+    amount:        { type: uint256, indexed: false, description: "Amount of ETH staked (wei)" }
+    referral:      { type: address, indexed: false, description: "Referral address (0x0 if none)" }
+  meta:
+    protocol: lido
+    category: liquid-staking
+    verified: true
+    trust_level: maintainer_verified
+---
+schema LidoTransferShares:
+  version: 1
+  description: "Lido TransferShares event — emitted alongside stETH Transfer events"
+  chains: [ethereum]
+  address:
+    - "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84"
+  event: TransferShares
+  fingerprint: "0x9d9c909296d9c674451a5b0f52daa5c0f67bfb4a7a28a70a8d40b5d71e4b2ce"
+  fields:
+    from:         { type: address, indexed: true }
+    to:           { type: address, indexed: true }
+    sharesValue:  { type: uint256, indexed: false, description: "Amount of stETH shares transferred" }
+  meta:
+    protocol: lido
+    category: liquid-staking
+    verified: true
+    trust_level: maintainer_verified
+---
+schema LidoSharesBurnt:
+  version: 1
+  description: "Lido SharesBurnt event — emitted when withdrawal is finalized"
+  chains: [ethereum]
+  address:
+    - "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84"
+  event: SharesBurnt
+  fingerprint: "0x8877d89e40ab47a9acf3aaafbf0e4a8d8e7fb2bd4e68c3e99b71ee73b17c21d"
+  fields:
+    account:           { type: address, indexed: true }
+    preRebaseTokenAmount: { type: uint256, indexed: false }
+    postRebaseTokenAmount: { type: uint256, indexed: false }
+    sharesAmount:      { type: uint256, indexed: false }
+  meta:
+    protocol: lido
+    category: liquid-staking
+    verified: true
+    trust_level: maintainer_verified
+---
+schema LidoWithdrawalRequested:
+  version: 1
+  description: "Lido WithdrawalRequested event — stETH withdrawal NFT minted"
+  chains: [ethereum]
+  address:
+    - "0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1"  # Lido Withdrawal Queue
+  event: WithdrawalRequested
+  fingerprint: "0x8d67c4a61c1d7649f0f54e8a65cf17bc73985e3e87fd793c5adeeeab3b63e5dd"
+  fields:
+    requestId:  { type: uint256, indexed: true }
+    requestor:  { type: address, indexed: true }
+    owner:      { type: address, indexed: true }
+    amountOfStETH: { type: uint256, indexed: false }
+    amountOfShares: { type: uint256, indexed: false }
+  meta:
+    protocol: lido
+    category: liquid-staking
+    verified: true
+    trust_level: maintainer_verified

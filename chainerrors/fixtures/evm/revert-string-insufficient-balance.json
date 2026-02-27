@@ -1,0 +1,12 @@
+{
+  "description": "ERC-20 require() revert: insufficient balance",
+  "chain": "ethereum",
+  "txHash": "0xabc0000000000000000000000000000000000000000000000000000000000001",
+  "blockNumber": 19000000,
+  "contractAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+  "revertData": "0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001e4e6f7420656e6f75676820746f6b656e7320746f207472616e73666572000000",
+  "expectedKind": "RevertString",
+  "expectedMessage": "Not enough tokens to transfer",
+  "expectedConfidence": 1.0,
+  "expectedSelector": "08c379a0"
+}

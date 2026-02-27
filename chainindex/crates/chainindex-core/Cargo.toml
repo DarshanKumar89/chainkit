@@ -1,0 +1,22 @@
+[package]
+name        = "chainindex-core"
+description = "Core traits, block tracker, reorg detection, and checkpoint management for ChainIndex"
+keywords    = ["ethereum", "indexer", "reorg", "blockchain", "index"]
+categories  = ["cryptography::cryptocurrencies"]
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+repository.workspace = true
+
+[dependencies]
+tokio       = { workspace = true }
+async-trait = { workspace = true }
+futures     = { workspace = true }
+serde       = { workspace = true }
+serde_json  = { workspace = true }
+thiserror   = { workspace = true }
+tracing     = { workspace = true }
+chrono      = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }

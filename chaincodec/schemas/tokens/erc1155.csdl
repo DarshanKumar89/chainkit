@@ -1,0 +1,54 @@
+schema ERC1155TransferSingle:
+  version: 1
+  description: "ERC-1155 single token transfer event"
+  chains: [ethereum, arbitrum, base, polygon, optimism, avalanche, bsc]
+  address: null
+  event: TransferSingle
+  fingerprint: "0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62"
+  fields:
+    operator: { type: address, indexed: true,  description: "Address granted transfer approval" }
+    from:     { type: address, indexed: true,  description: "Source address (0x0 on mint)" }
+    to:       { type: address, indexed: true,  description: "Destination address (0x0 on burn)" }
+    id:       { type: uint256, indexed: false, description: "Token ID transferred" }
+    value:    { type: uint256, indexed: false, description: "Amount of tokens transferred" }
+  meta:
+    protocol: erc1155
+    category: nft
+    verified: true
+    trust_level: maintainer_verified
+---
+schema ERC1155TransferBatch:
+  version: 1
+  description: "ERC-1155 batch transfer event"
+  chains: [ethereum, arbitrum, base, polygon, optimism, avalanche, bsc]
+  address: null
+  event: TransferBatch
+  fingerprint: "0x4a39dc06d4c0dbc64b70af90fd698a233a518aa5d07e595d983b8c0526c8f7fb"
+  fields:
+    operator: { type: address, indexed: true  }
+    from:     { type: address, indexed: true  }
+    to:       { type: address, indexed: true  }
+    ids:      { type: uint256[], indexed: false, description: "Array of token IDs" }
+    values:   { type: uint256[], indexed: false, description: "Array of amounts" }
+  meta:
+    protocol: erc1155
+    category: nft
+    verified: true
+    trust_level: maintainer_verified
+---
+schema ERC1155ApprovalForAll:
+  version: 1
+  description: "ERC-1155 operator approval event"
+  chains: [ethereum, arbitrum, base, polygon, optimism, avalanche, bsc]
+  address: null
+  event: ApprovalForAll
+  fingerprint: "0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31"
+  fields:
+    account:  { type: address, indexed: true  }
+    operator: { type: address, indexed: true  }
+    approved: { type: bool,    indexed: false }
+  meta:
+    protocol: erc1155
+    category: nft
+    verified: true
+    trust_level: maintainer_verified
