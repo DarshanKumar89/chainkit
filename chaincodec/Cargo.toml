@@ -93,15 +93,15 @@ bytes       = "1"
 futures     = "0.3"
 async-trait = "0.1"
 
-# Internal crates
-chaincodec-core         = { path = "crates/chaincodec-core" }
-chaincodec-evm          = { path = "crates/chaincodec-evm" }
-chaincodec-registry     = { path = "crates/chaincodec-registry" }
-chaincodec-stream       = { path = "crates/chaincodec-stream" }
-chaincodec-batch        = { path = "crates/chaincodec-batch" }
-chaincodec-observability = { path = "crates/chaincodec-observability" }
-chaincodec-solana       = { path = "crates/chaincodec-solana" }
-chaincodec-cosmos       = { path = "crates/chaincodec-cosmos" }
+# Internal crates — must include version for `cargo publish` to resolve deps on crates.io
+chaincodec-core         = { path = "crates/chaincodec-core",         version = "0.1.0" }
+chaincodec-evm          = { path = "crates/chaincodec-evm",          version = "0.1.0" }
+chaincodec-registry     = { path = "crates/chaincodec-registry",     version = "0.1.0" }
+chaincodec-stream       = { path = "crates/chaincodec-stream",       version = "0.1.0" }
+chaincodec-batch        = { path = "crates/chaincodec-batch",        version = "0.1.0" }
+chaincodec-observability = { path = "crates/chaincodec-observability", version = "0.1.0" }
+chaincodec-solana       = { path = "crates/chaincodec-solana",       version = "0.1.0" }
+chaincodec-cosmos       = { path = "crates/chaincodec-cosmos",       version = "0.1.0" }
 
 [profile.release]
 opt-level   = 3

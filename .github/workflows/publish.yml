@@ -383,7 +383,10 @@ jobs:
         with:
           target: ${{ matrix.platform.target }}
           manylinux: ${{ matrix.platform.manylinux }}
-          args: --release --out dist --manifest-path chaincodec/bindings/python/Cargo.toml
+          # working-directory so maturin finds Cargo.toml without --manifest-path
+          # (avoids Docker cargo metadata resolution issues with workspace path deps)
+          working-directory: chaincodec/bindings/python
+          args: --release --out dist
           sccache: true
 
       - name: Build wheels (macOS / Windows — native)
@@ -394,7 +397,17 @@ jobs:
             --manifest-path chaincodec/bindings/python/Cargo.toml \
             --target ${{ matrix.platform.target }}
 
-      - name: Upload wheel artifact
+      - name: Upload wheel artifact (Linux)
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-wheel-${{ matrix.platform.name }}
+          # maturin-action with working-directory outputs to chaincodec/bindings/python/dist/
+          path: chaincodec/bindings/python/dist/*.whl
+          if-no-files-found: error
+
+      - name: Upload wheel artifact (macOS / Windows)
+        if: runner.os != 'Linux'
         uses: actions/upload-artifact@v4
         with:
           name: python-wheel-${{ matrix.platform.name }}
@@ -525,7 +538,8 @@ jobs:
         run: echo "version=${GITHUB_REF_NAME#chaincodec-v}" >> "$GITHUB_OUTPUT"
 
       - name: Patch package name + version (web)
-        working-directory: wasm-packages/chaincodec/bindings/wasm/pkg-web
+        # upload-artifact uses common ancestor as root: chaincodec/bindings/wasm/ is stripped
+        working-directory: wasm-packages/pkg-web
         run: |
           node -e "
             const pkg = require('./package.json');
@@ -536,7 +550,7 @@ jobs:
           "
 
       - name: Patch package name + version (node)
-        working-directory: wasm-packages/chaincodec/bindings/wasm/pkg-node
+        working-directory: wasm-packages/pkg-node
         run: |
           node -e "
             const pkg = require('./package.json');
@@ -548,14 +562,14 @@ jobs:
 
       - name: Publish web bundle to npm
         if: github.event.inputs.dry_run != 'true'
-        working-directory: wasm-packages/chaincodec/bindings/wasm/pkg-web
+        working-directory: wasm-packages/pkg-web
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --access public
 
       - name: Publish node bundle to npm
         if: github.event.inputs.dry_run != 'true'
-        working-directory: wasm-packages/chaincodec/bindings/wasm/pkg-node
+        working-directory: wasm-packages/pkg-node
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --access public
