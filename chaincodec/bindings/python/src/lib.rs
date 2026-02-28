@@ -328,7 +328,7 @@ fn dict_to_raw_event(raw: &PyDict) -> PyResult<RawEvent> {
             .unwrap_or(Ok(0))?,
         block_timestamp: raw
             .get_item("block_timestamp")?
-            .map(|v| v.extract::<u64>())
+            .map(|v| v.extract::<i64>())
             .unwrap_or(Ok(0))?,
         log_index: raw
             .get_item("log_index")?
@@ -351,8 +351,8 @@ fn chain_from_str(s: &str) -> chaincodec_core::chain::ChainId {
         "base" => chains::base(),
         "polygon" | "matic" => chains::polygon(),
         "optimism" | "op" => chains::optimism(),
-        "avalanche" | "avax" => chains::avalanche(),
-        "bsc" | "bnb" => chains::bsc(),
+        "avalanche" | "avax" => chaincodec_core::chain::ChainId::evm("avalanche", 43114),
+        "bsc" | "bnb" => chaincodec_core::chain::ChainId::evm("bsc", 56),
         _ => chains::ethereum(),
     }
 }

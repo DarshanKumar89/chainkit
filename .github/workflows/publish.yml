@@ -314,12 +314,12 @@ jobs:
         platform:
           - name: linux-x64
             runner: ubuntu-latest
-            target: x86_64
+            target: x86_64-unknown-linux-gnu
             manylinux: auto
 
           - name: linux-arm64
             runner: ubuntu-latest
-            target: aarch64
+            target: aarch64-unknown-linux-gnu
             manylinux: auto
 
           - name: linux-x64-musl
@@ -355,6 +355,8 @@ jobs:
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform.target }}
 
       - name: Build wheels (Linux manylinux/musllinux via docker)
         if: runner.os == 'Linux'
