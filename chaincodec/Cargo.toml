@@ -38,6 +38,7 @@ tokio       = { version = "1", features = ["full"] }
 
 # EVM / ABI decoding
 alloy-core  = { version = "0.8", features = ["dyn-abi"] }
+alloy-dyn-abi = { version = "0.8" }
 alloy-json-abi = { version = "0.8" }
 alloy-primitives = { version = "0.8" }
 

@@ -7,8 +7,8 @@
 //! - Remaining bytes = ABI-encoded inputs tuple
 //! - Constructor: no selector prefix; all bytes = ABI-encoded constructor args
 
-use alloy_core::alloy_dyn_abi::Specifier;
 use alloy_core::dyn_abi::{DynSolType, DynSolValue};
+use alloy_dyn_abi::Specifier;
 use alloy_json_abi::{Function, JsonAbi};
 use chaincodec_core::{
     call::{DecodedCall, DecodedConstructor},

@@ -12,7 +12,7 @@
 //! ])?;
 //! ```
 
-use alloy_core::alloy_dyn_abi::Specifier;
+use alloy_dyn_abi::Specifier;
 use alloy_core::dyn_abi::{DynSolType, DynSolValue};
 use alloy_json_abi::JsonAbi;
 use alloy_primitives::{Address, FixedBytes, I256, U256};
