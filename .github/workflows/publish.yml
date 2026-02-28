@@ -6,6 +6,14 @@ on:
   push:
     tags:
       - 'chaincodec-v[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (build only, skip all publish steps)'
+        required: true
+        default: 'true'
+        type: choice
+        options: ['true', 'false']
 
 env:
   CARGO_TERM_COLOR: always
@@ -43,51 +51,61 @@ jobs:
           key: ${{ runner.os }}-cargo-publish-${{ hashFiles('chaincodec/Cargo.lock') }}
 
       - name: Publish chaincodec-core
+        if: github.event.inputs.dry_run != 'true'
         working-directory: chaincodec
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: cargo publish -p chaincodec-core
 
       - name: Wait for crates.io to index chaincodec-core
+        if: github.event.inputs.dry_run != 'true'
         run: sleep 30
 
       - name: Publish chaincodec-registry
+        if: github.event.inputs.dry_run != 'true'
         working-directory: chaincodec
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: cargo publish -p chaincodec-registry
 
       - name: Publish chaincodec-evm
+        if: github.event.inputs.dry_run != 'true'
         working-directory: chaincodec
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: cargo publish -p chaincodec-evm
 
       - name: Wait for crates.io to index chaincodec-registry + chaincodec-evm
+        if: github.event.inputs.dry_run != 'true'
         run: sleep 30
 
       - name: Publish chaincodec-batch
+        if: github.event.inputs.dry_run != 'true'
         working-directory: chaincodec
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: cargo publish -p chaincodec-batch
 
       - name: Publish chaincodec-stream
+        if: github.event.inputs.dry_run != 'true'
         working-directory: chaincodec
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: cargo publish -p chaincodec-stream
 
       - name: Publish chaincodec-observability
+        if: github.event.inputs.dry_run != 'true'
         working-directory: chaincodec
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: cargo publish -p chaincodec-observability
 
       - name: Wait for crates.io to index batch + stream + observability
+        if: github.event.inputs.dry_run != 'true'
         run: sleep 30
 
       - name: Publish chaincodec-cli
+        if: github.event.inputs.dry_run != 'true'
         working-directory: chaincodec
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
@@ -224,6 +242,7 @@ jobs:
         run: npm install
 
       - name: Publish to npm
+        if: github.event.inputs.dry_run != 'true'
         working-directory: chaincodec/bindings/node
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -417,6 +436,7 @@ jobs:
         run: ls -la dist/
 
       - name: Publish to PyPI via OIDC trusted publishing
+        if: github.event.inputs.dry_run != 'true'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist/
@@ -527,12 +547,14 @@ jobs:
           "
 
       - name: Publish web bundle to npm
+        if: github.event.inputs.dry_run != 'true'
         working-directory: wasm-packages/chaincodec/bindings/wasm/pkg-web
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --access public
 
       - name: Publish node bundle to npm
+        if: github.event.inputs.dry_run != 'true'
         working-directory: wasm-packages/chaincodec/bindings/wasm/pkg-node
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
