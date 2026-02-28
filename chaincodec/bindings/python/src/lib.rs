@@ -199,8 +199,8 @@ pub struct PyEvmCallDecoder {
 #[pymethods]
 impl PyEvmCallDecoder {
     /// Create from standard Ethereum ABI JSON string.
-    #[classmethod]
-    fn from_abi_json(_cls: &PyAny, abi_json: &str) -> PyResult<Self> {
+    #[staticmethod]
+    fn from_abi_json(abi_json: &str) -> PyResult<Self> {
         let inner = RustCallDecoder::from_abi_json(abi_json)
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))?;
         Ok(Self { inner })
@@ -259,8 +259,8 @@ pub struct PyEvmEncoder {
 
 #[pymethods]
 impl PyEvmEncoder {
-    #[classmethod]
-    fn from_abi_json(_cls: &PyAny, abi_json: &str) -> PyResult<Self> {
+    #[staticmethod]
+    fn from_abi_json(abi_json: &str) -> PyResult<Self> {
         let inner = RustEncoder::from_abi_json(abi_json)
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))?;
         Ok(Self { inner })
