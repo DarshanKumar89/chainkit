@@ -110,7 +110,8 @@ impl EvmEncoder {
                     reason: format!("type parse '{ty_str}': {e}"),
                 }
             })?;
-            let dyn_val = normalized_to_dyn_value(arg, &sol_type)?;
+            let dyn_val = normalized_to_dyn_value(arg, &sol_type)
+                .map_err(|e| DecodeError::AbiDecodeFailed { reason: e })?;
             dyn_values.push(dyn_val);
         }
 
