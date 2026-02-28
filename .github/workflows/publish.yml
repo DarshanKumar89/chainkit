@@ -1,7 +1,11 @@
 name: Publish chaincodec
 
-# Triggered by pushing a chaincodec version tag:
-#   git tag chaincodec-v0.1.0 && git push --tags
+# Triggered by:
+#   1. Pushing a chaincodec version tag:
+#        git tag chaincodec-v0.1.0 && git push --tags
+#   2. Manual via Actions → "Run workflow" (pick any branch):
+#        dry_run=true  → build only, skip publish steps
+#        ref           → optional branch/tag to check out (default: current branch)
 on:
   push:
     tags:
@@ -14,6 +18,10 @@ on:
         default: 'true'
         type: choice
         options: ['true', 'false']
+      ref:
+        description: 'Branch or tag to build from (e.g. main, chaincodec-v0.1.0)'
+        required: false
+        default: ''
 
 env:
   CARGO_TERM_COLOR: always
@@ -38,6 +46,8 @@ jobs:
     environment: Prod
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
@@ -56,9 +66,10 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
-          out=$(cargo publish -p chaincodec-core 2>&1); ec=$?
-          echo "$out"
-          [[ $ec -eq 0 ]] || (echo "$out" | grep -q "already exists") || exit $ec
+          if ! cargo publish -p chaincodec-core 2>&1 | tee /tmp/pub_out; then
+            grep -q "already exists" /tmp/pub_out || { cat /tmp/pub_out; exit 1; }
+            echo "chaincodec-core already published – skip"
+          fi
 
       - name: Wait for crates.io to index chaincodec-core
         if: github.event.inputs.dry_run != 'true'
@@ -70,9 +81,10 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
-          out=$(cargo publish -p chaincodec-registry 2>&1); ec=$?
-          echo "$out"
-          [[ $ec -eq 0 ]] || (echo "$out" | grep -q "already exists") || exit $ec
+          if ! cargo publish -p chaincodec-registry 2>&1 | tee /tmp/pub_out; then
+            grep -q "already exists" /tmp/pub_out || { cat /tmp/pub_out; exit 1; }
+            echo "chaincodec-registry already published – skip"
+          fi
 
       - name: Publish chaincodec-evm
         if: github.event.inputs.dry_run != 'true'
@@ -80,9 +92,10 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
-          out=$(cargo publish -p chaincodec-evm 2>&1); ec=$?
-          echo "$out"
-          [[ $ec -eq 0 ]] || (echo "$out" | grep -q "already exists") || exit $ec
+          if ! cargo publish -p chaincodec-evm 2>&1 | tee /tmp/pub_out; then
+            grep -q "already exists" /tmp/pub_out || { cat /tmp/pub_out; exit 1; }
+            echo "chaincodec-evm already published – skip"
+          fi
 
       - name: Wait for crates.io to index chaincodec-registry + chaincodec-evm
         if: github.event.inputs.dry_run != 'true'
@@ -94,9 +107,10 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
-          out=$(cargo publish -p chaincodec-batch 2>&1); ec=$?
-          echo "$out"
-          [[ $ec -eq 0 ]] || (echo "$out" | grep -q "already exists") || exit $ec
+          if ! cargo publish -p chaincodec-batch 2>&1 | tee /tmp/pub_out; then
+            grep -q "already exists" /tmp/pub_out || { cat /tmp/pub_out; exit 1; }
+            echo "chaincodec-batch already published – skip"
+          fi
 
       - name: Publish chaincodec-stream
         if: github.event.inputs.dry_run != 'true'
@@ -104,9 +118,10 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
-          out=$(cargo publish -p chaincodec-stream 2>&1); ec=$?
-          echo "$out"
-          [[ $ec -eq 0 ]] || (echo "$out" | grep -q "already exists") || exit $ec
+          if ! cargo publish -p chaincodec-stream 2>&1 | tee /tmp/pub_out; then
+            grep -q "already exists" /tmp/pub_out || { cat /tmp/pub_out; exit 1; }
+            echo "chaincodec-stream already published – skip"
+          fi
 
       - name: Publish chaincodec-observability
         if: github.event.inputs.dry_run != 'true'
@@ -114,9 +129,10 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
-          out=$(cargo publish -p chaincodec-observability 2>&1); ec=$?
-          echo "$out"
-          [[ $ec -eq 0 ]] || (echo "$out" | grep -q "already exists") || exit $ec
+          if ! cargo publish -p chaincodec-observability 2>&1 | tee /tmp/pub_out; then
+            grep -q "already exists" /tmp/pub_out || { cat /tmp/pub_out; exit 1; }
+            echo "chaincodec-observability already published – skip"
+          fi
 
       - name: Wait for crates.io to index batch + stream + observability
         if: github.event.inputs.dry_run != 'true'
@@ -128,9 +144,10 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
-          out=$(cargo publish -p chaincodec-cli 2>&1); ec=$?
-          echo "$out"
-          [[ $ec -eq 0 ]] || (echo "$out" | grep -q "already exists") || exit $ec
+          if ! cargo publish -p chaincodec-cli 2>&1 | tee /tmp/pub_out; then
+            grep -q "already exists" /tmp/pub_out || { cat /tmp/pub_out; exit 1; }
+            echo "chaincodec-cli already published – skip"
+          fi
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Job 2: Build Node.js native .node files for all supported platforms
@@ -201,6 +218,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
@@ -239,6 +258,8 @@ jobs:
     environment: Prod
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
 
       - name: Set up Node.js 20
         uses: actions/setup-node@v4
@@ -280,11 +301,18 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
 
       - name: Extract version from tag
         id: version
         shell: bash
-        run: echo "version=${GITHUB_REF_NAME#chaincodec-v}" >> "$GITHUB_OUTPUT"
+        run: |
+          if [[ "$GITHUB_REF_NAME" == chaincodec-v* ]]; then
+            echo "version=${GITHUB_REF_NAME#chaincodec-v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=0.0.0-manual" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -346,7 +374,7 @@ jobs:
   # ─────────────────────────────────────────────────────────────────────────────
   build-python-wheels:
     name: Build Python wheel · ${{ matrix.platform.name }}
-    if: startsWith(github.ref, 'refs/tags/chaincodec-v')
+    if: startsWith(github.ref, 'refs/tags/chaincodec-v') || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       fail-fast: false
@@ -384,6 +412,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
@@ -398,8 +428,16 @@ jobs:
         with:
           targets: ${{ matrix.platform.target }}
 
-      - name: Build wheels (Linux manylinux/musllinux via docker)
-        if: runner.os == 'Linux'
+      # arm64 cross-compilation: use QEMU so the native manylinux2014_aarch64
+      # Docker image (which has Python) runs via emulation on x86_64 runners.
+      - name: Set up QEMU (arm64 emulation)
+        if: matrix.platform.target == 'aarch64-unknown-linux-gnu'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Build wheels (Linux manylinux via docker — x86_64 + arm64)
+        if: runner.os == 'Linux' && matrix.platform.manylinux != 'musllinux_1_1'
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
@@ -409,6 +447,16 @@ jobs:
           working-directory: chaincodec/bindings/python
           args: --release --out dist
           sccache: true
+
+      # musl: the musllinux Docker cross-image has no Python interpreters.
+      # Build directly on the host after installing musl-tools instead.
+      - name: Build wheels (Linux musl — direct maturin, no Docker)
+        if: runner.os == 'Linux' && matrix.platform.manylinux == 'musllinux_1_1'
+        working-directory: chaincodec/bindings/python
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q musl-tools
+          rustup target add x86_64-unknown-linux-musl
+          maturin build --release --out dist --target x86_64-unknown-linux-musl
 
       - name: Build wheels (macOS / Windows — native)
         if: runner.os != 'Linux'
@@ -424,6 +472,7 @@ jobs:
         with:
           name: python-wheel-${{ matrix.platform.name }}
           # maturin-action with working-directory outputs to chaincodec/bindings/python/dist/
+          # direct maturin build also uses chaincodec/bindings/python/dist/ (same cwd)
           path: chaincodec/bindings/python/dist/*.whl
           if-no-files-found: error
 
@@ -441,7 +490,7 @@ jobs:
   publish-pypi-chaincodec:
     name: Publish chaincodec to PyPI
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/chaincodec-v')
+    if: startsWith(github.ref, 'refs/tags/chaincodec-v') || github.event_name == 'workflow_dispatch'
     needs: [build-python-wheels]
     environment:
       name: pypi
@@ -450,6 +499,8 @@ jobs:
       id-token: write  # OIDC trusted publishing
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -487,9 +538,11 @@ jobs:
   build-wasm:
     name: Build WASM package
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/chaincodec-v')
+    if: startsWith(github.ref, 'refs/tags/chaincodec-v') || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
 
       - name: Install Rust stable + wasm32 target
         uses: dtolnay/rust-toolchain@stable
@@ -536,11 +589,13 @@ jobs:
   publish-wasm-npm:
     name: Publish WASM to npm
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/chaincodec-v')
+    if: startsWith(github.ref, 'refs/tags/chaincodec-v') || github.event_name == 'workflow_dispatch'
     needs: [build-wasm]
     environment: Prod
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
 
       - name: Set up Node.js 20
         uses: actions/setup-node@v4
@@ -556,7 +611,13 @@ jobs:
 
       - name: Extract version from tag
         id: version
-        run: echo "version=${GITHUB_REF_NAME#chaincodec-v}" >> "$GITHUB_OUTPUT"
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF_NAME" == chaincodec-v* ]]; then
+            echo "version=${GITHUB_REF_NAME#chaincodec-v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=0.0.0-manual" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Patch package name + version (web)
         # upload-artifact uses common ancestor as root: chaincodec/bindings/wasm/ is stripped
