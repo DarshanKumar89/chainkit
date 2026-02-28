@@ -1,6 +1,7 @@
 [package]
 name        = "chaincodec-registry"
 description = "Schema Registry for ChainCodec — CSDL parser, in-memory store, version management"
+readme.workspace    = true
 keywords    = ["blockchain", "schema", "registry", "abi"]
 categories  = ["cryptography::cryptocurrencies", "encoding"]
 version.workspace       = true

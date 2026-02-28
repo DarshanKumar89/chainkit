@@ -1,6 +1,7 @@
 [package]
 name        = "chaincodec-evm"
 description = "EVM ABI decoder for ChainCodec — built on alloy-rs"
+readme.workspace    = true
 keywords    = ["ethereum", "evm", "abi", "decoder", "blockchain"]
 categories  = ["cryptography::cryptocurrencies", "encoding"]
 version.workspace       = true

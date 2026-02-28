@@ -1,6 +1,7 @@
 [package]
 name        = "chaincodec-cli"
 description = "ChainCodec command-line tool — verify schemas, run golden tests, benchmark decode"
+readme.workspace    = true
 keywords    = ["blockchain", "cli", "decoder", "schema"]
 categories  = ["command-line-utilities", "cryptography::cryptocurrencies"]
 version.workspace       = true

@@ -1,6 +1,7 @@
 [package]
 name        = "chaincodec-solana"
 description = "Solana / Anchor IDL decoder for ChainCodec (Phase 2)"
+readme.workspace    = true
 keywords    = ["solana", "anchor", "idl", "decoder", "blockchain"]
 categories  = ["cryptography::cryptocurrencies"]
 version.workspace    = true
