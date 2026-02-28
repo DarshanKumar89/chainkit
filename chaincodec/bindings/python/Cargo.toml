@@ -1,3 +1,7 @@
+# Mark as standalone workspace — not part of the chaincodec workspace.
+# Required so maturin can run `cargo metadata` without conflicts.
+[workspace]
+
 [package]
 name    = "chaincodec-python"
 version = "0.1.0"

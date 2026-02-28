@@ -7,9 +7,10 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Trust level assigned to a schema in the registry.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum TrustLevel {
+    #[default]
     Unverified,
     CommunityVerified,
     MaintainerVerified,
