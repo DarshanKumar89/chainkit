@@ -373,6 +373,7 @@ jobs:
 
       - name: Build wheels (macOS / Windows — native)
         if: runner.os != 'Linux'
+        shell: bash
         run: |
           maturin build --release --out dist \
             --manifest-path chaincodec/bindings/python/Cargo.toml \

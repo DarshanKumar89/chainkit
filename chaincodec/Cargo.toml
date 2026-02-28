@@ -51,8 +51,7 @@ anyhow      = "1"
 rayon       = "1"
 
 # Storage
-rocksdb     = { version = "0.22", optional = true }
-rusqlite    = { version = "0.31", features = ["bundled"], optional = true }
+rusqlite    = { version = "0.31", features = ["bundled"] }
 
 # WebSocket
 tokio-tungstenite = { version = "0.24", features = ["native-tls"] }
