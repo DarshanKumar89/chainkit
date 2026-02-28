@@ -1,17 +1,11 @@
-name: Publish All Modules
+name: Publish chaincodec
 
-# Triggered by pushing a version tag for any module:
+# Triggered by pushing a chaincodec version tag:
 #   git tag chaincodec-v0.1.0 && git push --tags
-#   git tag chainerrors-v0.1.0 && git push --tags
-#   git tag chainrpc-v0.1.0    && git push --tags
-#   git tag chainindex-v0.1.0  && git push --tags
 on:
   push:
     tags:
       - 'chaincodec-v[0-9]+.[0-9]+.[0-9]+'
-      - 'chainerrors-v[0-9]+.[0-9]+.[0-9]+'
-      - 'chainrpc-v[0-9]+.[0-9]+.[0-9]+'
-      - 'chainindex-v[0-9]+.[0-9]+.[0-9]+'
 
 env:
   CARGO_TERM_COLOR: always
@@ -427,133 +421,7 @@ jobs:
           skip-existing: true
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Job 7: Build Python wheels for chainerrors and publish to PyPI
-  # ─────────────────────────────────────────────────────────────────────────────
-  build-pypi-chainerrors:
-    name: Build + Publish chainerrors to PyPI
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/chainerrors-v')
-    environment:
-      name: pypi
-      url: https://pypi.org/p/chainerrors
-    permissions:
-      id-token: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Install maturin
-        run: pip install maturin
-
-      - name: Build manylinux wheels (x64 + arm64)
-        uses: PyO3/maturin-action@v1
-        with:
-          manylinux: auto
-          args: --release --out dist --manifest-path chainerrors/bindings/python/Cargo.toml
-          sccache: true
-
-      - name: Build macOS wheels
-        run: |
-          rustup target add x86_64-apple-darwin aarch64-apple-darwin
-          maturin build --release --out dist \
-            --manifest-path chainerrors/bindings/python/Cargo.toml \
-            --target universal2-apple-darwin
-        if: runner.os == 'macOS'
-        continue-on-error: true
-
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          packages-dir: dist/
-          skip-existing: true
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # Job 8: Build Python wheels for chainrpc and publish to PyPI
-  # ─────────────────────────────────────────────────────────────────────────────
-  build-pypi-chainrpc:
-    name: Build + Publish chainrpc to PyPI
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/chainrpc-v')
-    environment:
-      name: pypi
-      url: https://pypi.org/p/chainrpc
-    permissions:
-      id-token: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Install maturin
-        run: pip install maturin
-
-      - name: Build manylinux wheels
-        uses: PyO3/maturin-action@v1
-        with:
-          manylinux: auto
-          args: --release --out dist --manifest-path chainrpc/bindings/python/Cargo.toml
-          sccache: true
-
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          packages-dir: dist/
-          skip-existing: true
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # Job 9: Build Python wheels for chainindex and publish to PyPI
-  # ─────────────────────────────────────────────────────────────────────────────
-  build-pypi-chainindex:
-    name: Build + Publish chainindex to PyPI
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/chainindex-v')
-    environment:
-      name: pypi
-      url: https://pypi.org/p/chainindex
-    permissions:
-      id-token: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Install maturin
-        run: pip install maturin
-
-      - name: Build manylinux wheels
-        uses: PyO3/maturin-action@v1
-        with:
-          manylinux: auto
-          args: --release --out dist --manifest-path chainindex/bindings/python/Cargo.toml
-          sccache: true
-
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          packages-dir: dist/
-          skip-existing: true
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # Job 10: Build WASM package (wasm-pack) and publish to npm
+  # Job 7: Build WASM package (wasm-pack) and publish to npm
   #
   # Produces:
   #   @chainfoundry/chaincodec-wasm — ESM bundle for browser (target: web)

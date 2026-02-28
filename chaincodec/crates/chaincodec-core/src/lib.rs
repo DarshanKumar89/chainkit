@@ -14,7 +14,8 @@ pub mod types;
 
 pub use call::{DecodedCall, DecodedConstructor, HumanReadable};
 pub use chain::{ChainFamily, ChainId};
-pub use decoder::{BatchDecodeError, ChainDecoder, DecodeError, ProgressCallback};
+pub use decoder::{ChainDecoder, ProgressCallback};
+pub use error::{BatchDecodeError, DecodeError, RegistryError, StreamError};
 pub use event::{DecodedEvent, EventFingerprint, RawEvent};
 pub use schema::{Schema, SchemaRegistry};
 pub use types::{CanonicalType, NormalizedValue};
