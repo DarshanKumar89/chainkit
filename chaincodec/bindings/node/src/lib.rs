@@ -187,7 +187,7 @@ impl EvmDecoder {
             chain,
             tx_hash: raw.tx_hash.clone(),
             block_number: raw.block_number as u64,
-            block_timestamp: raw.block_timestamp as u64,
+            block_timestamp: raw.block_timestamp as i64,
             log_index: raw.log_index as u32,
             address: raw.address.clone(),
             topics: raw.topics.clone(),
@@ -234,7 +234,7 @@ impl EvmDecoder {
             chain,
             tx_hash: raw.tx_hash,
             block_number: raw.block_number as u64,
-            block_timestamp: raw.block_timestamp as u64,
+            block_timestamp: raw.block_timestamp as i64,
             log_index: raw.log_index as u32,
             address: raw.address,
             topics: raw.topics,
@@ -261,7 +261,7 @@ impl EvmDecoder {
                     chain: chain_from_str(&raw.chain),
                     tx_hash: raw.tx_hash.clone(),
                     block_number: raw.block_number as u64,
-                    block_timestamp: raw.block_timestamp as u64,
+                    block_timestamp: raw.block_timestamp as i64,
                     log_index: raw.log_index as u32,
                     address: raw.address.clone(),
                     topics: raw.topics.clone(),
@@ -332,9 +332,10 @@ impl EvmCallDecoder {
         let errors = serde_json::to_value(&decoded.decode_errors)
             .map_err(|e| Error::from_reason(e.to_string()))?;
 
+        let selector = decoded.selector_hex();
         Ok(JsDecodedCall {
             function_name: decoded.function_name,
-            selector: decoded.selector_hex(),
+            selector,
             inputs,
             decode_errors: errors,
         })
@@ -440,13 +441,12 @@ fn chain_from_str(s: &str) -> chaincodec_core::chain::ChainId {
         "base" => chains::base(),
         "polygon" | "matic" => chains::polygon(),
         "optimism" | "op" => chains::optimism(),
-        "avalanche" | "avax" => chains::avalanche(),
-        "bsc" | "bnb" => chains::bsc(),
+        "avalanche" | "avax" => chaincodec_core::chain::ChainId::evm("avalanche", 43114),
+        "bsc" | "bnb" => chaincodec_core::chain::ChainId::evm("bsc", 56),
         _ => {
             // Try to parse as numeric chain ID
             if let Ok(id) = s.parse::<u64>() {
-                chaincodec_core::chain::ChainId::from_numeric(id)
-                    .unwrap_or_else(|| chains::ethereum())
+                chaincodec_core::chain::ChainId::evm(s.to_string(), id)
             } else {
                 chains::ethereum()
             }

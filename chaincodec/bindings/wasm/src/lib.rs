@@ -172,7 +172,16 @@ impl EvmDecoder {
             .decode_batch(&rust_raws, &registry.inner, ErrorMode::Collect, None)
             .map_err(|e| JsError::new(&e.to_string()))?;
 
-        serde_json::to_string(&result)
+        // BatchDecodeResult doesn't impl Serialize — build JSON manually
+        let events: Vec<serde_json::Value> = result.events
+            .iter()
+            .map(|e| serde_json::to_value(e).unwrap_or(serde_json::Value::Null))
+            .collect();
+        let errors: Vec<serde_json::Value> = result.errors
+            .iter()
+            .map(|(idx, err)| serde_json::json!({ "index": idx, "error": err.to_string() }))
+            .collect();
+        serde_json::to_string(&serde_json::json!({ "events": events, "errors": errors }))
             .map_err(|e| JsError::new(&e.to_string()))
     }
 
@@ -332,8 +341,8 @@ fn chain_from_str(s: &str) -> chaincodec_core::chain::ChainId {
         "base" => chains::base(),
         "polygon" | "matic" => chains::polygon(),
         "optimism" | "op" => chains::optimism(),
-        "avalanche" | "avax" => chains::avalanche(),
-        "bsc" | "bnb" => chains::bsc(),
+        "avalanche" | "avax" => chaincodec_core::chain::ChainId::evm("avalanche", 43114),
+        "bsc" | "bnb" => chaincodec_core::chain::ChainId::evm("bsc", 56),
         _ => chains::ethereum(),
     }
 }
