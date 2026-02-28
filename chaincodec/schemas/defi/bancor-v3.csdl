@@ -1,0 +1,42 @@
+# Bancor V3 — single-sided liquidity and impermanent loss protection
+# TokensDeposited: keccak256("TokensDeposited(bytes32,address,address,uint256,uint256)")
+# TokensWithdrawn: keccak256("TokensWithdrawn(bytes32,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)")
+# TokenTraded:     keccak256("TokenTraded(address,address,address,uint256,uint256,uint256,uint256,uint256,bool)")
+
+schema BancorV3TokenTraded:
+  version: 1
+  chains: [ethereum]
+  event: TokenTraded
+  fingerprint: "0x5c02c2292d8bbf382ec12e9c7e22fb88d5c38059f25cfd5ed07b04e64b42e0b9"
+  fields:
+    contextId:     { type: bytes32, indexed: true,  description: "Unique trade context identifier" }
+    sourceToken:   { type: address, indexed: true,  description: "Input token address" }
+    targetToken:   { type: address, indexed: true,  description: "Output token address" }
+    sourceAmount:  { type: uint256, indexed: false, description: "Input token amount" }
+    targetAmount:  { type: uint256, indexed: false, description: "Output token amount received" }
+    bntAmount:     { type: uint256, indexed: false, description: "BNT intermediate amount" }
+    targetFeeAmount:{ type: uint256, indexed: false, description: "Fee in target token" }
+    bntFeeAmount:  { type: uint256, indexed: false, description: "Fee in BNT" }
+    trader:        { type: address, indexed: true,  description: "Address that initiated the trade" }
+  meta:
+    protocol: bancor-v3
+    category: dex
+    verified: true
+    trust_level: maintainer_verified
+---
+schema BancorV3TokensDeposited:
+  version: 1
+  chains: [ethereum]
+  event: TokensDeposited
+  fingerprint: "0x2c90b4f45c56e2e43ad8e11a5d1b577ddf5e2bac85e2fe01e1a58fcbcc73ce36"
+  fields:
+    contextId:        { type: bytes32, indexed: true,  description: "Operation context" }
+    provider:         { type: address, indexed: true,  description: "Liquidity provider" }
+    token:            { type: address, indexed: true,  description: "Deposited token address" }
+    tokenAmount:      { type: uint256, indexed: false, description: "Amount deposited" }
+    poolTokenAmount:  { type: uint256, indexed: false, description: "Pool tokens received" }
+  meta:
+    protocol: bancor-v3
+    category: dex
+    verified: true
+    trust_level: maintainer_verified

@@ -280,8 +280,9 @@ impl PyEvmEncoder {
 
 // ─── Module definition ────────────────────────────────────────────────────────
 
+// Module name must match the last segment of pyproject.toml module-name = "chaincodec._chaincodec"
 #[pymodule]
-fn chaincodec(_py: Python, m: &PyModule) -> PyResult<()> {
+fn _chaincodec(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<PyMemoryRegistry>()?;
     m.add_class::<PyEvmDecoder>()?;
     m.add_class::<PyEvmCallDecoder>()?;

@@ -1,0 +1,39 @@
+# Chainlink VRF V2 — Verifiable Randomness Function
+# RandomWordsRequested: keccak256("RandomWordsRequested(bytes32,uint256,uint256,uint64,uint16,uint32,uint32,address)")
+# RandomWordsFulfilled: keccak256("RandomWordsFulfilled(uint256,uint256,uint256,bool)")
+
+schema ChainlinkVrfRandomWordsRequested:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, avalanche, bsc]
+  event: RandomWordsRequested
+  fingerprint: "0x63373d1c4696214b898952999c9aaec57dac1ee2723cec59bea6888f489a9772"
+  fields:
+    keyHash:         { type: bytes32, indexed: true,  description: "VRF key hash identifying the oracle" }
+    requestId:       { type: uint256, indexed: false, description: "Unique request ID" }
+    preSeed:         { type: uint256, indexed: false, description: "Pre-seed for randomness" }
+    subId:           { type: uint64,  indexed: true,  description: "VRF subscription ID" }
+    minimumRequestConfirmations: { type: uint16, indexed: false, description: "Min block confirmations" }
+    callbackGasLimit: { type: uint32, indexed: false, description: "Gas limit for fulfillment callback" }
+    numWords:        { type: uint32,  indexed: false, description: "Number of random words requested" }
+    sender:          { type: address, indexed: true,  description: "Requesting contract address" }
+  meta:
+    protocol: chainlink-vrf
+    category: oracle
+    verified: true
+    trust_level: maintainer_verified
+---
+schema ChainlinkVrfRandomWordsFulfilled:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, avalanche, bsc]
+  event: RandomWordsFulfilled
+  fingerprint: "0x7dffc5ae5ee4e2e4df1651cf6ad329a73cebdb728a17c1fade55a5e0a9e49c06"
+  fields:
+    requestId:  { type: uint256, indexed: true,  description: "The request ID being fulfilled" }
+    outputSeed: { type: uint256, indexed: false, description: "Final VRF output seed" }
+    payment:    { type: uint256, indexed: false, description: "LINK payment to oracle" }
+    success:    { type: bool,    indexed: false, description: "True if callback succeeded" }
+  meta:
+    protocol: chainlink-vrf
+    category: oracle
+    verified: true
+    trust_level: maintainer_verified

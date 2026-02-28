@@ -1,0 +1,46 @@
+# GMX V1 — decentralized perpetuals (legacy but still significant volume)
+# IncreasePosition: keccak256("IncreasePosition(bytes32,address,address,address,uint256,uint256,bool,uint256,uint256,uint256,uint256)")
+# DecreasePosition: keccak256("DecreasePosition(bytes32,address,address,address,uint256,uint256,bool,uint256,uint256,uint256,uint256)")
+# ClosePosition: keccak256("ClosePosition(bytes32,uint256,uint256,uint256,uint256,uint256,int256)")
+
+schema GmxV1IncreasePosition:
+  version: 1
+  chains: [arbitrum, avalanche]
+  event: IncreasePosition
+  fingerprint: "0x2fe68525253654c21998f35787a8d0f361905ef647c854092430ab65f2f15022"
+  fields:
+    key:             { type: bytes32, indexed: true,  description: "Unique position key" }
+    account:         { type: address, indexed: false, description: "Position owner" }
+    collateralToken: { type: address, indexed: false, description: "Token used as collateral" }
+    indexToken:      { type: address, indexed: false, description: "Token being longed/shorted" }
+    collateralDelta: { type: uint256, indexed: false, description: "Collateral change in USD (30 decimals)" }
+    sizeDelta:       { type: uint256, indexed: false, description: "Position size change in USD (30 decimals)" }
+    isLong:          { type: bool,    indexed: false, description: "True for long, false for short" }
+    price:           { type: uint256, indexed: false, description: "Index token price at execution (30 decimals)" }
+    fee:             { type: uint256, indexed: false, description: "Position fee in USD (30 decimals)" }
+  meta:
+    protocol: gmx-v1
+    category: derivatives
+    verified: true
+    trust_level: maintainer_verified
+---
+schema GmxV1DecreasePosition:
+  version: 1
+  chains: [arbitrum, avalanche]
+  event: DecreasePosition
+  fingerprint: "0x93d75d64d1f84fc6f430a64fc578bdd4c1e090e90ea2d51773e626d19de56d30"
+  fields:
+    key:             { type: bytes32, indexed: true,  description: "Unique position key" }
+    account:         { type: address, indexed: false, description: "Position owner" }
+    collateralToken: { type: address, indexed: false, description: "Collateral token" }
+    indexToken:      { type: address, indexed: false, description: "Index token" }
+    collateralDelta: { type: uint256, indexed: false, description: "Collateral removed in USD (30 dec)" }
+    sizeDelta:       { type: uint256, indexed: false, description: "Position size reduced in USD (30 dec)" }
+    isLong:          { type: bool,    indexed: false, description: "True for long position" }
+    price:           { type: uint256, indexed: false, description: "Execution price in USD (30 dec)" }
+    fee:             { type: uint256, indexed: false, description: "Fee charged in USD (30 dec)" }
+  meta:
+    protocol: gmx-v1
+    category: derivatives
+    verified: true
+    trust_level: maintainer_verified

@@ -1,0 +1,20 @@
+[package]
+name    = "chainrpc-ffi"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+chainrpc-core = { path = "../../crates/chainrpc-core" }
+chainrpc-http = { path = "../../crates/chainrpc-http" }
+
+tokio      = { version = "1", features = ["full"] }
+serde_json = "1"
+
+[profile.release]
+lto       = true
+strip     = "symbols"
+opt-level = 3

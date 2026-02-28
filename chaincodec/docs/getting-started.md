@@ -132,7 +132,7 @@ chaincodec-stream   = "0.1"   # WebSocket live event stream
 ### TypeScript / Node.js
 
 ```bash
-npm install @chainkit/chaincodec
+npm install @chainfoundry/chaincodec
 ```
 
 ### Python
@@ -144,7 +144,7 @@ pip install chaincodec
 ### Browser / WASM
 
 ```bash
-npm install @chainkit/chaincodec-wasm
+npm install @chainfoundry/chaincodec-wasm
 ```
 
 ### CLI
@@ -253,7 +253,7 @@ The `value` field is `NormalizedValue::BigUint("10000000")` — a decimal string
 ## 5-Minute Quickstart (TypeScript)
 
 ```typescript
-import { EvmDecoder, MemoryRegistry, CsdlParser } from '@chainkit/chaincodec';
+import { EvmDecoder, MemoryRegistry, CsdlParser } from '@chainfoundry/chaincodec';
 import { readFileSync } from 'fs';
 
 // Load schema

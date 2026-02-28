@@ -1,0 +1,23 @@
+[package]
+name    = "chainerrors-python"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[lib]
+name      = "chainerrors"
+crate-type = ["cdylib"]
+
+[dependencies]
+chainerrors-core = { path = "../../crates/chainerrors-core" }
+chainerrors-evm  = { path = "../../crates/chainerrors-evm" }
+
+pyo3       = { version = "0.21", features = ["extension-module"] }
+hex        = "0.4"
+serde      = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+lto       = true
+strip     = "symbols"
+opt-level = 3

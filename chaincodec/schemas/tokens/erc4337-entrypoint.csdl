@@ -1,0 +1,40 @@
+# ERC-4337 EntryPoint — Account Abstraction events
+# UserOperationEvent: keccak256("UserOperationEvent(bytes32,address,address,uint256,bool,uint256,uint256)")
+# AccountDeployed:    keccak256("AccountDeployed(bytes32,address,address,address)")
+# Deployed on every major EVM chain at 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789 (v0.6)
+#                      and 0x0000000071727De22E5E9d8BAf0edAc6f37da032 (v0.7)
+
+schema UserOperationEvent:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, gnosis, avalanche, bsc, scroll, linea, zksync]
+  event: UserOperationEvent
+  fingerprint: "0x49628fd1471006c1482da88028e9ce4dbb080b815c9b0344d39e5a8e6ec1419f"
+  fields:
+    userOpHash:    { type: bytes32, indexed: true,  description: "Hash of the UserOperation" }
+    sender:        { type: address, indexed: true,  description: "Smart account that sent the UserOp" }
+    paymaster:     { type: address, indexed: true,  description: "Paymaster address (zero if none)" }
+    nonce:         { type: uint256, indexed: false, description: "UserOp nonce" }
+    success:       { type: bool,    indexed: false, description: "True if the UserOp execution succeeded" }
+    actualGasCost: { type: uint256, indexed: false, description: "Actual gas cost paid (in wei)" }
+    actualGasUsed: { type: uint256, indexed: false, description: "Actual gas units used" }
+  meta:
+    protocol: erc4337
+    category: account-abstraction
+    verified: true
+    trust_level: maintainer_verified
+---
+schema AccountDeployed:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, gnosis, avalanche, bsc, scroll, linea, zksync]
+  event: AccountDeployed
+  fingerprint: "0xd51a9c61267aa6196961883ecf5ff2da6619c37dac0fa92122513fb32c032d2d"
+  fields:
+    userOpHash: { type: bytes32, indexed: true,  description: "Hash of the UserOperation that triggered deployment" }
+    sender:     { type: address, indexed: true,  description: "Newly deployed smart account address" }
+    factory:    { type: address, indexed: false, description: "Factory contract that deployed the account" }
+    paymaster:  { type: address, indexed: false, description: "Paymaster that sponsored the deployment" }
+  meta:
+    protocol: erc4337
+    category: account-abstraction
+    verified: true
+    trust_level: maintainer_verified

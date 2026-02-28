@@ -1,0 +1,22 @@
+[package]
+name    = "chainrpc-jni"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[lib]
+name       = "chainrpc_jni"
+crate-type = ["cdylib"]
+
+[dependencies]
+chainrpc-core = { path = "../../../../crates/chainrpc-core" }
+chainrpc-http = { path = "../../../../crates/chainrpc-http" }
+
+jni        = { version = "0.21", features = ["invocation"] }
+tokio      = { version = "1", features = ["full"] }
+serde_json = "1"
+
+[profile.release]
+lto       = true
+strip     = "symbols"
+opt-level = 3

@@ -340,9 +340,9 @@ Used by `cargo test` integration tests and `chaincodec test` CLI command.
 
 | Binding | Package | Framework |
 |---------|---------|-----------|
-| TypeScript / Node.js | `@chainkit/chaincodec` | napi-rs (zero-copy Rust ↔ JS) |
+| TypeScript / Node.js | `@chainfoundry/chaincodec` | napi-rs (zero-copy Rust ↔ JS) |
 | Python | `chaincodec` | PyO3 / maturin |
-| Browser WASM | `@chainkit/chaincodec-wasm` | wasm-bindgen |
+| Browser WASM | `@chainfoundry/chaincodec-wasm` | wasm-bindgen |
 
 All three expose: `EvmDecoder`, `EvmCallDecoder`, `EvmEncoder`, `MemoryRegistry`, `Eip712Parser`.
 
@@ -412,7 +412,7 @@ Use `StreamEngine` + `EvmWsListener` to subscribe to USDC Transfer events. Write
 `chaincodec decode-call --calldata 0x... --abi usdc.json` shows exactly what a failed transaction was trying to call. `chaincodec detect-proxy --address 0x... --rpc wss://...` reveals whether you need to fetch the implementation's ABI instead.
 
 ### 4. Protocol TypeScript SDK
-A DeFi protocol ships a TypeScript SDK. They use `@chainkit/chaincodec` to decode their own contract events, so consumers don't need to handle raw ABI bytes. The decode logic is in Rust (fast, correct), exposed via napi-rs (zero-copy), published as npm.
+A DeFi protocol ships a TypeScript SDK. They use `@chainfoundry/chaincodec` to decode their own contract events, so consumers don't need to handle raw ABI bytes. The decode logic is in Rust (fast, correct), exposed via napi-rs (zero-copy), published as npm.
 
 ### 5. Multi-Chain Data Pipeline
 A cross-chain analytics platform covers Ethereum, Arbitrum, Solana, and Osmosis:

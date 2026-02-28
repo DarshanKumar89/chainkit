@@ -1,10 +1,17 @@
-name: Publish chaincodec
+name: Publish All Modules
 
-# Triggered by pushing a version tag, e.g.: git tag chaincodec-v0.1.0 && git push --tags
+# Triggered by pushing a version tag for any module:
+#   git tag chaincodec-v0.1.0 && git push --tags
+#   git tag chainerrors-v0.1.0 && git push --tags
+#   git tag chainrpc-v0.1.0    && git push --tags
+#   git tag chainindex-v0.1.0  && git push --tags
 on:
   push:
     tags:
       - 'chaincodec-v[0-9]+.[0-9]+.[0-9]+'
+      - 'chainerrors-v[0-9]+.[0-9]+.[0-9]+'
+      - 'chainrpc-v[0-9]+.[0-9]+.[0-9]+'
+      - 'chainindex-v[0-9]+.[0-9]+.[0-9]+'
 
 env:
   CARGO_TERM_COLOR: always
@@ -26,6 +33,7 @@ jobs:
   publish-rust:
     name: Publish Rust crates to crates.io
     runs-on: ubuntu-latest
+    environment: Prod
     steps:
       - uses: actions/checkout@v4
 
@@ -189,12 +197,13 @@ jobs:
           if-no-files-found: error
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Job 3: Collect all .node files and publish @chainkit/chaincodec to npm
+  # Job 3: Collect all .node files and publish @chainfoundry/chaincodec to npm
   # ─────────────────────────────────────────────────────────────────────────────
   publish-npm:
-    name: Publish @chainkit/chaincodec to npm
+    name: Publish @chainfoundry/chaincodec to npm
     runs-on: ubuntu-latest
     needs: [build-node-bindings]
+    environment: Prod
     steps:
       - uses: actions/checkout@v4
 
@@ -268,7 +277,7 @@ jobs:
 
             **npm / Node.js**
             ```bash
-            npm install @chainkit/chaincodec
+            npm install @chainfoundry/chaincodec
             ```
 
             **Python (pip)**
@@ -293,4 +302,367 @@ jobs:
             | chaincodec-observability | https://crates.io/crates/chaincodec-observability |
             | chaincodec-cli | https://crates.io/crates/chaincodec-cli |
 
-            **npm:** https://www.npmjs.com/package/@chainkit/chaincodec
+            **npm:** https://www.npmjs.com/package/@chainfoundry/chaincodec
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 5: Build Python wheels for all supported platforms (maturin)
+  #
+  # Produces manylinux2014, musllinux, macOS (x64 + arm64), Windows wheels
+  # for the chaincodec Python package.
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-python-wheels:
+    name: Build Python wheel · ${{ matrix.platform.name }}
+    if: startsWith(github.ref, 'refs/tags/chaincodec-v')
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - name: linux-x64
+            runner: ubuntu-latest
+            target: x86_64
+            manylinux: auto
+
+          - name: linux-arm64
+            runner: ubuntu-latest
+            target: aarch64
+            manylinux: auto
+
+          - name: linux-x64-musl
+            runner: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            manylinux: musllinux_1_1
+
+          - name: macos-x64
+            runner: macos-latest
+            target: x86_64-apple-darwin
+            manylinux: ''
+
+          - name: macos-arm64
+            runner: macos-latest
+            target: aarch64-apple-darwin
+            manylinux: ''
+
+          - name: windows-x64
+            runner: windows-latest
+            target: x86_64-pc-windows-msvc
+            manylinux: ''
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install maturin
+        run: pip install maturin
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build wheels (Linux manylinux/musllinux via docker)
+        if: runner.os == 'Linux'
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          manylinux: ${{ matrix.platform.manylinux }}
+          args: --release --out dist --manifest-path chaincodec/bindings/python/Cargo.toml
+          sccache: true
+
+      - name: Build wheels (macOS / Windows — native)
+        if: runner.os != 'Linux'
+        run: |
+          maturin build --release --out dist \
+            --manifest-path chaincodec/bindings/python/Cargo.toml \
+            --target ${{ matrix.platform.target }}
+
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-wheel-${{ matrix.platform.name }}
+          path: dist/*.whl
+          if-no-files-found: error
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 6: Publish Python wheels to PyPI (maturin publish)
+  # ─────────────────────────────────────────────────────────────────────────────
+  publish-pypi-chaincodec:
+    name: Publish chaincodec to PyPI
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/chaincodec-v')
+    needs: [build-python-wheels]
+    environment:
+      name: pypi
+      url: https://pypi.org/p/chaincodec
+    permissions:
+      id-token: write  # OIDC trusted publishing
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install maturin and twine
+        run: pip install maturin twine
+
+      - name: Download all wheel artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: python-wheel-*
+          path: dist
+          merge-multiple: true
+
+      - name: List wheels
+        run: ls -la dist/
+
+      - name: Publish to PyPI via OIDC trusted publishing
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          skip-existing: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 7: Build Python wheels for chainerrors and publish to PyPI
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-pypi-chainerrors:
+    name: Build + Publish chainerrors to PyPI
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/chainerrors-v')
+    environment:
+      name: pypi
+      url: https://pypi.org/p/chainerrors
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install maturin
+        run: pip install maturin
+
+      - name: Build manylinux wheels (x64 + arm64)
+        uses: PyO3/maturin-action@v1
+        with:
+          manylinux: auto
+          args: --release --out dist --manifest-path chainerrors/bindings/python/Cargo.toml
+          sccache: true
+
+      - name: Build macOS wheels
+        run: |
+          rustup target add x86_64-apple-darwin aarch64-apple-darwin
+          maturin build --release --out dist \
+            --manifest-path chainerrors/bindings/python/Cargo.toml \
+            --target universal2-apple-darwin
+        if: runner.os == 'macOS'
+        continue-on-error: true
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          skip-existing: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 8: Build Python wheels for chainrpc and publish to PyPI
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-pypi-chainrpc:
+    name: Build + Publish chainrpc to PyPI
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/chainrpc-v')
+    environment:
+      name: pypi
+      url: https://pypi.org/p/chainrpc
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install maturin
+        run: pip install maturin
+
+      - name: Build manylinux wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          manylinux: auto
+          args: --release --out dist --manifest-path chainrpc/bindings/python/Cargo.toml
+          sccache: true
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          skip-existing: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 9: Build Python wheels for chainindex and publish to PyPI
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-pypi-chainindex:
+    name: Build + Publish chainindex to PyPI
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/chainindex-v')
+    environment:
+      name: pypi
+      url: https://pypi.org/p/chainindex
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install maturin
+        run: pip install maturin
+
+      - name: Build manylinux wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          manylinux: auto
+          args: --release --out dist --manifest-path chainindex/bindings/python/Cargo.toml
+          sccache: true
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          skip-existing: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 10: Build WASM package (wasm-pack) and publish to npm
+  #
+  # Produces:
+  #   @chainfoundry/chaincodec-wasm — ESM bundle for browser (target: web)
+  #   @chainfoundry/chaincodec-wasm-node — CJS bundle for Node (target: nodejs)
+  #   @chainfoundry/chaincodec-wasm-bundler — for webpack/vite (target: bundler)
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-wasm:
+    name: Build WASM package
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/chaincodec-v')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable + wasm32 target
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-wasm-${{ hashFiles('chaincodec/Cargo.lock') }}
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Install wasm-opt
+        run: |
+          npm install -g wasm-opt
+          wasm-opt --version
+
+      - name: Build WASM (web target — ESM + .wasm)
+        working-directory: chaincodec/bindings/wasm
+        run: wasm-pack build --release --target web --out-dir pkg-web
+
+      - name: Build WASM (nodejs target — CJS)
+        working-directory: chaincodec/bindings/wasm
+        run: wasm-pack build --release --target nodejs --out-dir pkg-node
+
+      - name: Build WASM (bundler target — for webpack/vite)
+        working-directory: chaincodec/bindings/wasm
+        run: wasm-pack build --release --target bundler --out-dir pkg-bundler
+
+      - name: Upload WASM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-packages
+          path: |
+            chaincodec/bindings/wasm/pkg-web/
+            chaincodec/bindings/wasm/pkg-node/
+            chaincodec/bindings/wasm/pkg-bundler/
+
+  publish-wasm-npm:
+    name: Publish WASM to npm
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/chaincodec-v')
+    needs: [build-wasm]
+    environment: Prod
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Download WASM artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: wasm-packages
+          path: wasm-packages
+
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#chaincodec-v}" >> "$GITHUB_OUTPUT"
+
+      - name: Patch package name + version (web)
+        working-directory: wasm-packages/chaincodec/bindings/wasm/pkg-web
+        run: |
+          node -e "
+            const pkg = require('./package.json');
+            pkg.name = '@chainfoundry/chaincodec-wasm';
+            pkg.version = '${{ steps.version.outputs.version }}';
+            pkg.description = 'WebAssembly bindings for chaincodec — browser ESM bundle';
+            require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+          "
+
+      - name: Patch package name + version (node)
+        working-directory: wasm-packages/chaincodec/bindings/wasm/pkg-node
+        run: |
+          node -e "
+            const pkg = require('./package.json');
+            pkg.name = '@chainfoundry/chaincodec-wasm-node';
+            pkg.version = '${{ steps.version.outputs.version }}';
+            pkg.description = 'WebAssembly bindings for chaincodec — Node.js CJS bundle';
+            require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+          "
+
+      - name: Publish web bundle to npm
+        working-directory: wasm-packages/chaincodec/bindings/wasm/pkg-web
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
+
+      - name: Publish node bundle to npm
+        working-directory: wasm-packages/chaincodec/bindings/wasm/pkg-node
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public

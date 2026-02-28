@@ -1,0 +1,30 @@
+[build-system]
+requires      = ["maturin>=1.4,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "chainindex"
+version = "0.1.0"
+description = "High-performance EVM blockchain indexer with reorg detection and pluggable storage"
+readme = "../../README.md"
+license = { text = "MIT" }
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Database",
+    "Intended Audience :: Developers",
+]
+keywords = ["ethereum", "indexer", "blockchain", "evm", "reorg", "web3", "events"]
+
+[project.urls]
+Homepage      = "https://github.com/DarshanKumar89/chainkit"
+Repository    = "https://github.com/DarshanKumar89/chainkit"
+Documentation = "https://docs.rs/chainindex-core"
+
+[tool.maturin]
+module-name   = "chainindex"
+python-source = "python"
+features      = ["pyo3/extension-module"]

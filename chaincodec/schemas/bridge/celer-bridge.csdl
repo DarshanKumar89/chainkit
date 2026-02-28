@@ -1,0 +1,43 @@
+# Celer cBridge — fast cross-chain transfer protocol
+# Send:     keccak256("Send(bytes32,address,address,uint64,uint64,address,uint256,uint64)")
+# Relay:    keccak256("Relay(bytes32,address,address,address,uint64,uint256,bytes32)")
+# Withdraw: keccak256("Withdraw(bytes32,address,address,address,uint64,uint256,bytes32)")
+
+schema CelerBridgeSend:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, avalanche, bsc, fantom]
+  event: Send
+  fingerprint: "0xa47bec428b8f49cbf9c2e60ee72ab89040dab9985cf64a2e1a2dcd43399fb1a1"
+  fields:
+    transferId:    { type: bytes32, indexed: false, description: "Unique transfer identifier" }
+    sender:        { type: address, indexed: false, description: "Transfer sender address" }
+    receiver:      { type: address, indexed: false, description: "Recipient on destination chain" }
+    token:         { type: address, indexed: false, description: "Token being transferred" }
+    amount:        { type: uint256, indexed: false, description: "Transfer amount" }
+    dstChainId:    { type: uint64,  indexed: false, description: "Destination chain ID" }
+    nonce:         { type: uint64,  indexed: false, description: "Sender nonce for replay protection" }
+    maxSlippage:   { type: uint32,  indexed: false, description: "Maximum slippage tolerance (1/1000000)" }
+  meta:
+    protocol: celer-bridge
+    category: bridge
+    verified: true
+    trust_level: maintainer_verified
+---
+schema CelerBridgeRelay:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, avalanche, bsc, fantom]
+  event: Relay
+  fingerprint: "0x79fa08de5149d912dce8e5e8da7a7c17ccdf08dd57247b7c0d149f4816e05c60"
+  fields:
+    transferId:  { type: bytes32, indexed: false, description: "Transfer ID matching the source Send" }
+    sender:      { type: address, indexed: false, description: "Original sender on source chain" }
+    receiver:    { type: address, indexed: false, description: "Recipient on this chain" }
+    token:       { type: address, indexed: false, description: "Relayed token address" }
+    amount:      { type: uint256, indexed: false, description: "Amount relayed after fee" }
+    srcChainId:  { type: uint64,  indexed: false, description: "Source chain ID" }
+    srcTransferId: { type: bytes32, indexed: false, description: "Original transferId on source chain" }
+  meta:
+    protocol: celer-bridge
+    category: bridge
+    verified: true
+    trust_level: maintainer_verified

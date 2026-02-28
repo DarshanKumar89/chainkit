@@ -1,0 +1,51 @@
+# Frax Finance — frxETH liquid staking and sfrxETH vault
+# Deposit:   keccak256("Deposit(address,address,uint256,uint256)") — ERC-4626 pattern
+# Withdraw:  keccak256("Withdraw(address,address,address,uint256,uint256)") — ERC-4626 pattern
+# Submit:    keccak256("Submit(address,uint256)") — ETH → frxETH
+
+schema FraxEtherSubmit:
+  version: 1
+  chains: [ethereum]
+  event: Submit
+  fingerprint: "0x5dac0c1b1112564a045ba943c9d50270893e8e826c49be8e7073adc713ab7bd"
+  fields:
+    caller: { type: address, indexed: true,  description: "Address that submitted ETH" }
+    amount: { type: uint256, indexed: false, description: "ETH submitted in wei, minted as frxETH 1:1" }
+  meta:
+    protocol: frax-ether
+    category: liquid-staking
+    verified: true
+    trust_level: maintainer_verified
+---
+schema FraxEtherDeposit:
+  version: 1
+  chains: [ethereum]
+  event: Deposit
+  fingerprint: "0xdcbc1c05240f31ff3ad067ef1ee35ce4997762752e3a095284754544f4c709d7"
+  fields:
+    caller:   { type: address, indexed: true,  description: "Caller that initiated the deposit" }
+    owner:    { type: address, indexed: true,  description: "Owner of the deposited shares" }
+    assets:   { type: uint256, indexed: false, description: "frxETH assets deposited" }
+    shares:   { type: uint256, indexed: false, description: "sfrxETH shares minted" }
+  meta:
+    protocol: frax-ether
+    category: liquid-staking
+    verified: true
+    trust_level: maintainer_verified
+---
+schema FraxEtherWithdraw:
+  version: 1
+  chains: [ethereum]
+  event: Withdraw
+  fingerprint: "0xfbde797d201c681b91056529119e0b02407c7bb96a4a2c75c01fc9667232c8db"
+  fields:
+    caller:   { type: address, indexed: true,  description: "Caller that initiated the withdraw" }
+    receiver: { type: address, indexed: true,  description: "Receiver of the assets" }
+    owner:    { type: address, indexed: true,  description: "Owner of the shares being redeemed" }
+    assets:   { type: uint256, indexed: false, description: "frxETH assets withdrawn" }
+    shares:   { type: uint256, indexed: false, description: "sfrxETH shares burned" }
+  meta:
+    protocol: frax-ether
+    category: liquid-staking
+    verified: true
+    trust_level: maintainer_verified

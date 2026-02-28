@@ -1,0 +1,20 @@
+[package]
+name    = "chaincodec-ffi"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+chaincodec-core     = { path = "../../crates/chaincodec-core" }
+chaincodec-registry = { path = "../../crates/chaincodec-registry" }
+chaincodec-evm      = { path = "../../crates/chaincodec-evm" }
+
+serde_json  = "1"
+
+[profile.release]
+lto       = true
+strip     = "symbols"
+opt-level = 3

@@ -1,0 +1,39 @@
+# Hop Protocol — rollup-native token bridge
+# TransferSent:     keccak256("TransferSent(bytes32,uint256,address,uint256,uint256,uint256,uint256,uint256,uint256)")
+# TransferFromL1Completed: keccak256("TransferFromL1Completed(address,uint256,uint256,uint256,address,uint256)")
+# TransferBondWithdrawn: keccak256("WithdrawalBonded(bytes32,uint256)")
+
+schema HopTransferSent:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, gnosis]
+  event: TransferSent
+  fingerprint: "0xe35e56c51f64c0b3e68dfe6f7b2d1ca1bb83b2bf0de9aa53d32f48e1d0dab7dc"
+  fields:
+    transferId:          { type: bytes32, indexed: true,  description: "Unique transfer identifier" }
+    chainId:             { type: uint256, indexed: true,  description: "Destination chain ID" }
+    recipient:           { type: address, indexed: true,  description: "Recipient on destination chain" }
+    amount:              { type: uint256, indexed: false, description: "Token amount being bridged" }
+    transferNonce:       { type: uint256, indexed: false, description: "Per-sender nonce" }
+    bonderFee:           { type: uint256, indexed: false, description: "Fee paid to bonder for fast transfer" }
+    index:               { type: uint256, indexed: false, description: "Transfer index for bundle" }
+    amountOutMin:        { type: uint256, indexed: false, description: "Minimum output amount on destination" }
+    deadline:            { type: uint256, indexed: false, description: "Swap deadline on destination" }
+  meta:
+    protocol: hop-bridge
+    category: bridge
+    verified: true
+    trust_level: maintainer_verified
+---
+schema HopWithdrawalBonded:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, gnosis]
+  event: WithdrawalBonded
+  fingerprint: "0x0d0da0df274af9cb85bec9ebf32e2f35d1f85f40609bfdbf9c3beb77af85c8af"
+  fields:
+    transferId: { type: bytes32, indexed: true,  description: "Transfer ID that was bonded" }
+    amount:     { type: uint256, indexed: false, description: "Amount of the bonded withdrawal" }
+  meta:
+    protocol: hop-bridge
+    category: bridge
+    verified: true
+    trust_level: maintainer_verified

@@ -1,0 +1,33 @@
+# Stader Labs — liquid staking infrastructure (ETHx on Ethereum, MaticX, BNBx, etc.)
+# Deposited: keccak256("ETHDeposited(address,uint256,uint256)")
+# StakePoolManagerDeposited: keccak256("UpdatedStakedEthByNode(uint256,uint256)")
+
+schema StaderEthDeposited:
+  version: 1
+  chains: [ethereum]
+  event: ETHDeposited
+  fingerprint: "0x2d0800bbc377ea54a08453c539174a5e55fa7df815c46b950f35b9d320f88f88"
+  fields:
+    caller:        { type: address, indexed: true,  description: "Address that deposited ETH" }
+    depositedAmount: { type: uint256, indexed: false, description: "ETH amount deposited in wei" }
+    receivedCTokens: { type: uint256, indexed: false, description: "ETHx tokens minted" }
+  meta:
+    protocol: stader
+    category: liquid-staking
+    verified: true
+    trust_level: maintainer_verified
+---
+schema StaderWithdrawInitiated:
+  version: 1
+  chains: [ethereum]
+  event: WithdrawInitiated
+  fingerprint: "0x48fd11e8de7c67db394bc2e3fcef07de9c37dd15a547aaaddfca9f07af15f9f6"
+  fields:
+    account:    { type: address, indexed: true,  description: "User initiating withdrawal" }
+    ethXAmount: { type: uint256, indexed: false, description: "ETHx burned for withdrawal" }
+    requestId:  { type: uint256, indexed: false, description: "Withdrawal request ID" }
+  meta:
+    protocol: stader
+    category: liquid-staking
+    verified: true
+    trust_level: maintainer_verified

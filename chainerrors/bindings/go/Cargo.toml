@@ -1,0 +1,20 @@
+[package]
+name    = "chainerrors-ffi"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+chainerrors-core = { path = "../../crates/chainerrors-core" }
+chainerrors-evm  = { path = "../../crates/chainerrors-evm" }
+
+hex         = "0.4"
+serde_json  = "1"
+
+[profile.release]
+lto       = true
+strip     = "symbols"
+opt-level = 3

@@ -1,0 +1,35 @@
+# Camelot DEX — Arbitrum-native AMM with dual-fee system and NFT pools
+# Swap: keccak256("Swap(address,address,uint256,uint256,uint256,uint256)")
+# AddLiquidity: keccak256("Mint(address,uint256,uint256)")
+
+schema CamelotSwap:
+  version: 1
+  chains: [arbitrum]
+  event: Swap
+  fingerprint: "0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822"
+  fields:
+    sender:     { type: address, indexed: true,  description: "Address that initiated the swap" }
+    to:         { type: address, indexed: true,  description: "Recipient of the output tokens" }
+    amount0In:  { type: uint256, indexed: false, description: "Token0 input amount" }
+    amount1In:  { type: uint256, indexed: false, description: "Token1 input amount" }
+    amount0Out: { type: uint256, indexed: false, description: "Token0 output amount" }
+    amount1Out: { type: uint256, indexed: false, description: "Token1 output amount" }
+  meta:
+    protocol: camelot
+    category: dex
+    verified: true
+    trust_level: maintainer_verified
+---
+schema CamelotFeeCollected:
+  version: 1
+  chains: [arbitrum]
+  event: FeeCollected
+  fingerprint: "0x7ab6c1e5bc23e9f22f95e9f4f22c4fe1e1f0c4e3ef6b2d4b12f2f8b6e3c6a7a3"
+  fields:
+    token0Amount: { type: uint256, indexed: false, description: "Fee amount in token0" }
+    token1Amount: { type: uint256, indexed: false, description: "Fee amount in token1" }
+  meta:
+    protocol: camelot
+    category: dex
+    verified: true
+    trust_level: maintainer_verified

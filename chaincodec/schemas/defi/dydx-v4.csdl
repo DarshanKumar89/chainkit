@@ -1,0 +1,40 @@
+# dYdX V4 — standalone Cosmos SDK chain for decentralized perpetuals
+# dYdX V4 runs as its own Cosmos chain (not EVM).
+# Events are Cosmos ABCI events: type="dydxprotocol.clob.EventOrderFill" etc.
+# ChainCodec Cosmos decoder fingerprints = SHA-256("event:<action_string>")[..16]
+# Chain slug: dydx
+
+schema DydxV4OrderFill:
+  version: 1
+  chains: [dydx]
+  event: order_fill
+  fingerprint: "0x01f9a7bb4a0b9ec2c13398bde02e36f3"
+  fields:
+    maker_order_id: { type: str, indexed: false, description: "Maker order clob pair + subaccount + client ID" }
+    taker_order_id: { type: str, indexed: false, description: "Taker order ID" }
+    fill_amount:    { type: uint128, indexed: false, description: "Amount filled in base quantums" }
+    maker_fee:      { type: uint64,  indexed: false, description: "Maker fee in quote quantums (negative = rebate)" }
+    taker_fee:      { type: uint64,  indexed: false, description: "Taker fee in quote quantums" }
+    price:          { type: uint64,  indexed: false, description: "Fill price in quote quantums per base quantum" }
+    liquidity:      { type: str,     indexed: false, description: "MAKER or TAKER" }
+  meta:
+    protocol: dydx-v4
+    category: derivatives
+    verified: true
+    trust_level: maintainer_verified
+---
+schema DydxV4Subaccount:
+  version: 1
+  chains: [dydx]
+  event: subaccount_update
+  fingerprint: "0x7a3fc2a1d0eab4c2b78a5c7d09e0fb41"
+  fields:
+    subaccount_id: { type: str,    indexed: false, description: "Owner address + subaccount number" }
+    perpetual_id:  { type: uint32, indexed: false, description: "Perpetual market identifier" }
+    quantums:      { type: int64,  indexed: false, description: "Net position in base quantums" }
+    funding_index: { type: int64,  indexed: false, description: "Funding index snapshot at update" }
+  meta:
+    protocol: dydx-v4
+    category: derivatives
+    verified: true
+    trust_level: maintainer_verified

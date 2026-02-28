@@ -1,0 +1,79 @@
+# Safe (Gnosis Safe) Multisig Wallet events
+# Most widely deployed smart contract wallet — used by DAOs, protocol treasuries, institutions.
+# Canonical event signatures (for fingerprint verification):
+#   SafeSetup:        keccak256("SafeSetup(address,address[],uint256,address,address)")
+#   ExecutionSuccess: keccak256("ExecutionSuccess(bytes32,uint256)")
+#   ExecutionFailure: keccak256("ExecutionFailure(bytes32,uint256)")
+#   AddedOwner:       keccak256("AddedOwner(address)")
+#   RemovedOwner:     keccak256("RemovedOwner(address)")
+
+schema SafeSetup:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, gnosis, avalanche, bsc]
+  event: SafeSetup
+  fingerprint: "0x141df868a6331af528e38c83b7aa03edc19be66e37ae67f9285bf4f8e3c6a1a8"
+  fields:
+    initiator:       { type: address, indexed: true,  description: "Address that created the Safe" }
+    owners:          { type: address[], indexed: false, description: "Initial owner addresses" }
+    threshold:       { type: uint256, indexed: false, description: "Required confirmations to execute" }
+    initializer:     { type: address, indexed: false, description: "Delegate call target for setup" }
+    fallbackHandler: { type: address, indexed: false, description: "Fallback handler address" }
+  meta:
+    protocol: safe
+    category: wallet
+    verified: true
+    trust_level: maintainer_verified
+---
+schema SafeExecutionSuccess:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, gnosis, avalanche, bsc]
+  event: ExecutionSuccess
+  fingerprint: "0x442e715f626346e8c54381002da614f62bee8d27386535b2521ec8540898556e"
+  fields:
+    txHash:  { type: bytes32, indexed: false, description: "keccak256 hash of the Safe transaction" }
+    payment: { type: uint256, indexed: false, description: "Ether paid for gas refund (0 if none)" }
+  meta:
+    protocol: safe
+    category: wallet
+    verified: true
+    trust_level: maintainer_verified
+---
+schema SafeExecutionFailure:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, gnosis, avalanche, bsc]
+  event: ExecutionFailure
+  fingerprint: "0x23428b18acfb3ea64b08dc0c1d296ea9c09702c09083ca5272e64d115b687d23"
+  fields:
+    txHash:  { type: bytes32, indexed: false, description: "keccak256 hash of the failed Safe transaction" }
+    payment: { type: uint256, indexed: false, description: "Ether paid for gas refund" }
+  meta:
+    protocol: safe
+    category: wallet
+    verified: true
+    trust_level: maintainer_verified
+---
+schema SafeAddedOwner:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, gnosis, avalanche, bsc]
+  event: AddedOwner
+  fingerprint: "0x9465fa0c962cc76958e6373a993326400c1c94f8be2fe3a952adfa7f60b2ea26"
+  fields:
+    owner: { type: address, indexed: false, description: "Address added as a Safe owner" }
+  meta:
+    protocol: safe
+    category: wallet
+    verified: true
+    trust_level: maintainer_verified
+---
+schema SafeRemovedOwner:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, gnosis, avalanche, bsc]
+  event: RemovedOwner
+  fingerprint: "0xf8d49fc529812e9a7c5c50e69c20f0dccc0db8fa95c98bc58cc9a4f1c1299eaf"
+  fields:
+    owner: { type: address, indexed: false, description: "Address removed from Safe owners" }
+  meta:
+    protocol: safe
+    category: wallet
+    verified: true
+    trust_level: maintainer_verified

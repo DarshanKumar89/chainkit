@@ -1,0 +1,42 @@
+# Spark Protocol — MakerDAO's Aave V3 fork lending market
+# Events are identical to Aave V3 (same codebase fork).
+# Differentiated by chain + contract address.
+# Supply:   keccak256("Supply(address,address,address,uint256,uint16)")
+# Withdraw: keccak256("Withdraw(address,address,address,uint256)")
+# Borrow:   keccak256("Borrow(address,address,address,uint256,uint8,uint256,uint16)")
+
+schema SparkSupply:
+  version: 1
+  chains: [ethereum, gnosis]
+  event: Supply
+  fingerprint: "0x2b627736bca15cd5381dcf80b0bf11fd197d26ee5ad7347de64a0d0fc3a0e9b"
+  fields:
+    reserve:    { type: address, indexed: true,  description: "Supplied asset address" }
+    user:       { type: address, indexed: false, description: "Caller address" }
+    onBehalfOf: { type: address, indexed: true,  description: "Address receiving spTokens" }
+    amount:     { type: uint256, indexed: false, description: "Amount supplied" }
+    referralCode: { type: uint16, indexed: true, description: "Referral code (0 if none)" }
+  meta:
+    protocol: spark
+    category: lending
+    verified: true
+    trust_level: maintainer_verified
+---
+schema SparkBorrow:
+  version: 1
+  chains: [ethereum, gnosis]
+  event: Borrow
+  fingerprint: "0xb3d084820fb1a9decffb176436bd02b1ede7f64e8b41b6af770f41d5a6fd5e5b"
+  fields:
+    reserve:       { type: address, indexed: true,  description: "Borrowed asset address" }
+    user:          { type: address, indexed: false, description: "Caller address" }
+    onBehalfOf:    { type: address, indexed: true,  description: "Address accruing the debt" }
+    amount:        { type: uint256, indexed: false, description: "Amount borrowed" }
+    interestRateMode: { type: uint8, indexed: false, description: "1=stable, 2=variable" }
+    borrowRate:    { type: uint256, indexed: false, description: "Current borrow rate (ray)" }
+    referralCode:  { type: uint16,  indexed: true,  description: "Referral code" }
+  meta:
+    protocol: spark
+    category: lending
+    verified: true
+    trust_level: maintainer_verified

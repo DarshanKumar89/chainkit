@@ -1,0 +1,32 @@
+# Chainlink CCIP — Cross-Chain Interoperability Protocol
+# CCIPSendRequested: keccak256("CCIPSendRequested((uint64,address,address,uint64,bytes,address[],uint256[],bytes32[],bytes32[],bytes32))")
+# MessageExecuted:   keccak256("MessageExecuted(bytes32,uint64,address,bytes32)")
+
+schema ChainlinkCcipSendRequested:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, avalanche, bsc]
+  event: CCIPSendRequested
+  fingerprint: "0xd0c3c799bf9e2639de44391e7f524d229b2b55f5b1ea94b2bf7da42f7243dddd"
+  fields:
+    message: { type: bytes, indexed: false, description: "ABI-encoded CCIP message struct (destChainSelector, receiver, data, tokenAmounts, feeToken, extraArgs)" }
+  meta:
+    protocol: chainlink-ccip
+    category: bridge
+    verified: true
+    trust_level: maintainer_verified
+---
+schema ChainlinkCcipMessageReceived:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, avalanche, bsc]
+  event: MessageExecuted
+  fingerprint: "0x9b877de93ea9895756e337442c657f95a34fc68e7eb988bdfa693d5be83016b6"
+  fields:
+    messageId:    { type: bytes32, indexed: false, description: "CCIP message ID" }
+    sourceChainSelector: { type: uint64, indexed: false, description: "Source chain selector" }
+    offRamp:      { type: address, indexed: false, description: "OffRamp contract that delivered the message" }
+    calldataHash: { type: bytes32, indexed: false, description: "keccak256 of the message calldata" }
+  meta:
+    protocol: chainlink-ccip
+    category: bridge
+    verified: true
+    trust_level: maintainer_verified

@@ -32,7 +32,7 @@ switch (platform) {
           if (localFileExisted) {
             nativeBinding = require('./chaincodec.android-arm64.node')
           } else {
-            nativeBinding = require('@chainkit/chaincodec-android-arm64')
+            nativeBinding = require('@chainfoundry/chaincodec-android-arm64')
           }
         } catch (e) {
           loadError = e
@@ -50,7 +50,7 @@ switch (platform) {
           if (localFileExisted) {
             nativeBinding = require('./chaincodec.win32-x64-msvc.node')
           } else {
-            nativeBinding = require('@chainkit/chaincodec-win32-x64-msvc')
+            nativeBinding = require('@chainfoundry/chaincodec-win32-x64-msvc')
           }
         } catch (e) {
           loadError = e
@@ -62,7 +62,7 @@ switch (platform) {
           if (localFileExisted) {
             nativeBinding = require('./chaincodec.win32-arm64-msvc.node')
           } else {
-            nativeBinding = require('@chainkit/chaincodec-win32-arm64-msvc')
+            nativeBinding = require('@chainfoundry/chaincodec-win32-arm64-msvc')
           }
         } catch (e) {
           loadError = e
@@ -78,7 +78,7 @@ switch (platform) {
       if (localFileExisted) {
         nativeBinding = require('./chaincodec.darwin-universal.node')
       } else {
-        nativeBinding = require('@chainkit/chaincodec-darwin-universal')
+        nativeBinding = require('@chainfoundry/chaincodec-darwin-universal')
       }
     } catch {}
     if (!nativeBinding) {
@@ -89,7 +89,7 @@ switch (platform) {
             if (localFileExisted) {
               nativeBinding = require('./chaincodec.darwin-x64.node')
             } else {
-              nativeBinding = require('@chainkit/chaincodec-darwin-x64')
+              nativeBinding = require('@chainfoundry/chaincodec-darwin-x64')
             }
           } catch (e) {
             loadError = e
@@ -101,7 +101,7 @@ switch (platform) {
             if (localFileExisted) {
               nativeBinding = require('./chaincodec.darwin-arm64.node')
             } else {
-              nativeBinding = require('@chainkit/chaincodec-darwin-arm64')
+              nativeBinding = require('@chainfoundry/chaincodec-darwin-arm64')
             }
           } catch (e) {
             loadError = e
@@ -121,7 +121,7 @@ switch (platform) {
             if (localFileExisted) {
               nativeBinding = require('./chaincodec.linux-x64-musl.node')
             } else {
-              nativeBinding = require('@chainkit/chaincodec-linux-x64-musl')
+              nativeBinding = require('@chainfoundry/chaincodec-linux-x64-musl')
             }
           } catch (e) {
             loadError = e
@@ -132,7 +132,7 @@ switch (platform) {
             if (localFileExisted) {
               nativeBinding = require('./chaincodec.linux-x64-gnu.node')
             } else {
-              nativeBinding = require('@chainkit/chaincodec-linux-x64-gnu')
+              nativeBinding = require('@chainfoundry/chaincodec-linux-x64-gnu')
             }
           } catch (e) {
             loadError = e
@@ -145,7 +145,7 @@ switch (platform) {
           if (localFileExisted) {
             nativeBinding = require('./chaincodec.linux-arm64-gnu.node')
           } else {
-            nativeBinding = require('@chainkit/chaincodec-linux-arm64-gnu')
+            nativeBinding = require('@chainfoundry/chaincodec-linux-arm64-gnu')
           }
         } catch (e) {
           loadError = e
@@ -163,7 +163,7 @@ if (!nativeBinding) {
   if (loadError) {
     throw loadError
   }
-  throw new Error('Failed to load native @chainkit/chaincodec binding')
+  throw new Error('Failed to load native @chainfoundry/chaincodec binding')
 }
 
 const { MemoryRegistry, EvmDecoder, EvmCallDecoder, EvmEncoder, Eip712Parser } = nativeBinding

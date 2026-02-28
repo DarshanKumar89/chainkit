@@ -1,0 +1,51 @@
+# CryptoPunks — the original NFT collection (non-standard, no ERC-721)
+# Uses custom marketplace events (not ERC-721 Transfer).
+# PunkBought:  keccak256("PunkBought(uint256,uint256,address,address)")
+# PunkOffered: keccak256("PunkOffered(uint256,uint256,address)")
+# PunkTransfer: keccak256("PunkTransfer(address,address,uint256)")
+
+schema CryptoPunksBought:
+  version: 1
+  chains: [ethereum]
+  event: PunkBought
+  fingerprint: "0x58e5d5a525e3b40bc15abaa38b5882678db1ee68befd2f60bafe3a7fd06db9e3"
+  fields:
+    punkIndex:  { type: uint256, indexed: true,  description: "Punk token ID (0-9999)" }
+    value:      { type: uint256, indexed: false, description: "Sale price in wei" }
+    fromAddress:{ type: address, indexed: true,  description: "Seller address" }
+    toAddress:  { type: address, indexed: false, description: "Buyer address" }
+  meta:
+    protocol: cryptopunks
+    category: nft
+    verified: true
+    trust_level: maintainer_verified
+---
+schema CryptoPunksOffered:
+  version: 1
+  chains: [ethereum]
+  event: PunkOffered
+  fingerprint: "0x3c7b682d5da98001a9b8cbda6c647d2c63d698a4184fd1d55e2ce7b66f5d21eb"
+  fields:
+    punkIndex:  { type: uint256, indexed: true,  description: "Punk token ID listed for sale" }
+    minValue:   { type: uint256, indexed: false, description: "Minimum acceptable offer in wei" }
+    toAddress:  { type: address, indexed: true,  description: "Restricted buyer (zero = open offer)" }
+  meta:
+    protocol: cryptopunks
+    category: nft
+    verified: true
+    trust_level: maintainer_verified
+---
+schema CryptoPunksTransfer:
+  version: 1
+  chains: [ethereum]
+  event: PunkTransfer
+  fingerprint: "0x05af636b70da6819000c49f85b21fa82081c632069bb626f30932034099107d"
+  fields:
+    from:      { type: address, indexed: true,  description: "Previous owner" }
+    to:        { type: address, indexed: true,  description: "New owner" }
+    punkIndex: { type: uint256, indexed: false, description: "Punk token ID transferred" }
+  meta:
+    protocol: cryptopunks
+    category: nft
+    verified: true
+    trust_level: maintainer_verified

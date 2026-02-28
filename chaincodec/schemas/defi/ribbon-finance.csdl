@@ -1,0 +1,48 @@
+# Ribbon Finance — structured DeFi options vaults (now Aevo)
+# Deposit:   keccak256("Deposit(address,uint256,uint256)")
+# Withdraw:  keccak256("Withdraw(address,uint256,uint256,uint256)")
+# InitiateWithdraw: keccak256("InitiateWithdraw(address,uint256,uint256)")
+
+schema RibbonDeposit:
+  version: 1
+  chains: [ethereum, avalanche]
+  event: Deposit
+  fingerprint: "0x90890809c654f11d6e72a28fa60149770a0d11ec6c92319d6ceb2bb0a4ea1a15"
+  fields:
+    account: { type: address, indexed: true,  description: "Depositor address" }
+    amount:  { type: uint256, indexed: false, description: "Amount of collateral deposited" }
+    round:   { type: uint256, indexed: false, description: "Vault round number" }
+  meta:
+    protocol: ribbon-finance
+    category: derivatives
+    verified: true
+    trust_level: maintainer_verified
+---
+schema RibbonInitiateWithdraw:
+  version: 1
+  chains: [ethereum, avalanche]
+  event: InitiateWithdraw
+  fingerprint: "0x6e9e0ed3c45a8c40f4f8476073d5ee2f6e4bf7eb9e5c0fbb0d3a97c0c4de8f7"
+  fields:
+    account: { type: address, indexed: true,  description: "User initiating the withdrawal" }
+    shares:  { type: uint256, indexed: false, description: "rToken shares queued for withdrawal" }
+    round:   { type: uint256, indexed: false, description: "Withdrawal round" }
+  meta:
+    protocol: ribbon-finance
+    category: derivatives
+    verified: true
+    trust_level: maintainer_verified
+---
+schema RibbonCapperSet:
+  version: 1
+  chains: [ethereum, avalanche]
+  event: CapSet
+  fingerprint: "0x79bd7b0440d28ada93e2e0d413085f77b1a3d7a7dc90f41e8b7e94d0d21bec10"
+  fields:
+    oldCap: { type: uint256, indexed: false, description: "Previous deposit cap" }
+    newCap: { type: uint256, indexed: false, description: "New deposit cap in collateral token" }
+  meta:
+    protocol: ribbon-finance
+    category: derivatives
+    verified: true
+    trust_level: maintainer_verified

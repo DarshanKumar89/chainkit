@@ -1,0 +1,47 @@
+# LooksRare — NFT marketplace with LOOKS token rewards
+# TakerAsk:  keccak256("TakerAsk(bytes32,uint256,address,address,address,address,address,uint256,uint256,uint256)")
+# TakerBid:  keccak256("TakerBid(bytes32,uint256,address,address,address,address,address,uint256,uint256,uint256)")
+
+schema LooksRareTakerAsk:
+  version: 1
+  chains: [ethereum]
+  event: TakerAsk
+  fingerprint: "0x68cd251d4d267c6e2034ff0088b990352b97b2002c0476587d0c4da889f11547"
+  fields:
+    orderHash:        { type: bytes32, indexed: false, description: "Order hash identifier" }
+    orderNonce:       { type: uint256, indexed: false, description: "Order nonce for replay protection" }
+    taker:            { type: address, indexed: true,  description: "Taker address (buyer in Ask)" }
+    maker:            { type: address, indexed: true,  description: "Maker address (seller listed)" }
+    strategy:         { type: address, indexed: true,  description: "Strategy contract used" }
+    currency:         { type: address, indexed: false, description: "Payment currency (WETH/etc)" }
+    collection:       { type: address, indexed: false, description: "NFT collection address" }
+    tokenId:          { type: uint256, indexed: false, description: "NFT token ID sold" }
+    amount:           { type: uint256, indexed: false, description: "Number of tokens transferred (1 for ERC-721)" }
+    price:            { type: uint256, indexed: false, description: "Sale price in payment currency" }
+  meta:
+    protocol: looks-rare
+    category: nft
+    verified: true
+    trust_level: maintainer_verified
+---
+schema LooksRareTakerBid:
+  version: 1
+  chains: [ethereum]
+  event: TakerBid
+  fingerprint: "0x95fb6205e23ff6bda16a2d1dba56b9ad7c783f67c96fa149785052f47696f2be"
+  fields:
+    orderHash:        { type: bytes32, indexed: false, description: "Order hash identifier" }
+    orderNonce:       { type: uint256, indexed: false, description: "Order nonce for replay protection" }
+    taker:            { type: address, indexed: true,  description: "Taker address (bidder accepted)" }
+    maker:            { type: address, indexed: true,  description: "Maker address (the lister)" }
+    strategy:         { type: address, indexed: true,  description: "Strategy contract used" }
+    currency:         { type: address, indexed: false, description: "Payment currency" }
+    collection:       { type: address, indexed: false, description: "NFT collection address" }
+    tokenId:          { type: uint256, indexed: false, description: "NFT token ID" }
+    amount:           { type: uint256, indexed: false, description: "Amount transferred" }
+    price:            { type: uint256, indexed: false, description: "Bid price" }
+  meta:
+    protocol: looks-rare
+    category: nft
+    verified: true
+    trust_level: maintainer_verified

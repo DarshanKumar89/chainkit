@@ -761,8 +761,8 @@ fn cmd_info() -> Result<()> {
     println!("                             Avalanche, BSC, and any EVM-compatible chain");
     println!();
     println!("Bindings:");
-    println!("  npm:    @chainkit/chaincodec      (napi-rs)");
+    println!("  npm:    @chainfoundry/chaincodec      (napi-rs)");
     println!("  pypi:   chaincodec                (PyO3/maturin)");
-    println!("  wasm:   @chainkit/chaincodec-wasm (wasm-bindgen)");
+    println!("  wasm:   @chainfoundry/chaincodec-wasm (wasm-bindgen)");
     Ok(())
 }

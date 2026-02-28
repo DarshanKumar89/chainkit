@@ -1,0 +1,48 @@
+# Convex Finance — Curve LP booster and CRV/CVX reward optimization
+# Deposited: keccak256("Deposited(address,uint256,uint256)")
+# Withdrawn: keccak256("Withdrawn(address,uint256,uint256)")
+# RewardPaid: keccak256("RewardPaid(address,uint256)")
+
+schema ConvexDeposited:
+  version: 1
+  chains: [ethereum]
+  event: Deposited
+  fingerprint: "0x73a19dd210f1a7f902193214c0ee91dd35ee5b4d920cba8d519eca65a7b488ca"
+  fields:
+    user:   { type: address, indexed: true,  description: "Address that deposited Curve LP tokens" }
+    poolid: { type: uint256, indexed: true,  description: "Convex pool ID (maps to a Curve LP)" }
+    amount: { type: uint256, indexed: false, description: "Amount of Curve LP tokens deposited" }
+  meta:
+    protocol: convex
+    category: yield
+    verified: true
+    trust_level: maintainer_verified
+---
+schema ConvexWithdrawn:
+  version: 1
+  chains: [ethereum]
+  event: Withdrawn
+  fingerprint: "0x92ccf450a286a957af52509bc1c9939d1a6a481783e142e41e2499f0bb66ebc6"
+  fields:
+    user:   { type: address, indexed: true,  description: "Address that withdrew Curve LP tokens" }
+    poolid: { type: uint256, indexed: true,  description: "Convex pool ID" }
+    amount: { type: uint256, indexed: false, description: "Amount of Curve LP tokens withdrawn" }
+  meta:
+    protocol: convex
+    category: yield
+    verified: true
+    trust_level: maintainer_verified
+---
+schema ConvexRewardPaid:
+  version: 1
+  chains: [ethereum]
+  event: RewardPaid
+  fingerprint: "0xe2403640ba68fed3a2f88b7557551d1993f84b99bb10ff833f3cf8cf7d9b299b"
+  fields:
+    user:   { type: address, indexed: true,  description: "Address receiving the reward" }
+    reward: { type: uint256, indexed: false, description: "Amount of reward tokens paid (CRV or CVX)" }
+  meta:
+    protocol: convex
+    category: yield
+    verified: true
+    trust_level: maintainer_verified

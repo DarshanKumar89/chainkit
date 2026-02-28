@@ -78,7 +78,7 @@ let decoded = decoder.decode_event(&raw, &schema)?;
 
 **Projects to build:**
 
-- **Protocol TypeScript SDK** — ship `npm install @yourprotocol/sdk` where event decoding internally uses `@chainkit/chaincodec`. No hand-written ABI decoder maintained per language
+- **Protocol TypeScript SDK** — ship `npm install @yourprotocol/sdk` where event decoding internally uses `@chainfoundry/chaincodec`. No hand-written ABI decoder maintained per language
 - **Protocol Python SDK** — `pip install yourprotocol` exposes `decode_supply_event(log)` → typed Python dict, backed by the same Rust decoder as the TypeScript version
 - **On-chain notification service** — "alert me when address X is liquidated on Aave" — use `StreamEngine` with the Aave `LiquidationCall` schema to subscribe and react in real time
 - **Protocol health bot** — Telegram/Discord bot that decodes governance votes, large borrows, or staking events and posts human-readable summaries
@@ -115,10 +115,10 @@ let decoded = decoder.decode_event(&raw, &schema)?;
 
 **The problem**: Transaction history UIs display raw data. Decoding it for a clean UI requires ABI fetching + decoding per transaction — typically done by calling a centralized API (Etherscan, Alchemy), creating a dependency and rate-limit risk.
 
-**What ChainCodec gives you**: The WASM binding (`@chainkit/chaincodec-wasm`) runs entirely in the browser — no backend required.
+**What ChainCodec gives you**: The WASM binding (`@chainfoundry/chaincodec-wasm`) runs entirely in the browser — no backend required.
 
 ```javascript
-import init, { EvmDecoder, MemoryRegistry } from '@chainkit/chaincodec-wasm';
+import init, { EvmDecoder, MemoryRegistry } from '@chainfoundry/chaincodec-wasm';
 await init();
 
 const registry = new MemoryRegistry();

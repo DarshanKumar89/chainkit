@@ -32,7 +32,7 @@ thiserror   = "1"
 anyhow      = "1"
 
 # Storage
-sqlx = { version = "0.7", features = ["sqlite", "runtime-tokio-native-tls", "migrate", "chrono"] }
+sqlx = { version = "0.7", features = ["sqlite", "postgres", "runtime-tokio-native-tls", "migrate", "chrono", "json"] }
 
 # Observability
 tracing = "0.1"

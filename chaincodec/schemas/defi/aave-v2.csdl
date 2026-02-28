@@ -1,0 +1,77 @@
+# Aave V2 — legacy lending protocol (still widely used, billions in TVL)
+# Deposit:    keccak256("Deposit(address,address,address,uint256,uint16)")
+# Withdraw:   keccak256("Withdraw(address,address,address,uint256)")
+# Borrow:     keccak256("Borrow(address,address,address,uint256,uint256,uint256,uint16)")
+# Repay:      keccak256("Repay(address,address,address,uint256)")
+# LiquidationCall: keccak256("LiquidationCall(address,address,address,uint256,uint256,address,bool)")
+
+schema AaveV2Deposit:
+  version: 1
+  chains: [ethereum, polygon, avalanche]
+  event: Deposit
+  fingerprint: "0xde6857219544bb5b7746f48ed30be6386fefc61ebafb0e3e7a3b7a3f2a44f0b8"
+  fields:
+    reserve:    { type: address, indexed: true,  description: "Token address of the deposited reserve" }
+    user:       { type: address, indexed: false, description: "Address that initiated the deposit" }
+    onBehalfOf: { type: address, indexed: true,  description: "Address that receives the aToken" }
+    amount:     { type: uint256, indexed: false, description: "Amount deposited" }
+    referral:   { type: uint16,  indexed: true,  description: "Referral code (0 if none)" }
+  meta:
+    protocol: aave-v2
+    category: lending
+    verified: true
+    trust_level: maintainer_verified
+---
+schema AaveV2Withdraw:
+  version: 1
+  chains: [ethereum, polygon, avalanche]
+  event: Withdraw
+  fingerprint: "0x3115d1449a7b732c986cba18244e897a450f61e1bb8d589cd2e69e6c8924f9f7"
+  fields:
+    reserve: { type: address, indexed: true,  description: "Reserve token address" }
+    user:    { type: address, indexed: true,  description: "Address that initiated the withdrawal" }
+    to:      { type: address, indexed: false, description: "Address receiving the underlying asset" }
+    amount:  { type: uint256, indexed: false, description: "Amount withdrawn" }
+  meta:
+    protocol: aave-v2
+    category: lending
+    verified: true
+    trust_level: maintainer_verified
+---
+schema AaveV2Borrow:
+  version: 1
+  chains: [ethereum, polygon, avalanche]
+  event: Borrow
+  fingerprint: "0xc6a898309e823ee50bac64e45ca8adba6690e99e7841c45d754e2a38e9019d9b"
+  fields:
+    reserve:         { type: address, indexed: true,  description: "Borrowed reserve token address" }
+    user:            { type: address, indexed: false, description: "Address calling borrow" }
+    onBehalfOf:      { type: address, indexed: true,  description: "Address receiving the debt" }
+    amount:          { type: uint256, indexed: false, description: "Amount borrowed" }
+    borrowRateMode:  { type: uint256, indexed: false, description: "1=stable, 2=variable" }
+    borrowRate:      { type: uint256, indexed: false, description: "Borrow rate at time of borrow (ray)" }
+    referral:        { type: uint16,  indexed: true,  description: "Referral code" }
+  meta:
+    protocol: aave-v2
+    category: lending
+    verified: true
+    trust_level: maintainer_verified
+---
+schema AaveV2LiquidationCall:
+  version: 1
+  chains: [ethereum, polygon, avalanche]
+  event: LiquidationCall
+  fingerprint: "0xe413a321e8681d831f4dbccbca790d2952b56f977908e45be37335533e005286"
+  fields:
+    collateralAsset:    { type: address, indexed: true,  description: "Collateral token being seized" }
+    debtAsset:          { type: address, indexed: true,  description: "Debt token being repaid" }
+    user:               { type: address, indexed: true,  description: "Liquidated user address" }
+    debtToCover:        { type: uint256, indexed: false, description: "Debt amount repaid by liquidator" }
+    liquidatedCollateralAmount: { type: uint256, indexed: false, description: "Collateral seized" }
+    liquidator:         { type: address, indexed: false, description: "Address that performed the liquidation" }
+    receiveAToken:      { type: bool,    indexed: false, description: "If true, liquidator receives aTokens" }
+  meta:
+    protocol: aave-v2
+    category: lending
+    verified: true
+    trust_level: maintainer_verified

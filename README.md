@@ -102,14 +102,14 @@ println!("{}: {:?}", event.schema, event.fields);
 ## Quick Start (TypeScript / Node.js)
 
 ```bash
-npm install @chainkit/chaincodec
+npm install @chainfoundry/chaincodec
 ```
 
 ```typescript
-import { EvmDecoder, MemoryRegistry } from '@chainkit/chaincodec';
+import { EvmDecoder, MemoryRegistry } from '@chainfoundry/chaincodec';
 
 const registry = new MemoryRegistry();
-registry.loadDirectory('./node_modules/@chainkit/chaincodec/schemas');
+registry.loadDirectory('./node_modules/@chainfoundry/chaincodec/schemas');
 
 const decoder = new EvmDecoder();
 const event = decoder.decodeEvent({
@@ -162,7 +162,7 @@ print(event["fields"]["value"])  # 10000000
 ## Quick Start (WASM / Browser)
 
 ```javascript
-import init, { EvmDecoder, MemoryRegistry } from '@chainkit/chaincodec-wasm';
+import init, { EvmDecoder, MemoryRegistry } from '@chainfoundry/chaincodec-wasm';
 import schemaCsdl from './schemas/erc20.csdl?raw';
 
 await init();
@@ -268,9 +268,9 @@ chainkit/
 │   │   ├── bridge/   (across, stargate)
 │   │   └── governance/
 │   ├── bindings/
-│   │   ├── node/     # napi-rs → @chainkit/chaincodec (npm)
+│   │   ├── node/     # napi-rs → @chainfoundry/chaincodec (npm)
 │   │   ├── python/   # PyO3 → chaincodec (PyPI)
-│   │   ├── wasm/     # wasm-bindgen → @chainkit/chaincodec-wasm
+│   │   ├── wasm/     # wasm-bindgen → @chainfoundry/chaincodec-wasm
 │   │   ├── go/       # cgo bindings (planned)
 │   │   └── java/     # JNI bindings (planned)
 │   ├── registry-server/  # Schema registry HTTP server

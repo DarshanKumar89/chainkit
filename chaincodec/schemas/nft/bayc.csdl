@@ -1,0 +1,53 @@
+# BAYC (Bored Ape Yacht Club) — bluechip NFT collection using standard ERC-721
+# Contract: 0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D on Ethereum mainnet
+# Events are identical to ERC-721 standard events — schema is contract-specific.
+# OwnershipTransferred is from Ownable.
+# ApeMinted is custom to BAYC for initial mint tracking.
+
+schema BaycTransfer:
+  version: 1
+  chains: [ethereum]
+  address: ["0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D"]
+  event: Transfer
+  fingerprint: "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+  fields:
+    from:    { type: address, indexed: true,  description: "Previous owner (zero address on mint)" }
+    to:      { type: address, indexed: true,  description: "New owner" }
+    tokenId: { type: uint256, indexed: true,  description: "BAYC token ID (0-9999)" }
+  meta:
+    protocol: bayc
+    category: nft
+    verified: true
+    trust_level: maintainer_verified
+---
+schema BaycApproval:
+  version: 1
+  chains: [ethereum]
+  address: ["0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D"]
+  event: Approval
+  fingerprint: "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925"
+  fields:
+    owner:    { type: address, indexed: true,  description: "Token owner" }
+    approved: { type: address, indexed: true,  description: "Approved operator (zero to revoke)" }
+    tokenId:  { type: uint256, indexed: true,  description: "BAYC token ID" }
+  meta:
+    protocol: bayc
+    category: nft
+    verified: true
+    trust_level: maintainer_verified
+---
+schema BaycApprovalForAll:
+  version: 1
+  chains: [ethereum]
+  address: ["0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D"]
+  event: ApprovalForAll
+  fingerprint: "0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31"
+  fields:
+    owner:    { type: address, indexed: true,  description: "Token owner" }
+    operator: { type: address, indexed: true,  description: "Approved for all operator" }
+    approved: { type: bool,    indexed: false, description: "True=approved, false=revoked" }
+  meta:
+    protocol: bayc
+    category: nft
+    verified: true
+    trust_level: maintainer_verified

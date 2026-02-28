@@ -22,10 +22,10 @@ chrono          = { workspace = true }
 sqlx = { workspace = true, optional = true }
 
 [features]
-default = ["memory"]
-memory  = []
-sqlite  = ["dep:sqlx"]
-# postgres = ["dep:sqlx"]  # enable when postgres feature is ready
+default  = ["memory"]
+memory   = []
+sqlite   = ["dep:sqlx", "sqlx/sqlite"]
+postgres = ["dep:sqlx", "sqlx/postgres"]
 
 [dev-dependencies]
 tokio = { workspace = true }

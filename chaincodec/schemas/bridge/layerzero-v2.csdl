@@ -1,0 +1,38 @@
+# LayerZero V2 — Omnichain interoperability protocol
+# OFT (Omnichain Fungible Token) standard events
+# OFTSent:     keccak256("OFTSent(bytes32,uint32,address,uint256,uint256)")
+# OFTReceived: keccak256("OFTReceived(bytes32,uint32,address,uint256,uint256)")
+# PacketSent:  keccak256("PacketSent(bytes,bytes,address)")
+
+schema LayerZeroOftSent:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, avalanche, bsc, fantom, scroll, linea]
+  event: OFTSent
+  fingerprint: "0x85496b760a4b7f8d66384b9df21b381f5d1b5e767c27578a25e8b14bfddb0b81"
+  fields:
+    guid:              { type: bytes32, indexed: true,  description: "Global unique identifier for this cross-chain message" }
+    dstEid:            { type: uint32,  indexed: false, description: "LayerZero destination endpoint ID" }
+    fromAddress:       { type: address, indexed: true,  description: "Sender address on source chain" }
+    amountSentLD:      { type: uint256, indexed: false, description: "Amount sent in local decimals" }
+    amountReceivedLD:  { type: uint256, indexed: false, description: "Amount received on destination in local decimals" }
+  meta:
+    protocol: layerzero-v2
+    category: bridge
+    verified: true
+    trust_level: maintainer_verified
+---
+schema LayerZeroOftReceived:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, avalanche, bsc, fantom, scroll, linea]
+  event: OFTReceived
+  fingerprint: "0xefed6d3500546b29533b128a29e3a94d70788727f0507505ac12eaf2e578fd9c"
+  fields:
+    guid:           { type: bytes32, indexed: true,  description: "Global unique identifier matching the OFTSent GUID" }
+    srcEid:         { type: uint32,  indexed: false, description: "LayerZero source endpoint ID" }
+    toAddress:      { type: address, indexed: true,  description: "Recipient address on destination chain" }
+    amountReceivedLD: { type: uint256, indexed: false, description: "Amount received in local decimals" }
+  meta:
+    protocol: layerzero-v2
+    category: bridge
+    verified: true
+    trust_level: maintainer_verified

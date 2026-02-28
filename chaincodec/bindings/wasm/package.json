@@ -1,0 +1,47 @@
+{
+  "name": "@chainfoundry/chaincodec-wasm",
+  "version": "0.1.0",
+  "description": "WebAssembly bindings for chaincodec — universal EVM ABI decoder for browsers and edge runtimes",
+  "keywords": [
+    "ethereum",
+    "evm",
+    "abi",
+    "decoder",
+    "blockchain",
+    "web3",
+    "wasm",
+    "webassembly",
+    "browser",
+    "chaincodec"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DarshanKumar89/chainkit.git"
+  },
+  "homepage": "https://github.com/DarshanKumar89/chainkit/tree/main/chaincodec",
+  "files": [
+    "chaincodec_wasm_bg.wasm",
+    "chaincodec_wasm.js",
+    "chaincodec_wasm.d.ts",
+    "chaincodec_wasm_bg.wasm.d.ts",
+    "package.json",
+    "README.md"
+  ],
+  "main": "chaincodec_wasm.js",
+  "types": "chaincodec_wasm.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "build:web": "wasm-pack build --release --target web --out-dir pkg-web",
+    "build:node": "wasm-pack build --release --target nodejs --out-dir pkg-node",
+    "build:bundler": "wasm-pack build --release --target bundler --out-dir pkg-bundler",
+    "build:all": "npm run build:web && npm run build:node && npm run build:bundler"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "engines": {
+    "node": ">= 14"
+  }
+}

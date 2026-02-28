@@ -1,0 +1,36 @@
+# Aave V2 Flash Loans and Liquidation events (supplemental to aave-v2.csdl)
+# FlashLoan: keccak256("FlashLoan(address,address,address,uint256,uint256,uint16)")
+
+schema AaveV2FlashLoan:
+  version: 1
+  chains: [ethereum, polygon, avalanche]
+  event: FlashLoan
+  fingerprint: "0x631042c832b07452973831137f2d73e395028b44b250dedc5abb0ee766e168ac"
+  fields:
+    target:     { type: address, indexed: true,  description: "Flashloan receiver contract" }
+    initiator:  { type: address, indexed: false, description: "Caller that initiated the flashloan" }
+    asset:      { type: address, indexed: true,  description: "Asset borrowed in the flashloan" }
+    amount:     { type: uint256, indexed: false, description: "Amount borrowed" }
+    premium:    { type: uint256, indexed: false, description: "Flashloan fee charged" }
+    referralCode: { type: uint16, indexed: true, description: "Referral code" }
+  meta:
+    protocol: aave-v2
+    category: lending
+    verified: true
+    trust_level: maintainer_verified
+---
+schema AaveV2Repay:
+  version: 1
+  chains: [ethereum, polygon, avalanche]
+  event: Repay
+  fingerprint: "0xa534c8dbe71f871f9f3530e97a74601fea17b426cae02e1c5aee42c96c784051"
+  fields:
+    reserve:  { type: address, indexed: true,  description: "Reserve asset being repaid" }
+    user:     { type: address, indexed: true,  description: "User whose debt is being repaid" }
+    repayer:  { type: address, indexed: false, description: "Address making the repayment" }
+    amount:   { type: uint256, indexed: false, description: "Amount repaid" }
+  meta:
+    protocol: aave-v2
+    category: lending
+    verified: true
+    trust_level: maintainer_verified

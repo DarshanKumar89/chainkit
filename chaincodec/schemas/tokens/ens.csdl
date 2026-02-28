@@ -1,0 +1,52 @@
+# ENS (Ethereum Name Service) events
+# NameRegistered: keccak256("NameRegistered(string,bytes32,address,uint256,uint256)")
+# NameRenewed:    keccak256("NameRenewed(string,bytes32,uint256)")
+# NameTransferred: keccak256("Transfer(bytes32,address)") — in NameWrapper (ERC-1155 base)
+
+schema EnsNameRegistered:
+  version: 1
+  chains: [ethereum]
+  event: NameRegistered
+  fingerprint: "0xca6abbe9d7f11422cbfeb8c098189578a2fccf57d604b44a168e3d1c330c66c"
+  fields:
+    name:    { type: str,     indexed: false, description: "Plain-text .eth name without TLD" }
+    label:   { type: bytes32, indexed: true,  description: "keccak256 of the label (the part before .eth)" }
+    owner:   { type: address, indexed: false, description: "Address that registered the name" }
+    cost:    { type: uint256, indexed: false, description: "Registration fee paid in wei" }
+    expires: { type: uint256, indexed: false, description: "Expiry timestamp (Unix seconds)" }
+  meta:
+    protocol: ens
+    category: naming
+    verified: true
+    trust_level: maintainer_verified
+---
+schema EnsNameRenewed:
+  version: 1
+  chains: [ethereum]
+  event: NameRenewed
+  fingerprint: "0x3da24c024582931cfaf8267d8ed24d13a82a8068d5bd337d30ec45cea4e506ae"
+  fields:
+    name:    { type: str,     indexed: false, description: "Plain-text .eth name" }
+    label:   { type: bytes32, indexed: true,  description: "keccak256 of the label" }
+    cost:    { type: uint256, indexed: false, description: "Renewal fee paid in wei" }
+    expires: { type: uint256, indexed: false, description: "New expiry timestamp (Unix seconds)" }
+  meta:
+    protocol: ens
+    category: naming
+    verified: true
+    trust_level: maintainer_verified
+---
+schema EnsNewOwner:
+  version: 1
+  chains: [ethereum]
+  event: NewOwner
+  fingerprint: "0xce0457fe73731f824cc272376169235128c118b49d344817417c6d108d155e82"
+  fields:
+    node:  { type: bytes32, indexed: true,  description: "Namehash of the parent node" }
+    label: { type: bytes32, indexed: true,  description: "keccak256 of the label" }
+    owner: { type: address, indexed: false, description: "New owner address" }
+  meta:
+    protocol: ens
+    category: naming
+    verified: true
+    trust_level: maintainer_verified

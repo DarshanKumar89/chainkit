@@ -1,0 +1,42 @@
+{
+  "name": "@chainfoundry/chainindex",
+  "version": "0.1.0",
+  "description": "High-performance EVM indexer with reorg detection and pluggable storage",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DarshanKumar89/chainkit.git"
+  },
+  "homepage": "https://github.com/DarshanKumar89/chainkit",
+  "keywords": [
+    "ethereum",
+    "indexer",
+    "blockchain",
+    "evm",
+    "reorg",
+    "checkpoint",
+    "web3"
+  ],
+  "scripts": {
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "prepublishOnly": "napi build --platform --release"
+  },
+  "napi": {
+    "name": "chainindex",
+    "triples": {
+      "defaults": true,
+      "additional": [
+        "aarch64-apple-darwin",
+        "aarch64-unknown-linux-gnu",
+        "x86_64-unknown-linux-musl"
+      ]
+    }
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^2.18.0"
+  },
+  "peerDependencies": {}
+}

@@ -1,0 +1,51 @@
+# Rocket Pool — decentralized ETH liquid staking
+# ETHDeposited:   keccak256("ETHDeposited(address,uint256,uint256)")
+# rETHMinted:     keccak256("TokensMinted(address,uint256,uint256,uint256)")
+# Staked (minipool): keccak256("StatusUpdated(uint8,uint256)")
+
+schema RocketPoolEthDeposited:
+  version: 1
+  chains: [ethereum]
+  event: EthDeposited
+  fingerprint: "0x5548c837ab068cf56a2c2479df0882a4922fd203edb7517321831d95078c5f62"
+  fields:
+    from:   { type: address, indexed: true,  description: "Depositor address" }
+    amount: { type: uint256, indexed: false, description: "ETH deposited in wei" }
+    time:   { type: uint256, indexed: false, description: "Deposit timestamp" }
+  meta:
+    protocol: rocket-pool
+    category: liquid-staking
+    verified: true
+    trust_level: maintainer_verified
+---
+schema RocketPoolTokensMinted:
+  version: 1
+  chains: [ethereum]
+  event: TokensMinted
+  fingerprint: "0x5fe47ed6d4225326d3303476197d782ded5a4e9c14f479dc9ec4992af4e85d59"
+  fields:
+    to:         { type: address, indexed: true,  description: "rETH recipient address" }
+    amount:     { type: uint256, indexed: false, description: "rETH tokens minted" }
+    ethAmount:  { type: uint256, indexed: false, description: "Equivalent ETH value" }
+    time:       { type: uint256, indexed: false, description: "Mint timestamp" }
+  meta:
+    protocol: rocket-pool
+    category: liquid-staking
+    verified: true
+    trust_level: maintainer_verified
+---
+schema RocketPoolTokensBurned:
+  version: 1
+  chains: [ethereum]
+  event: TokensBurned
+  fingerprint: "0x19783b34589160c168487dc7f9c51ae0bcefe791e2de5b7b0192b3a79fe72a84"
+  fields:
+    from:       { type: address, indexed: true,  description: "rETH burner address" }
+    amount:     { type: uint256, indexed: false, description: "rETH tokens burned" }
+    ethAmount:  { type: uint256, indexed: false, description: "Equivalent ETH redeemed" }
+    time:       { type: uint256, indexed: false, description: "Burn timestamp" }
+  meta:
+    protocol: rocket-pool
+    category: liquid-staking
+    verified: true
+    trust_level: maintainer_verified

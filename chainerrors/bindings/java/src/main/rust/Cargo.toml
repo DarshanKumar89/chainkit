@@ -1,0 +1,22 @@
+[package]
+name    = "chainerrors-jni"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[lib]
+name       = "chainerrors_jni"
+crate-type = ["cdylib"]
+
+[dependencies]
+chainerrors-core = { path = "../../../../crates/chainerrors-core" }
+chainerrors-evm  = { path = "../../../../crates/chainerrors-evm" }
+
+jni        = { version = "0.21", features = ["invocation"] }
+hex        = "0.4"
+serde_json = "1"
+
+[profile.release]
+lto       = true
+strip     = "symbols"
+opt-level = 3

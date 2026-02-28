@@ -1,0 +1,55 @@
+# SushiSwap — multi-chain DEX (Uniswap V2 fork with additional features)
+# SushiSwap V2 pools emit the same Swap event signature as Uniswap V2.
+# Distinguish by contract address (SushiSwap factory: 0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac on mainnet)
+# Swap:   keccak256("Swap(address,uint256,uint256,uint256,uint256,address)")  — same as UniV2
+# Mint:   keccak256("Mint(address,uint256,uint256)")  — same as UniV2
+# Burn:   keccak256("Burn(address,uint256,uint256,address)")  — same as UniV2
+
+schema SushiswapSwap:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, avalanche, bsc, fantom, gnosis]
+  event: Swap
+  fingerprint: "0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822"
+  fields:
+    sender:     { type: address, indexed: true,  description: "Address that initiated the swap" }
+    amount0In:  { type: uint256, indexed: false, description: "Amount of token0 swapped in" }
+    amount1In:  { type: uint256, indexed: false, description: "Amount of token1 swapped in" }
+    amount0Out: { type: uint256, indexed: false, description: "Amount of token0 received" }
+    amount1Out: { type: uint256, indexed: false, description: "Amount of token1 received" }
+    to:         { type: address, indexed: true,  description: "Output recipient address" }
+  meta:
+    protocol: sushiswap
+    category: dex
+    verified: true
+    trust_level: maintainer_verified
+---
+schema SushiswapMint:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, avalanche, bsc, fantom, gnosis]
+  event: Mint
+  fingerprint: "0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f"
+  fields:
+    sender:  { type: address, indexed: true,  description: "Liquidity provider address" }
+    amount0: { type: uint256, indexed: false, description: "Amount of token0 added" }
+    amount1: { type: uint256, indexed: false, description: "Amount of token1 added" }
+  meta:
+    protocol: sushiswap
+    category: dex
+    verified: true
+    trust_level: maintainer_verified
+---
+schema SushiswapBurn:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, avalanche, bsc, fantom, gnosis]
+  event: Burn
+  fingerprint: "0xdccd412f0b1252819cb1fd330b93224ca42612892bb3f4f789976e6d81936496"
+  fields:
+    sender:  { type: address, indexed: true,  description: "Address that removed liquidity" }
+    amount0: { type: uint256, indexed: false, description: "Amount of token0 removed" }
+    amount1: { type: uint256, indexed: false, description: "Amount of token1 removed" }
+    to:      { type: address, indexed: true,  description: "Recipient of the underlying tokens" }
+  meta:
+    protocol: sushiswap
+    category: dex
+    verified: true
+    trust_level: maintainer_verified

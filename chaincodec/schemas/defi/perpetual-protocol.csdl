@@ -1,0 +1,42 @@
+# Perpetual Protocol V2 — virtual AMM-based decentralized perpetuals
+# PositionChanged: keccak256("PositionChanged(address,address,uint256,int256,int256,int256,int256,uint256)")
+# LiquidityChanged: keccak256("LiquidityChanged(address,address,address,int256,int256,uint256,int24,int24,int128,int256)")
+
+schema PerpV2PositionChanged:
+  version: 1
+  chains: [optimism]
+  event: PositionChanged
+  fingerprint: "0x968bc1f1c09b07c13b03ec0aa8cfca64b61fd9d9d4fd0bf3b1cdc9dded2440e3"
+  fields:
+    trader:                   { type: address, indexed: true,  description: "Trader address" }
+    baseToken:                { type: address, indexed: true,  description: "Base token being traded (e.g. vETH)" }
+    exchangedPositionSize:    { type: int256,  indexed: false, description: "Change in position size (positive=long)" }
+    exchangedPositionNotional:{ type: int256,  indexed: false, description: "Change in position value in quote token" }
+    fee:                      { type: uint256, indexed: false, description: "Trading fee paid" }
+    openNotional:             { type: int256,  indexed: false, description: "Open notional after trade" }
+    realizedPnl:              { type: int256,  indexed: false, description: "Realized PnL from trade" }
+    sqrtPriceAfterX96:        { type: uint256, indexed: false, description: "Price after trade (Uniswap V3 sqrt format)" }
+  meta:
+    protocol: perpetual-protocol
+    category: derivatives
+    verified: true
+    trust_level: maintainer_verified
+---
+schema PerpV2PositionLiquidated:
+  version: 1
+  chains: [optimism]
+  event: PositionLiquidated
+  fingerprint: "0x0f0ef1ab499c4e8af785c8f2b43e5c7f9c0b36d45b66a9e7ef5cbdae1a7c65d"
+  fields:
+    trader:          { type: address, indexed: true,  description: "Liquidated trader" }
+    baseToken:       { type: address, indexed: true,  description: "Market base token" }
+    positionSize:    { type: int256,  indexed: false, description: "Position size at liquidation" }
+    positionNotional:{ type: uint256, indexed: false, description: "Notional value at liquidation" }
+    liquidationFee:  { type: uint256, indexed: false, description: "Fee paid to liquidator" }
+    insuranceFundFee:{ type: uint256, indexed: false, description: "Fee sent to insurance fund" }
+    liquidator:      { type: address, indexed: false, description: "Liquidator address" }
+  meta:
+    protocol: perpetual-protocol
+    category: derivatives
+    verified: true
+    trust_level: maintainer_verified

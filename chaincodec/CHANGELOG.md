@@ -70,9 +70,9 @@ Post-1.0: breaking changes only in major versions.
 
 #### Language bindings
 
-- TypeScript/Node.js (`@chainkit/chaincodec` npm) — 6 platform targets via napi-rs
+- TypeScript/Node.js (`@chainfoundry/chaincodec` npm) — 6 platform targets via napi-rs
 - Python (`chaincodec` PyPI) — PyO3/maturin
-- WASM (`@chainkit/chaincodec-wasm`) — wasm-bindgen
+- WASM (`@chainfoundry/chaincodec-wasm`) — wasm-bindgen
 
 #### CI/CD
 

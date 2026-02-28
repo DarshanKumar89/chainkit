@@ -1,0 +1,38 @@
+# DODO DEX — proactive market maker (PMM algorithm)
+# DODOSwap: keccak256("DODOSwap(address,address,address,uint256,uint256,address)")
+# BuyShares: keccak256("BuyShares(address,uint256,uint256,uint256,address,address)")
+# SellShares: keccak256("SellShares(address,uint256,uint256,uint256,address,address,address)")
+
+schema DodoSwap:
+  version: 1
+  chains: [ethereum, arbitrum, polygon, bsc, base, optimism, avalanche]
+  event: DODOSwap
+  fingerprint: "0xd8648b6ac54162763c86fd54bf2002a696f6eb327b32bf30ebaa23ca73e1c5a7"
+  fields:
+    fromToken:    { type: address, indexed: false, description: "Input token address" }
+    toToken:      { type: address, indexed: false, description: "Output token address" }
+    from:         { type: address, indexed: false, description: "Address selling the fromToken" }
+    fromAmount:   { type: uint256, indexed: false, description: "Input token amount" }
+    toAmount:     { type: uint256, indexed: false, description: "Output token amount received" }
+    trader:       { type: address, indexed: false, description: "Address that executed the trade" }
+  meta:
+    protocol: dodo
+    category: dex
+    verified: true
+    trust_level: maintainer_verified
+---
+schema DodoBuyShares:
+  version: 1
+  chains: [ethereum, arbitrum, polygon, bsc, base, optimism, avalanche]
+  event: BuyShares
+  fingerprint: "0x1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9fffbbad1"
+  fields:
+    payer:       { type: address, indexed: true,  description: "Liquidity provider" }
+    shares:      { type: uint256, indexed: false, description: "LP shares minted" }
+    baseAmount:  { type: uint256, indexed: false, description: "Base token added" }
+    quoteAmount: { type: uint256, indexed: false, description: "Quote token added" }
+  meta:
+    protocol: dodo
+    category: dex
+    verified: true
+    trust_level: maintainer_verified

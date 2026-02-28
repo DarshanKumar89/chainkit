@@ -1,0 +1,35 @@
+# Wormhole — cross-chain messaging protocol
+# LogMessagePublished: keccak256("LogMessagePublished(address,uint64,uint32,bytes,uint8)")
+# TransferRedeemed:   keccak256("TransferRedeemed(uint16,bytes32,uint64)")
+
+schema WormholeMessagePublished:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, avalanche, bsc, fantom]
+  event: LogMessagePublished
+  fingerprint: "0x6eb224fb001ed210e379b335e35efe88672a8ce935d981a6896b27ffdf52a3b"
+  fields:
+    sender:    { type: address, indexed: true,  description: "Emitter address that published the message" }
+    sequence:  { type: uint64,  indexed: false, description: "Per-emitter sequence number" }
+    nonce:     { type: uint32,  indexed: false, description: "Caller-supplied nonce for de-duplication" }
+    payload:   { type: bytes,   indexed: false, description: "Message payload (application-specific)" }
+    consistencyLevel: { type: uint8, indexed: false, description: "Finality level required (0=confirmed, 1=finalized)" }
+  meta:
+    protocol: wormhole
+    category: bridge
+    verified: true
+    trust_level: maintainer_verified
+---
+schema WormholeTransferRedeemed:
+  version: 1
+  chains: [ethereum, polygon, arbitrum, base, optimism, avalanche, bsc, fantom]
+  event: TransferRedeemed
+  fingerprint: "0xbccc00b713f54173962e7de6098f643d8ebf53d488d71f4b2a5171496d038f9e"
+  fields:
+    emitterChainId:   { type: uint16,  indexed: true,  description: "Wormhole chain ID of the source chain" }
+    emitterAddress:   { type: bytes32, indexed: true,  description: "Emitter contract address on source chain" }
+    sequence:         { type: uint64,  indexed: true,  description: "Sequence number of the VAA" }
+  meta:
+    protocol: wormhole
+    category: bridge
+    verified: true
+    trust_level: maintainer_verified

@@ -1,0 +1,30 @@
+[build-system]
+requires      = ["maturin>=1.4,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "chainerrors"
+version = "0.1.0"
+description = "EVM revert decoder — decode require(), custom errors, Panic codes from Solidity"
+readme = "../../README.md"
+license = { text = "MIT" }
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Internet :: WWW/HTTP",
+    "Intended Audience :: Developers",
+]
+keywords = ["ethereum", "evm", "revert", "error", "decoder", "blockchain", "solidity"]
+
+[project.urls]
+Homepage      = "https://github.com/DarshanKumar89/chainkit"
+Repository    = "https://github.com/DarshanKumar89/chainkit"
+Documentation = "https://docs.rs/chainerrors-core"
+
+[tool.maturin]
+module-name       = "chainerrors"
+python-source     = "python"
+features          = ["pyo3/extension-module"]

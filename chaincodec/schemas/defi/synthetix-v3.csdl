@@ -1,0 +1,40 @@
+# Synthetix V3 — modular perpetuals and synthetic asset protocol
+# OrderSettled: keccak256("OrderSettled(uint128,uint128,int128,uint256,int128,int128,uint256,uint256,int256)")
+# CollateralDeposited: keccak256("CollateralDeposited(address,uint128,address,uint256)")
+
+schema SynthetixV3OrderSettled:
+  version: 1
+  chains: [ethereum, optimism, base, arbitrum]
+  event: OrderSettled
+  fingerprint: "0x40d24f7ef3d3523e46d08cbe1e1d8ba5e3d86aae04ee2c5a7c617f3ea99ead62"
+  fields:
+    marketId:          { type: uint128, indexed: true,  description: "Synthetix market identifier" }
+    accountId:         { type: uint128, indexed: true,  description: "Account ID of the trader" }
+    fillPrice:         { type: int128,  indexed: false, description: "Price at which order was filled" }
+    pnl:               { type: uint256, indexed: false, description: "Realized PnL from settlement" }
+    accruedFunding:    { type: int128,  indexed: false, description: "Accrued funding since last settlement" }
+    sizeDelta:         { type: int128,  indexed: false, description: "Change in position size (positive=long)" }
+    newSize:           { type: uint256, indexed: false, description: "New total position size" }
+    totalFees:         { type: uint256, indexed: false, description: "Total fees charged" }
+    referralFees:      { type: int256,  indexed: false, description: "Referral fees distributed" }
+  meta:
+    protocol: synthetix-v3
+    category: derivatives
+    verified: true
+    trust_level: maintainer_verified
+---
+schema SynthetixV3CollateralDeposited:
+  version: 1
+  chains: [ethereum, optimism, base, arbitrum]
+  event: CollateralDeposited
+  fingerprint: "0xe5b950a5ef7d3c3d11e73aadc2a3c01e14ef4fd3e2d44c3c14e1be4a5b0fb1e2"
+  fields:
+    sender:    { type: address, indexed: false, description: "Address that deposited collateral" }
+    accountId: { type: uint128, indexed: true,  description: "Account ID receiving the collateral" }
+    collateralType: { type: address, indexed: false, description: "ERC-20 token used as collateral" }
+    tokenAmount: { type: uint256, indexed: false, description: "Amount of collateral deposited" }
+  meta:
+    protocol: synthetix-v3
+    category: derivatives
+    verified: true
+    trust_level: maintainer_verified
