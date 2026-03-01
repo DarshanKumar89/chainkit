@@ -297,6 +297,12 @@ Benchmarks run with `cargo bench --package chaincodec-batch`.
 ---
 
 
+## Built With
+
+The CI/CD pipeline, publishing workflow, build system, and module testing for ChainKit were developed with the assistance of [Claude](https://claude.ai) (Anthropic) — including crates.io publishing, npm/PyPI release automation, cross-platform Rust builds, and language binding generation. Anything wrong open for suggestions and improvement. 
+
+---
+
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md). Each module has independent CI:
