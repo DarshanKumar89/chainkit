@@ -185,11 +185,6 @@ pub fn normalized_to_dyn_value(
             Ok(DynSolValue::Tuple(dyn_elems?))
         }
 
-        // Uint can represent Timestamp/Decimal too
-        (NormalizedValue::Uint(u), DynSolType::Uint(bits)) => {
-            Ok(DynSolValue::Uint(U256::from(*u), *bits))
-        }
-
         _ => Err(format!(
             "cannot convert {:?} to {:?}",
             std::mem::discriminant(val),

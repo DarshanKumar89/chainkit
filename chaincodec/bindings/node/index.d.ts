@@ -55,7 +55,8 @@ export type NormalizedValue =
 
 export interface TypedData {
   types: Record<string, Array<{ name: string; type: string }>>
-  primaryType: string
+  /** snake_case — matches Rust serde serialization */
+  primary_type: string
   domain: Record<string, unknown>
   message: Record<string, unknown>
 }

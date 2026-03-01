@@ -1,6 +1,6 @@
 {
   "name": "@chainfoundry/chaincodec-wasm",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "WebAssembly bindings for chaincodec — universal EVM ABI decoder for browsers and edge runtimes",
   "keywords": [
     "ethereum",

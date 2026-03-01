@@ -23,7 +23,7 @@ exclude = [
 ]
 
 [workspace.package]
-version       = "0.1.1"
+version       = "0.1.2"
 edition       = "2021"
 license       = "MIT"
 readme        = "README.md"
@@ -95,14 +95,14 @@ futures     = "0.3"
 async-trait = "0.1"
 
 # Internal crates — must include version for `cargo publish` to resolve deps on crates.io
-chaincodec-core         = { path = "crates/chaincodec-core",         version = "0.1.0" }
-chaincodec-evm          = { path = "crates/chaincodec-evm",          version = "0.1.0" }
-chaincodec-registry     = { path = "crates/chaincodec-registry",     version = "0.1.0" }
-chaincodec-stream       = { path = "crates/chaincodec-stream",       version = "0.1.0" }
-chaincodec-batch        = { path = "crates/chaincodec-batch",        version = "0.1.0" }
-chaincodec-observability = { path = "crates/chaincodec-observability", version = "0.1.0" }
-chaincodec-solana       = { path = "crates/chaincodec-solana",       version = "0.1.0" }
-chaincodec-cosmos       = { path = "crates/chaincodec-cosmos",       version = "0.1.0" }
+chaincodec-core         = { path = "crates/chaincodec-core",         version = "0.1.2" }
+chaincodec-evm          = { path = "crates/chaincodec-evm",          version = "0.1.2" }
+chaincodec-registry     = { path = "crates/chaincodec-registry",     version = "0.1.2" }
+chaincodec-stream       = { path = "crates/chaincodec-stream",       version = "0.1.2" }
+chaincodec-batch        = { path = "crates/chaincodec-batch",        version = "0.1.2" }
+chaincodec-observability = { path = "crates/chaincodec-observability", version = "0.1.2" }
+chaincodec-solana       = { path = "crates/chaincodec-solana",       version = "0.1.2" }
+chaincodec-cosmos       = { path = "crates/chaincodec-cosmos",       version = "0.1.2" }
 
 [profile.release]
 opt-level   = 3
