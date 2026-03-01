@@ -65,10 +65,7 @@ impl BatchEngine {
                 chunk,
                 self.registry.as_ref(),
                 req.error_mode,
-                req.on_progress.as_ref().map(|f| {
-                    let cb: &dyn chaincodec_core::decoder::ProgressCallback = f.as_ref();
-                    cb
-                }),
+                req.on_progress.as_ref().map(|f| f.as_ref()),
             )?;
 
             decoded_so_far += result.events.len();

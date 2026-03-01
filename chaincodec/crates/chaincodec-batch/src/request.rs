@@ -1,6 +1,6 @@
 //! Batch decode request configuration.
 
-use chaincodec_core::{decoder::ErrorMode, event::RawEvent};
+use chaincodec_core::{decoder::{ErrorMode, ProgressCallback}, event::RawEvent};
 
 /// Configuration for a batch decode job.
 pub struct BatchRequest {
@@ -15,7 +15,7 @@ pub struct BatchRequest {
     /// How to handle decode errors
     pub error_mode: ErrorMode,
     /// Optional progress callback
-    pub on_progress: Option<Box<dyn Fn(usize, usize) + Send + Sync>>,
+    pub on_progress: Option<Box<dyn ProgressCallback>>,
 }
 
 impl BatchRequest {
@@ -44,7 +44,7 @@ impl BatchRequest {
         mut self,
         f: F,
     ) -> Self {
-        self.on_progress = Some(Box::new(f));
+        self.on_progress = Some(Box::new(f) as Box<dyn ProgressCallback>);
         self
     }
 }

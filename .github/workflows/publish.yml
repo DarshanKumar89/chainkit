@@ -386,7 +386,7 @@ jobs:
             manylinux: auto
 
           - name: linux-arm64
-            runner: ubuntu-latest
+            runner: ubuntu-24.04-arm
             target: aarch64-unknown-linux-gnu
             manylinux: auto
 
@@ -427,14 +427,6 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.platform.target }}
-
-      # arm64 cross-compilation: use QEMU so the native manylinux2014_aarch64
-      # Docker image (which has Python) runs via emulation on x86_64 runners.
-      - name: Set up QEMU (arm64 emulation)
-        if: matrix.platform.target == 'aarch64-unknown-linux-gnu'
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
 
       - name: Build wheels (Linux manylinux via docker — x86_64 + arm64)
         if: runner.os == 'Linux' && matrix.platform.manylinux != 'musllinux_1_1'

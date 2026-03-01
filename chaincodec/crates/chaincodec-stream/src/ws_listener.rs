@@ -113,7 +113,10 @@ async fn run_ws_subscription(
             connected.store(false, Ordering::Relaxed);
             error!("WebSocket connect failed: {}", e);
             let _ = tx
-                .send(Err(StreamError::ConnectionFailed(e.to_string())))
+                .send(Err(StreamError::ConnectionFailed {
+                    url: rpc_url.clone(),
+                    reason: e.to_string(),
+                }))
                 .await;
             return;
         }

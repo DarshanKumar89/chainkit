@@ -7,7 +7,6 @@ use opentelemetry::{
     metrics::{Counter, Histogram, Meter},
     KeyValue,
 };
-use std::sync::Arc;
 
 /// Central metrics handle for ChainCodec.
 #[derive(Clone)]
@@ -26,27 +25,27 @@ impl ChainCodecMetrics {
             events_decoded: meter
                 .u64_counter("chaincodec.events_decoded")
                 .with_description("Total number of successfully decoded events")
-                .build(),
+                .init(),
             events_skipped: meter
                 .u64_counter("chaincodec.events_skipped")
                 .with_description("Events skipped due to missing schema or filtering")
-                .build(),
+                .init(),
             decode_errors: meter
                 .u64_counter("chaincodec.decode_errors")
                 .with_description("Events that failed to decode")
-                .build(),
+                .init(),
             decode_latency_ms: meter
                 .f64_histogram("chaincodec.decode_latency_ms")
                 .with_description("Time to decode a single event in milliseconds")
-                .build(),
+                .init(),
             batch_size: meter
                 .u64_histogram("chaincodec.batch_size")
                 .with_description("Number of events in a batch decode request")
-                .build(),
+                .init(),
             schema_cache_hits: meter
                 .u64_counter("chaincodec.schema_cache_hits")
                 .with_description("Registry fingerprint lookup cache hits")
-                .build(),
+                .init(),
         }
     }
 
