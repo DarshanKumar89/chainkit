@@ -1,6 +1,6 @@
 {
   "name": "@chainfoundry/chaincodec-wasm",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "WebAssembly bindings for chaincodec — universal EVM ABI decoder for browsers and edge runtimes",
   "keywords": [
     "ethereum",
@@ -12,7 +12,17 @@
     "wasm",
     "webassembly",
     "browser",
-    "chaincodec"
+    "chaincodec",
+    "deno",
+    "cloudflare-workers",
+    "edge",
+    "vite",
+    "solidity",
+    "defi",
+    "uniswap",
+    "rust-wasm",
+    "wasm-bindgen",
+    "event-decoder"
   ],
   "license": "MIT",
   "repository": {

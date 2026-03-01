@@ -2,7 +2,7 @@
 name        = "chaincodec-core"
 description = "Core decoder traits, type normalizer, and shared primitives for ChainCodec"
 readme.workspace    = true
-keywords    = ["blockchain", "decoder", "abi", "ethereum", "cross-chain"]
+keywords    = ["blockchain", "chaincodec", "web3", "ethereum", "decoder"]
 categories  = ["cryptography::cryptocurrencies", "encoding"]
 version.workspace       = true
 edition.workspace       = true

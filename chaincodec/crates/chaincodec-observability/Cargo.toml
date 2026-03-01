@@ -2,7 +2,7 @@
 name        = "chaincodec-observability"
 description = "OpenTelemetry metrics, tracing, and structured logging for ChainCodec"
 readme.workspace    = true
-keywords    = ["observability", "opentelemetry", "metrics", "tracing"]
+keywords    = ["blockchain", "chaincodec", "opentelemetry", "metrics", "tracing"]
 categories  = ["development-tools::profiling"]
 version.workspace       = true
 edition.workspace       = true

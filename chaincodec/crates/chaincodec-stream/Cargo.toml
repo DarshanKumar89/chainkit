@@ -2,7 +2,7 @@
 name        = "chaincodec-stream"
 description = "Real-time blockchain event streaming engine for ChainCodec (Tokio-based)"
 readme.workspace    = true
-keywords    = ["blockchain", "streaming", "events", "tokio", "websocket"]
+keywords    = ["blockchain", "chaincodec", "web3", "ethereum", "streaming"]
 categories  = ["asynchronous", "cryptography::cryptocurrencies"]
 version.workspace       = true
 edition.workspace       = true

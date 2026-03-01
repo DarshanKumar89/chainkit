@@ -2,7 +2,7 @@
 name        = "chaincodec-evm"
 description = "EVM ABI decoder for ChainCodec — built on alloy-rs"
 readme.workspace    = true
-keywords    = ["ethereum", "evm", "abi", "decoder", "blockchain"]
+keywords    = ["ethereum", "evm", "abi", "chaincodec", "web3"]
 categories  = ["cryptography::cryptocurrencies", "encoding"]
 version.workspace       = true
 edition.workspace       = true

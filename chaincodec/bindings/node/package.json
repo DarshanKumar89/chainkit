@@ -1,6 +1,6 @@
 {
   "name": "@chainfoundry/chaincodec",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Universal blockchain ABI decoder — production-grade event & call decoding for Ethereum and EVM chains",
   "keywords": [
     "ethereum",
@@ -12,7 +12,17 @@
     "chaincodec",
     "arbitrum",
     "base",
-    "polygon"
+    "polygon",
+    "optimism",
+    "solidity",
+    "defi",
+    "uniswap",
+    "napi",
+    "rust-napi",
+    "native-addon",
+    "eth-logs",
+    "event-decoder",
+    "call-decoder"
   ],
   "license": "MIT",
   "repository": {
@@ -36,7 +46,8 @@
   "files": [
     "index.d.ts",
     "index.js",
-    "chaincodec.*.node"
+    "chaincodec.*.node",
+    "README.md"
   ],
   "scripts": {
     "build": "napi build --platform --release",

@@ -2,7 +2,7 @@
 name        = "chaincodec-solana"
 description = "Solana / Anchor IDL decoder for ChainCodec (Phase 2)"
 readme.workspace    = true
-keywords    = ["solana", "anchor", "idl", "decoder", "blockchain"]
+keywords    = ["solana", "chaincodec", "web3", "blockchain", "decoder"]
 categories  = ["cryptography::cryptocurrencies"]
 version.workspace    = true
 edition.workspace    = true

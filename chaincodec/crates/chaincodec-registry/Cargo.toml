@@ -2,7 +2,7 @@
 name        = "chaincodec-registry"
 description = "Schema Registry for ChainCodec — CSDL parser, in-memory store, version management"
 readme.workspace    = true
-keywords    = ["blockchain", "schema", "registry", "abi"]
+keywords    = ["blockchain", "chaincodec", "web3", "ethereum", "schema"]
 categories  = ["cryptography::cryptocurrencies", "encoding"]
 version.workspace       = true
 edition.workspace       = true

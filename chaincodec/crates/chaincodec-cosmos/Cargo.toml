@@ -2,7 +2,7 @@
 name        = "chaincodec-cosmos"
 description = "Cosmos / CosmWasm event decoder for ChainCodec (Phase 2)"
 readme.workspace    = true
-keywords    = ["cosmos", "cosmwasm", "decoder", "blockchain"]
+keywords    = ["cosmos", "chaincodec", "web3", "blockchain", "decoder"]
 categories  = ["cryptography::cryptocurrencies"]
 version.workspace    = true
 edition.workspace    = true

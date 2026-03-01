@@ -2,7 +2,7 @@
 name        = "chaincodec-batch"
 description = "High-throughput batch decode engine for ChainCodec — Rayon parallel processing"
 readme.workspace    = true
-keywords    = ["blockchain", "batch", "decoder", "analytics", "rayon"]
+keywords    = ["blockchain", "chaincodec", "web3", "ethereum", "decoder"]
 categories  = ["cryptography::cryptocurrencies", "concurrency"]
 version.workspace       = true
 edition.workspace       = true
