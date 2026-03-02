@@ -4,6 +4,7 @@
 
 ChainKit is a monorepo of four foundational Rust libraries for building blockchain data infrastructure. Each module is an independent Cargo workspace — use one, use all.
 
+“Build a multichain explorer in 20 lines."
 ---
 
 ## Modules
