@@ -161,7 +161,8 @@ jobs:
             build: |
               rustup target add x86_64-apple-darwin
               cd chainindex/bindings/node
-              npx napi build --platform --release --target x86_64-apple-darwin
+              RUSTFLAGS="-C link-arg=-undefined -C link-arg=dynamic_lookup" \
+                npx napi build --platform --release --target x86_64-apple-darwin
 
           - name: macos-arm64
             host: macos-latest
@@ -169,7 +170,8 @@ jobs:
             build: |
               rustup target add aarch64-apple-darwin
               cd chainindex/bindings/node
-              npx napi build --platform --release --target aarch64-apple-darwin
+              RUSTFLAGS="-C link-arg=-undefined -C link-arg=dynamic_lookup" \
+                npx napi build --platform --release --target aarch64-apple-darwin
 
           - name: windows-x64
             host: windows-latest
