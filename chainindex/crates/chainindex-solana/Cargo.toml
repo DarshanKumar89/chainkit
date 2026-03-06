@@ -1,0 +1,23 @@
+[package]
+name        = "chainindex-solana"
+description = "Solana-specific indexer for ChainIndex — slot tracking, program log parsing, and account monitoring"
+keywords    = ["solana", "indexer", "blockchain", "slots", "programs"]
+categories  = ["cryptography::cryptocurrencies"]
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+repository.workspace = true
+
+[dependencies]
+chainindex-core = { workspace = true }
+tokio       = { workspace = true }
+async-trait = { workspace = true }
+futures     = { workspace = true }
+serde       = { workspace = true }
+serde_json  = { workspace = true }
+thiserror   = { workspace = true }
+tracing     = { workspace = true }
+chrono      = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }

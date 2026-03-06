@@ -2,6 +2,12 @@
 
 Production-grade, multi-provider RPC transport layer for EVM blockchains.
 
+[![crates.io](https://img.shields.io/crates/v/chainrpc-core)](https://crates.io/crates/chainrpc-core)
+[![docs.rs](https://docs.rs/chainrpc-core/badge.svg)](https://docs.rs/chainrpc-core)
+[![npm](https://img.shields.io/npm/v/@chainfoundry/chainrpc)](https://www.npmjs.com/package/@chainfoundry/chainrpc)
+[![PyPI](https://img.shields.io/pypi/v/chainrpc)](https://pypi.org/project/chainrpc/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Built-in retry, circuit breaker, rate limiting, tiered caching, request deduplication, auto-batching, multi-chain routing, MEV protection, and Prometheus metrics — all composable via a single `Arc<dyn RpcTransport>` trait.
 
 ```
@@ -173,7 +179,7 @@ chainrpc/
 
 | Language | Package | Install |
 |----------|---------|---------|
-| TypeScript | `@chainkit/chainrpc` | `npm install @chainkit/chainrpc` |
+| TypeScript | `@chainfoundry/chainrpc` | `npm install @chainfoundry/chainrpc` |
 | Python | `chainrpc` | `pip install chainrpc` |
 | Go | `chainrpc` | `go get github.com/DarshanKumar89/chainkit/chainrpc` |
 | Java | `chainrpc` | Maven / Gradle |
@@ -183,9 +189,9 @@ chainrpc/
 ## Test Coverage
 
 ```
-250 tests, 0 failures
+262 tests, 0 failures
 
-chainrpc-core:      238 tests (all 31 modules)
+chainrpc-core:      250 tests (all 31 modules)
 chainrpc-providers:   6 tests (URL construction)
 chainrpc-ws:          3 tests (subscription management)
 Doc-tests:            3 tests

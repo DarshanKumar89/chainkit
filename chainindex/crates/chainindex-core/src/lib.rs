@@ -11,14 +11,26 @@
 //!                      └── Storage backend (memory / SQLite / Postgres)
 //! ```
 
+pub mod backfill;
+pub mod block_handler;
 pub mod checkpoint;
 pub mod cursor;
+pub mod dlq;
+pub mod entity;
 pub mod error;
+pub mod export;
+pub mod factory;
 pub mod finality;
+pub mod graphql;
 pub mod handler;
+pub mod hotreload;
+pub mod idempotency;
 pub mod indexer;
 pub mod metrics;
+pub mod multichain;
 pub mod reorg;
+pub mod streaming;
+pub mod trace;
 pub mod tracker;
 pub mod types;
 
