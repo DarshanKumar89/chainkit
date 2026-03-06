@@ -4,6 +4,7 @@
   "description": "High-performance EVM indexer with reorg detection and pluggable storage",
   "main": "index.js",
   "types": "index.d.ts",
+  "files": ["index.js", "index.d.ts", "*.node"],
   "license": "MIT",
   "repository": {
     "type": "git",

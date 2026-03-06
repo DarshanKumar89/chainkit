@@ -4,6 +4,7 @@
   "description": "Production-grade blockchain RPC transport with retry, circuit breaker, and multi-provider failover",
   "main": "index.js",
   "types": "index.d.ts",
+  "files": ["index.js", "index.d.ts", "*.node"],
   "license": "MIT",
   "keywords": ["ethereum", "rpc", "blockchain", "web3", "transport", "circuit-breaker", "retry"],
   "repository": {
