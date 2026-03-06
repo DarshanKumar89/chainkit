@@ -375,70 +375,11 @@ impl PostgresStorage {
     }
 }
 
-// ─── CheckpointStore impl ─────────────────────────────────────────────────────
+// ─── Block hash storage (inherent methods, not part of CheckpointStore) ──────
 
-#[async_trait]
-impl CheckpointStore for PostgresStorage {
-    async fn save_checkpoint(
-        &self,
-        indexer_id: &str,
-        checkpoint: &Checkpoint,
-    ) -> Result<(), IndexerError> {
-        let now = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_secs() as i64;
-
-        sqlx::query(
-            "INSERT INTO chainindex_checkpoints
-                (chain_id, indexer_id, block_number, block_hash, updated_at)
-             VALUES ($1, $2, $3, $4, $5)
-             ON CONFLICT (chain_id, indexer_id)
-             DO UPDATE SET
-                block_number = EXCLUDED.block_number,
-                block_hash   = EXCLUDED.block_hash,
-                updated_at   = EXCLUDED.updated_at",
-        )
-        .bind(&checkpoint.chain_id)
-        .bind(indexer_id)
-        .bind(checkpoint.block_number as i64)
-        .bind(&checkpoint.block_hash)
-        .bind(now)
-        .execute(&self.pool)
-        .await
-        .map_err(|e| IndexerError::Storage(e.to_string()))?;
-
-        debug!(
-            "checkpoint saved: chain={} indexer={} block={}",
-            checkpoint.chain_id, indexer_id, checkpoint.block_number
-        );
-        Ok(())
-    }
-
-    async fn load_checkpoint(
-        &self,
-        indexer_id: &str,
-        chain_id: &str,
-    ) -> Result<Option<Checkpoint>, IndexerError> {
-        let row = sqlx::query(
-            "SELECT chain_id, block_number, block_hash
-             FROM chainindex_checkpoints
-             WHERE chain_id = $1 AND indexer_id = $2",
-        )
-        .bind(chain_id)
-        .bind(indexer_id)
-        .fetch_optional(&self.pool)
-        .await
-        .map_err(|e| IndexerError::Storage(e.to_string()))?;
-
-        Ok(row.map(|r| Checkpoint {
-            chain_id: r.get::<String, _>("chain_id"),
-            block_number: r.get::<i64, _>("block_number") as u64,
-            block_hash: r.get::<String, _>("block_hash"),
-        }))
-    }
-
-    async fn save_block_hash(
+impl PostgresStorage {
+    /// Store a block hash for reorg detection.
+    pub async fn save_block_hash(
         &self,
         chain_id: &str,
         block_number: u64,
@@ -465,7 +406,8 @@ impl CheckpointStore for PostgresStorage {
         Ok(())
     }
 
-    async fn get_block_hash(
+    /// Look up the hash of a previously indexed block.
+    pub async fn get_block_hash(
         &self,
         chain_id: &str,
         block_number: u64,
@@ -482,12 +424,70 @@ impl CheckpointStore for PostgresStorage {
 
         Ok(row.map(|r| r.get::<String, _>("block_hash")))
     }
+}
 
-    async fn delete_checkpoint(
+// ─── CheckpointStore impl ─────────────────────────────────────────────────────
+
+#[async_trait]
+impl CheckpointStore for PostgresStorage {
+    async fn save(&self, checkpoint: Checkpoint) -> Result<(), IndexerError> {
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs() as i64;
+
+        sqlx::query(
+            "INSERT INTO chainindex_checkpoints
+                (chain_id, indexer_id, block_number, block_hash, updated_at)
+             VALUES ($1, $2, $3, $4, $5)
+             ON CONFLICT (chain_id, indexer_id)
+             DO UPDATE SET
+                block_number = EXCLUDED.block_number,
+                block_hash   = EXCLUDED.block_hash,
+                updated_at   = EXCLUDED.updated_at",
+        )
+        .bind(&checkpoint.chain_id)
+        .bind(&checkpoint.indexer_id)
+        .bind(checkpoint.block_number as i64)
+        .bind(&checkpoint.block_hash)
+        .bind(now)
+        .execute(&self.pool)
+        .await
+        .map_err(|e| IndexerError::Storage(e.to_string()))?;
+
+        debug!(
+            "checkpoint saved: chain={} indexer={} block={}",
+            checkpoint.chain_id, checkpoint.indexer_id, checkpoint.block_number
+        );
+        Ok(())
+    }
+
+    async fn load(
         &self,
-        indexer_id: &str,
         chain_id: &str,
-    ) -> Result<(), IndexerError> {
+        indexer_id: &str,
+    ) -> Result<Option<Checkpoint>, IndexerError> {
+        let row = sqlx::query(
+            "SELECT chain_id, indexer_id, block_number, block_hash, updated_at
+             FROM chainindex_checkpoints
+             WHERE chain_id = $1 AND indexer_id = $2",
+        )
+        .bind(chain_id)
+        .bind(indexer_id)
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(|e| IndexerError::Storage(e.to_string()))?;
+
+        Ok(row.map(|r| Checkpoint {
+            chain_id: r.get::<String, _>("chain_id"),
+            indexer_id: r.get::<String, _>("indexer_id"),
+            block_number: r.get::<i64, _>("block_number") as u64,
+            block_hash: r.get::<String, _>("block_hash"),
+            updated_at: r.get::<i64, _>("updated_at"),
+        }))
+    }
+
+    async fn delete(&self, chain_id: &str, indexer_id: &str) -> Result<(), IndexerError> {
         sqlx::query(
             "DELETE FROM chainindex_checkpoints
              WHERE chain_id = $1 AND indexer_id = $2",
@@ -510,20 +510,24 @@ mod tests {
     #[tokio::test]
     #[ignore = "requires PostgreSQL (set DATABASE_URL to enable)"]
     async fn test_postgres_checkpoint_roundtrip() {
+        use chainindex_core::checkpoint::CheckpointStore;
+
         let url = std::env::var("DATABASE_URL")
             .expect("DATABASE_URL must be set for integration tests");
         let store = super::PostgresStorage::connect(&url).await.unwrap();
 
         let checkpoint = chainindex_core::checkpoint::Checkpoint {
             chain_id: "ethereum".to_string(),
+            indexer_id: "test-indexer".to_string(),
             block_number: 19_000_000,
             block_hash: "0xabc123def456".to_string(),
+            updated_at: 0,
         };
 
-        store.save_checkpoint("test-indexer", &checkpoint).await.unwrap();
+        store.save(checkpoint).await.unwrap();
 
         let loaded = store
-            .load_checkpoint("test-indexer", "ethereum")
+            .load("ethereum", "test-indexer")
             .await
             .unwrap()
             .expect("checkpoint not found");
@@ -532,10 +536,7 @@ mod tests {
         assert_eq!(loaded.block_hash, "0xabc123def456");
 
         // Clean up
-        store
-            .delete_checkpoint("test-indexer", "ethereum")
-            .await
-            .unwrap();
+        store.delete("ethereum", "test-indexer").await.unwrap();
     }
 
     #[tokio::test]

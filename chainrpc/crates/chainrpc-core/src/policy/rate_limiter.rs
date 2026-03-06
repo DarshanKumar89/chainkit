@@ -7,6 +7,8 @@
 use std::sync::Mutex;
 use std::time::{Duration, Instant};
 
+use crate::cu_tracker::CuCostTable;
+
 /// Rate limiter configuration.
 #[derive(Debug, Clone)]
 pub struct RateLimiterConfig {
@@ -121,6 +123,46 @@ impl RateLimiter {
     }
 }
 
+/// A method-aware rate limiter that automatically looks up CU costs per RPC method.
+///
+/// Wraps a [`TokenBucket`] with a [`CuCostTable`] so callers only need to
+/// supply the method name — the correct compute-unit cost is resolved
+/// internally.
+pub struct MethodAwareRateLimiter {
+    bucket: TokenBucket,
+    cost_table: CuCostTable,
+}
+
+impl MethodAwareRateLimiter {
+    /// Create a new method-aware rate limiter.
+    pub fn new(config: RateLimiterConfig, cost_table: CuCostTable) -> Self {
+        Self {
+            bucket: TokenBucket::new(config),
+            cost_table,
+        }
+    }
+
+    /// Acquire tokens for a specific RPC method, using its CU cost.
+    ///
+    /// Returns `true` if the method's cost was successfully consumed from the
+    /// bucket, `false` if the bucket has insufficient tokens (rate limited).
+    pub fn try_acquire_method(&self, method: &str) -> bool {
+        let cost = self.cost_table.cost_for(method) as f64;
+        self.bucket.try_acquire(cost)
+    }
+
+    /// Wait time before the given method can be called.
+    pub fn wait_time_for_method(&self, method: &str) -> Duration {
+        let cost = self.cost_table.cost_for(method) as f64;
+        self.bucket.wait_time(cost)
+    }
+
+    /// Access the underlying bucket for manual control.
+    pub fn bucket(&self) -> &TokenBucket {
+        &self.bucket
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -161,6 +203,105 @@ mod tests {
         assert!(
             wait.as_millis() >= 50 && wait.as_millis() <= 200,
             "unexpected wait time: {wait:?}"
+        );
+    }
+
+    // ---- MethodAwareRateLimiter tests ----
+
+    #[test]
+    fn method_aware_uses_cu_costs() {
+        // eth_getLogs = 75 CU, eth_blockNumber = 10 CU.
+        // With capacity 150, eth_getLogs can be called 2 times (2*75=150),
+        // while eth_blockNumber can be called 15 times (15*10=150).
+        let table = CuCostTable::alchemy_defaults();
+
+        // Test expensive method: eth_getLogs (75 CU each)
+        let rl_expensive = MethodAwareRateLimiter::new(
+            RateLimiterConfig {
+                capacity: 150.0,
+                refill_rate: 0.0001, // near-zero refill so bucket drains
+            },
+            table.clone(),
+        );
+        assert!(rl_expensive.try_acquire_method("eth_getLogs")); // 75 consumed, 75 left
+        assert!(rl_expensive.try_acquire_method("eth_getLogs")); // 150 consumed, 0 left
+        assert!(
+            !rl_expensive.try_acquire_method("eth_getLogs"),
+            "should be rate limited after 2 expensive calls"
+        );
+
+        // Test cheap method: eth_blockNumber (10 CU each)
+        let rl_cheap = MethodAwareRateLimiter::new(
+            RateLimiterConfig {
+                capacity: 150.0,
+                refill_rate: 0.0001,
+            },
+            CuCostTable::alchemy_defaults(),
+        );
+        let mut count = 0;
+        while rl_cheap.try_acquire_method("eth_blockNumber") {
+            count += 1;
+            if count > 20 {
+                break; // safety valve
+            }
+        }
+        assert_eq!(
+            count, 15,
+            "cheap method (10 CU) should fit 15 times in 150 capacity"
+        );
+    }
+
+    #[test]
+    fn method_aware_wait_time() {
+        // refill_rate = 100 tokens/sec.
+        // Drain the bucket, then check wait times scale with method cost.
+        let table = CuCostTable::alchemy_defaults();
+        let rl = MethodAwareRateLimiter::new(
+            RateLimiterConfig {
+                capacity: 300.0,
+                refill_rate: 100.0, // 100 CU/sec
+            },
+            table,
+        );
+        // Drain the bucket completely.
+        while rl.bucket().try_acquire(100.0) {}
+
+        // eth_blockNumber = 10 CU → ~100ms wait at 100 CU/sec
+        let wait_cheap = rl.wait_time_for_method("eth_blockNumber");
+        // eth_getLogs = 75 CU → ~750ms wait at 100 CU/sec
+        let wait_expensive = rl.wait_time_for_method("eth_getLogs");
+
+        assert!(
+            wait_expensive > wait_cheap,
+            "expensive method should have longer wait: expensive={wait_expensive:?}, cheap={wait_cheap:?}"
+        );
+
+        // Verify approximate scale: expensive wait should be roughly 7.5x the cheap wait
+        let ratio = wait_expensive.as_secs_f64() / wait_cheap.as_secs_f64();
+        assert!(
+            ratio > 5.0 && ratio < 10.0,
+            "wait time ratio should be ~7.5, got {ratio:.2}"
+        );
+    }
+
+    #[test]
+    fn method_aware_unknown_method_uses_default() {
+        // Default CU cost for Alchemy table = 50.
+        // Capacity 100 → unknown method (50 CU) fits exactly 2 times.
+        let table = CuCostTable::alchemy_defaults();
+        let rl = MethodAwareRateLimiter::new(
+            RateLimiterConfig {
+                capacity: 100.0,
+                refill_rate: 0.0001,
+            },
+            table,
+        );
+
+        assert!(rl.try_acquire_method("some_unknown_rpc_method")); // 50 consumed
+        assert!(rl.try_acquire_method("another_unknown_method")); // 100 consumed
+        assert!(
+            !rl.try_acquire_method("yet_another_unknown"),
+            "unknown method should use default cost (50) and be rate limited"
         );
     }
 }

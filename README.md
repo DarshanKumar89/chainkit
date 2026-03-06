@@ -1,44 +1,94 @@
 # ChainKit
 
-> **building blockchain primitives for Rust, TypeScript, Python, and WASM.**
+> **Building blockchain primitives for Rust, TypeScript, Python, Go, Java, and WASM.**
 
-ChainKit is a monorepo of four foundational Rust libraries for building blockchain data infrastructure. Each module is an independent Cargo workspace — use one, use all.
+ChainKit is a monorepo of four foundational Rust libraries for building blockchain data infrastructure. Each module is an independent Cargo workspace with language bindings for TypeScript, Python, Go, and Java — use one, use all.
 
 ---
 
 ## Modules
 
-| Module | Description | Status | crates.io |
-|--------|-------------|--------|-----------|
-| [`chaincodec`](./chaincodec/) | Universal ABI decoder — EVM events, calls, EIP-712, proxy detection | 🚧 In Development | — |
-| [`chainerrors`](./chainerrors/) | EVM revert / panic / custom error decoder | 🚧 In Development | — |
-| [`chainrpc`](./chainrpc/) | Resilient RPC transport with circuit breaker, rate limiter, auto-batch | 🚧 In Development | — |
-| [`chainindex`](./chainindex/) | Reorg-safe blockchain indexer with pluggable storage | 🚧 In Development | — |
+| Module | Description | Status | Docs | Examples |
+|--------|-------------|--------|------|----------|
+| [`chaincodec`](./chaincodec/) | Universal ABI decoder — EVM events, calls, EIP-712, proxy detection, 50+ schemas | ✅ v0.1.2 | [docs](./chaincodec/docs/) | [examples](./chaincodec/examples/) |
+| [`chainerrors`](./chainerrors/) | EVM revert / panic / custom error decoder with golden fixtures | ✅ Complete | [docs](./chainerrors/docs/) | — |
+| [`chainrpc`](./chainrpc/) | Production RPC transport — circuit breaker, rate limiter, caching, pool, MEV, 27 modules | ✅ Complete | [docs](./chainrpc/docs/) | [22 examples](./chainrpc/examples/) |
+| [`chainindex`](./chainindex/) | Reorg-safe blockchain indexer with pluggable storage (SQLite/Postgres) | ✅ Complete | — | — |
+
+### Language Bindings
+
+All 4 modules ship with native bindings:
+
+| Language | chaincodec | chainerrors | chainrpc | chainindex |
+|----------|-----------|-------------|----------|------------|
+| TypeScript (napi-rs) | ✅ | ✅ | ✅ | ✅ |
+| Python (PyO3/maturin) | ✅ | ✅ | ✅ | ✅ |
+| Go (cgo) | ✅ | ✅ | ✅ | ✅ |
+| Java (JNI) | ✅ | ✅ | ✅ | ✅ |
+| WASM (wasm-bindgen) | ✅ | — | — | — |
 
 ---
 
-## Documentation
+## ChainRPC — Production RPC Transport
 
-| Document | Description |
-| --- | --- |
-| [Getting Started](./chaincodec/docs/getting-started.md) | Install, first decode, quickstarts in Rust / TypeScript / Python / CLI |
-| [Examples Walkthrough](./chaincodec/docs/examples.md) | All 13 runnable examples explained with expected output |
-| [CSDL Reference](./chaincodec/docs/csdl-reference.md) | Complete schema format — types, fingerprints, versioning |
-| [Architecture](./chaincodec/docs/architecture.md) | Every crate explained — design decisions and internals |
-| [Use Cases](./chaincodec/docs/use-cases.md) | What to build — indexers, analytics, wallets, security, trading |
-
----
-
-## chaincodec — First Module (In Development)
-
-**chaincodec** is ChainKit's flagship module, currently in active development.
-
-### What it does
+**27 modules**, **188 tests**, composable middleware stack for EVM RPC.
 
 ```
-EVM log → EvmDecoder → DecodedEvent { fields: { from, to, value }, ... }
-Calldata → EvmCallDecoder → DecodedCall { function_name, inputs: [...] }
-ABI JSON + args → EvmEncoder → 0xaabbccdd...
+DedupTransport → CacheTransport → BackpressureTransport → ProviderPool → HttpRpcClient
+```
+
+Every layer wraps `Arc<dyn RpcTransport>` and itself implements the trait. Stack what you need.
+
+### Highlights
+
+- **Provider Pool** — Multi-provider failover with 5 selection strategies (RoundRobin, Priority, Weighted, LatencyBased, Sticky)
+- **Tiered Cache** — 4-tier response cache (Immutable 1h / SemiStable 5m / Volatile 2s / NeverCache) with reorg invalidation
+- **CU-Aware Rate Limiting** — Token bucket that knows `eth_getLogs` = 75 CU, `eth_blockNumber` = 10 CU
+- **Circuit Breaker** — Three-state (Closed/Open/HalfOpen), automatic failover when providers go down
+- **Request Dedup** — N concurrent identical calls = 1 HTTP request, shared response
+- **Auto-Batching** — Collects individual calls into JSON-RPC batch requests within a time window
+- **MEV Protection** — Detects 12 MEV-susceptible selectors, routes to private relays
+- **Gas Estimation** — EIP-1559 recommendations (Slow/Standard/Fast/Urgent)
+- **Tx Lifecycle** — Send, track, poll receipt, detect stuck, nonce management
+- **Prometheus Metrics** — Per-provider success/failure/latency export
+
+### Quick Start
+
+```rust
+use chainrpc_http::{HttpRpcClient, pool_from_urls};
+use chainrpc_core::transport::RpcTransport;
+
+// Single client with built-in retry + circuit breaker
+let client = HttpRpcClient::default_for("https://eth-mainnet.g.alchemy.com/v2/KEY");
+let block: String = client.call(1, "eth_blockNumber", vec![]).await?;
+
+// Multi-provider failover
+let pool = pool_from_urls(&["https://alchemy.com/...", "https://infura.io/..."])?;
+let resp = pool.send(JsonRpcRequest::auto("eth_blockNumber", vec![])).await?;
+```
+
+### ChainRPC Documentation
+
+| Document | Description |
+|----------|-------------|
+| [README](./chainrpc/README.md) | Full feature list, quick start, crate structure |
+| [Architecture](./chainrpc/docs/ARCHITECTURE.md) | System diagram, request flow, design principles |
+| [Modules](./chainrpc/docs/MODULES.md) | All 27 modules with public API signatures |
+| [API Reference](./chainrpc/docs/API-REFERENCE.md) | Quick-lookup tables for every type and function |
+| [Use Cases](./chainrpc/docs/USECASES.md) | 16 real-world patterns with complete Rust code |
+| [Implementation](./chainrpc/docs/IMPLEMENTATION.md) | Design decisions, concurrency, internals |
+| [Examples](./chainrpc/examples/README.md) | 22 runnable examples organized by category |
+
+---
+
+## ChainCodec — Universal ABI Decoder
+
+**50+ protocol schemas**, **13 examples**, decode/encode any EVM event, call, or EIP-712 message.
+
+```
+EVM log    → EvmDecoder     → DecodedEvent { fields: { from, to, value }, ... }
+Calldata   → EvmCallDecoder → DecodedCall { function_name, inputs: [...] }
+ABI + args → EvmEncoder     → 0xaabbccdd...
 ```
 
 ### Features
@@ -55,13 +105,8 @@ ABI JSON + args → EvmEncoder → 0xaabbccdd...
 | CSDL schema format (YAML) | ✅ |
 | 50+ bundled protocol schemas | ✅ |
 | Parallel batch decode (Rayon) | ✅ |
-| TypeScript / Node.js bindings (napi-rs) | ✅ |
-| Python bindings (PyO3/maturin) | ✅ |
-| WASM bindings (wasm-bindgen) | ✅ |
 
-### Bundled schemas
-
-chaincodec ships with production-ready schemas for 50+ protocols:
+### Bundled Schemas
 
 **Tokens**: ERC-20, ERC-721, ERC-1155, ERC-4626, WETH
 **DEX**: Uniswap V2, Uniswap V3, Curve, Balancer V2, Pendle
@@ -73,176 +118,63 @@ chaincodec ships with production-ready schemas for 50+ protocols:
 **Bridges**: Across Protocol, Stargate
 **Governance**: Compound Governor Bravo
 
----
-
-## Quick Start (Rust)
-
-```toml
-[dependencies]
-chaincodec-evm      = "0.1"
-chaincodec-registry = "0.1"
-chaincodec-core     = "0.1"
-```
+### Quick Start
 
 ```rust
 use chaincodec_evm::EvmDecoder;
 use chaincodec_registry::MemoryRegistry;
-use chaincodec_core::decoder::ChainDecoder;
 
-// Load schemas
 let registry = MemoryRegistry::new();
 registry.load_directory("./schemas")?;
 
-// Decode an event
 let decoder = EvmDecoder::new();
 let event = decoder.decode_event(&raw_log, &schema)?;
 println!("{}: {:?}", event.schema, event.fields);
 ```
 
-## Quick Start (TypeScript / Node.js)
-
 ```bash
-npm install @chainfoundry/chaincodec
+npm install @chainfoundry/chaincodec   # TypeScript
+pip install chaincodec                  # Python
 ```
 
-```typescript
-import { EvmDecoder, MemoryRegistry } from '@chainfoundry/chaincodec';
+### ChainCodec Documentation
 
-const registry = new MemoryRegistry();
-registry.loadDirectory('./node_modules/@chainfoundry/chaincodec/schemas');
-
-const decoder = new EvmDecoder();
-const event = decoder.decodeEvent({
-  chain: 'ethereum',
-  txHash: '0x...',
-  blockNumber: 19000000,
-  blockTimestamp: 1700000000,
-  logIndex: 0,
-  address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  topics: [
-    '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
-    '0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045',
-    '0x000000000000000000000000ab5801a7d398351b8be11c439e05c5b3259aec9b',
-  ],
-  data: '0x0000000000000000000000000000000000000000000000000000000000989680',
-}, registry);
-
-console.log(event.schema);        // "ERC20Transfer"
-console.log(event.fields.value);  // { type: "uint", value: 10000000 }
-```
-
-## Quick Start (Python)
-
-```bash
-pip install chaincodec
-```
-
-```python
-from chaincodec import EvmDecoder, MemoryRegistry
-
-registry = MemoryRegistry()
-registry.load_directory("./schemas")
-
-decoder = EvmDecoder()
-event = decoder.decode_event({
-    "chain": "ethereum",
-    "tx_hash": "0x...",
-    "block_number": 19000000,
-    "block_timestamp": 1700000000,
-    "log_index": 0,
-    "address": "0xa0b86991...",
-    "topics": ["0xddf252ad...", "0x000...from", "0x000...to"],
-    "data": "0x0000...value",
-}, registry)
-
-print(event["schema"])           # ERC20Transfer
-print(event["fields"]["value"])  # 10000000
-```
-
-## Quick Start (WASM / Browser)
-
-```javascript
-import init, { EvmDecoder, MemoryRegistry } from '@chainfoundry/chaincodec-wasm';
-import schemaCsdl from './schemas/erc20.csdl?raw';
-
-await init();
-
-const registry = new MemoryRegistry();
-registry.loadCsdl(schemaCsdl);
-
-const decoder = new EvmDecoder();
-const eventJson = decoder.decodeEventJson(JSON.stringify(rawLog), registry);
-const event = JSON.parse(eventJson);
-```
+| Document | Description |
+|----------|-------------|
+| [Getting Started](./chaincodec/docs/getting-started.md) | Install, first decode, quickstarts in Rust / TypeScript / Python / CLI |
+| [Examples Walkthrough](./chaincodec/docs/examples.md) | All 13 runnable examples explained with expected output |
+| [CSDL Reference](./chaincodec/docs/csdl-reference.md) | Complete schema format — types, fingerprints, versioning |
+| [Architecture](./chaincodec/docs/architecture.md) | Every crate explained — design decisions and internals |
+| [Use Cases](./chaincodec/docs/use-cases.md) | What to build — indexers, analytics, wallets, security, trading |
 
 ---
 
-## CLI
+## ChainErrors — EVM Error Decoder
 
-```bash
-cargo install chaincodec-cli
+Decodes Solidity reverts, panics, and custom errors from raw bytes.
 
-# Parse and validate a schema
-chaincodec parse --file schemas/tokens/erc20.csdl
-
-# Decode a live event log
-chaincodec decode-log \
-  --topics 0xddf252ad... 0x000...from 0x000...to \
-  --data 0x000...value \
-  --schema-dir ./schemas \
-  --chain ethereum
-
-# Decode function call calldata
-chaincodec decode-call \
-  --calldata 0xa9059cbb000...to000...amount \
-  --abi ./abis/erc20.json
-
-# Encode a function call
-chaincodec encode-call \
-  --function transfer \
-  --args '[{"type":"address","value":"0xd8dA..."},{"type":"uint","value":1000000}]' \
-  --abi ./abis/erc20.json
-
-# Detect proxy pattern
-chaincodec detect-proxy --address 0xA0b86991...
-
-# Fetch ABI from Sourcify/Etherscan
-chaincodec fetch-abi --address 0xA0b86991... --chain-id 1
-
-# List bundled schemas
-chaincodec schemas list --dir ./schemas
-
-# Benchmark decode throughput
-chaincodec bench --schema ERC20Transfer --iterations 1000000
 ```
+0x08c379a0... → Error(string): "Insufficient balance"
+0x4e487b71... → Panic(uint256): arithmetic overflow (0x11)
+0xe450d38c... → ERC20InsufficientBalance(address, uint256, uint256)
+```
+
+- Revert string decoding (`Error(string)`)
+- Panic code decoding with human-readable descriptions
+- Custom error decoding (ERC-20/721, OpenZeppelin, Ownable)
+- Golden fixture test suite
 
 ---
 
-## CSDL Schema Format
+## ChainIndex — Reorg-Safe Indexer
 
-ChainCodec uses **CSDL** (ChainCodec Schema Definition Language), a human-readable YAML format:
+Pluggable blockchain indexer with automatic reorg detection and recovery.
 
-```yaml
-schema ERC20Transfer:
-  version: 1
-  description: "ERC-20 standard Transfer event"
-  chains: [ethereum, arbitrum, base, polygon, optimism]
-  event: Transfer
-  fingerprint: "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
-  fields:
-    from:  { type: address, indexed: true,  description: "Sender" }
-    to:    { type: address, indexed: true,  description: "Recipient" }
-    value: { type: uint256, indexed: false, description: "Amount" }
-  meta:
-    protocol: erc20
-    category: token
-    verified: true
-    trust_level: maintainer_verified
----
-schema ERC20Approval:
-  version: 1
-  # ... (multiple schemas per file supported with ---)
-```
+- **IndexerBuilder** API for configuring chains, handlers, storage
+- **ReorgDetector** — 4-scenario detection (simple, deep, to-genesis, chain-switch)
+- **BlockTracker** — Sliding window with gap detection
+- **Storage backends** — Memory, SQLite (WAL mode), PostgreSQL (JSONB events)
+- **Checkpoint system** — Resume from last confirmed block
 
 ---
 
@@ -250,56 +182,58 @@ schema ERC20Approval:
 
 ```
 chainkit/
-├── chaincodec/          # EVM ABI decoder — in development
-│   ├── crates/
-│   │   ├── chaincodec-core/        # Traits, types, NormalizedValue
-│   │   ├── chaincodec-evm/         # EvmDecoder, EvmCallDecoder, EvmEncoder
-│   │   │                           # EIP-712, Proxy detection
-│   │   ├── chaincodec-registry/    # CSDL parser, MemoryRegistry, remote fetch
-│   │   ├── chaincodec-batch/       # Rayon parallel decode + benchmarks
-│   │   ├── chaincodec-stream/      # Real-time streaming engine
-│   │   ├── chaincodec-observability/ # OpenTelemetry metrics + tracing
-│   │   ├── chaincodec-solana/      # Solana decoder stub
-│   │   └── chaincodec-cosmos/      # Cosmos decoder stub
-│   ├── schemas/                    # 50+ bundled CSDL schemas
-│   │   ├── tokens/   (erc20, erc721, erc1155, erc4626, weth)
-│   │   ├── defi/     (uniswap-v2/v3, aave-v3, compound-v2/v3, curve, balancer, lido, ...)
-│   │   ├── nft/      (opensea, blur)
-│   │   ├── bridge/   (across, stargate)
-│   │   └── governance/
-│   ├── bindings/
-│   │   ├── node/     # napi-rs → @chainfoundry/chaincodec (npm)
-│   │   ├── python/   # PyO3 → chaincodec (PyPI)
-│   │   ├── wasm/     # wasm-bindgen → @chainfoundry/chaincodec-wasm
-│   │   ├── go/       # cgo bindings (planned)
-│   │   └── java/     # JNI bindings (planned)
-│   ├── registry-server/  # Schema registry HTTP server
-│   ├── cli/          # chaincodec CLI binary
-│   └── fixtures/     # Golden test fixtures
-├── chainerrors/       # EVM error decoder
-├── chainrpc/          # RPC transport with resilience
-└── chainindex/        # Reorg-safe indexer
+├── chaincodec/          # ABI decoder — v0.1.2 published
+│   ├── crates/          # 8 crates (core, evm, registry, batch, stream, ...)
+│   ├── schemas/         # 50+ bundled CSDL schemas
+│   ├── bindings/        # node, python, wasm, go, java
+│   └── cli/
+├── chainerrors/         # Error decoder
+│   ├── crates/          # core, evm
+│   └── bindings/        # node, python, go, java
+├── chainrpc/            # RPC transport — 27 modules, 188 tests
+│   ├── crates/          # core (27 modules), http, ws, providers
+│   ├── bindings/        # node, python, go, java
+│   ├── examples/        # 22 runnable examples
+│   ├── docs/            # 5 documentation files
+│   └── cli/
+└── chainindex/          # Blockchain indexer
+    ├── crates/          # core, evm, storage
+    └── bindings/        # node, python, go, java
 ```
 
 ---
 
 ## Performance
 
-| Operation | Throughput |
-|-----------|-----------|
-| Single-thread decode | >1M events/sec |
-| Rayon 8-thread decode | >5M events/sec |
-| Schema lookup (fingerprint) | O(1) HashMap |
-| CSDL parse (per file) | <1ms |
-
-Benchmarks run with `cargo bench --package chaincodec-batch`.
+| Module | Metric |
+|--------|--------|
+| chaincodec | >1M events/sec single-thread, >5M with Rayon |
+| chainrpc | ~1ns middleware overhead per layer (vs 5-100ms network) |
+| chainindex | Reorg detection in O(window_size) |
 
 ---
 
+## CLI Tools
+
+```bash
+# chaincodec — decode events, calls, encode, proxy detection
+cargo install chaincodec-cli
+chaincodec decode-log --topics 0xddf252ad... --data 0x000...
+
+# chainrpc — test RPC calls, benchmark providers
+cargo install chainrpc-cli
+chainrpc call --url https://... --method eth_blockNumber
+
+# chainerrors — decode error data
+cargo install chainerrors-cli
+chainerrors decode --data 0x08c379a0...
+```
+
+---
 
 ## Built With
 
-The CI/CD pipeline, publishing workflow, build system, and module testing for ChainKit were developed with the assistance of [Claude](https://claude.ai) (Anthropic) — including crates.io publishing, npm/PyPI release automation, cross-platform Rust builds, and language binding generation. Anything wrong open for suggestions and improvement. 
+The CI/CD pipeline, publishing workflow, build system, and module testing for ChainKit were developed with the assistance of [Claude](https://claude.ai) (Anthropic) — including crates.io publishing, npm/PyPI release automation, cross-platform Rust builds, and language binding generation. Anything wrong open for suggestions and improvement.
 
 ---
 
@@ -308,11 +242,10 @@ The CI/CD pipeline, publishing workflow, build system, and module testing for Ch
 See [CONTRIBUTING.md](./CONTRIBUTING.md). Each module has independent CI:
 
 ```bash
-# Run all tests for chaincodec
 cd chaincodec && cargo test --workspace
-
-# Run benchmarks
-cd chaincodec && cargo bench --package chaincodec-batch
+cd chainerrors && cargo test --workspace
+cd chainrpc && cargo test --workspace
+cd chainindex && cargo test --workspace
 ```
 
 ---
@@ -331,8 +264,7 @@ Built by [@darshan_aqua](https://x.com/darshan_aqua) — questions, feedback, an
 
 ## Roadmap
 
-- **v0.1** (now): chaincodec production release — Rust + npm + Python + WASM
-- **v0.2**: chainerrors next production release
-- **v0.3**: chainrpc next production release with provider integrations
-- **v0.4**: chainindex next production release with SQLite/Postgres
-- **v1.0**: Full multi-chain support (Solana, Cosmos)
+- **v0.1** (done): chaincodec production release — Rust + npm + Python + WASM
+- **v0.2**: chainerrors + chainrpc publish to crates.io / npm / PyPI
+- **v0.3**: chainindex publish with SQLite/Postgres backends
+- **v1.0**: Full multi-chain support (Solana, Cosmos), E2E integration tests

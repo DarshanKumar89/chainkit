@@ -11,8 +11,10 @@ use crate::types::{BlockSummary, IndexContext};
 ///
 /// In practice this will be a re-export of chaincodec's `DecodedEvent`, but
 /// chainindex-core avoids a direct chaincodec dependency to stay modular.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct DecodedEvent {
+    /// Chain identifier (e.g. `"ethereum"`, `"arbitrum"`).
+    pub chain: String,
     /// The schema/event name (e.g. `"ERC20Transfer"`).
     pub schema: String,
     /// Contract address that emitted the event.
@@ -172,6 +174,7 @@ mod tests {
 
     fn dummy_event(schema: &str) -> DecodedEvent {
         DecodedEvent {
+            chain: "ethereum".into(),
             schema: schema.to_string(),
             address: "0x0".into(),
             tx_hash: "0x0".into(),

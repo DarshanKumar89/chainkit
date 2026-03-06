@@ -97,6 +97,7 @@ mod tests {
 
     fn ev(schema: &str, block: u64) -> DecodedEvent {
         DecodedEvent {
+            chain: "ethereum".into(),
             schema: schema.to_string(),
             address: "0x0".into(),
             tx_hash: "0x0".into(),

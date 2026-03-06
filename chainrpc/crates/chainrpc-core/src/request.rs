@@ -1,7 +1,12 @@
 //! JSON-RPC 2.0 wire types.
 
+use std::sync::atomic::{AtomicU64, Ordering};
+
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+
+/// Global auto-incrementing request ID counter.
+static NEXT_ID: AtomicU64 = AtomicU64::new(1);
 
 /// JSON-RPC request ID — string, number, or null.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -41,7 +46,7 @@ pub struct JsonRpcRequest {
 }
 
 impl JsonRpcRequest {
-    /// Create a new JSON-RPC 2.0 request.
+    /// Create a new JSON-RPC 2.0 request with an explicit ID.
     pub fn new(id: u64, method: impl Into<String>, params: Vec<RpcParam>) -> Self {
         Self {
             jsonrpc: "2.0".into(),
@@ -49,6 +54,12 @@ impl JsonRpcRequest {
             params,
             id: RpcId::Number(id),
         }
+    }
+
+    /// Create a request with an auto-incrementing ID.
+    pub fn auto(method: impl Into<String>, params: Vec<RpcParam>) -> Self {
+        let id = NEXT_ID.fetch_add(1, Ordering::Relaxed);
+        Self::new(id, method, params)
     }
 }
 

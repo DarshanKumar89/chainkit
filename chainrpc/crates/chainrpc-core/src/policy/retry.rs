@@ -51,10 +51,20 @@ impl RetryPolicy {
         let cap_ms = self.config.max_backoff.as_millis() as f64;
         let capped = base_ms.min(cap_ms);
 
-        // Deterministic pseudo-jitter for testing (use system time-based in prod)
-        let jitter_ms = capped * self.config.jitter_fraction * 0.5; // simplified: +jitter/2
-        let total_ms = (capped + jitter_ms) as u64;
+        // Time-based jitter: use current time nanos as entropy source
+        let jitter_ms = if self.config.jitter_fraction > 0.0 {
+            let nanos = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default()
+                .subsec_nanos();
+            // Map nanos to [-1.0, 1.0] range
+            let random_factor = (nanos as f64 / u32::MAX as f64) * 2.0 - 1.0;
+            capped * self.config.jitter_fraction * random_factor
+        } else {
+            0.0
+        };
 
+        let total_ms = ((capped + jitter_ms).max(1.0)) as u64;
         Some(Duration::from_millis(total_ms))
     }
 

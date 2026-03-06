@@ -9,8 +9,8 @@ use std::cell::RefCell;
 use std::sync::OnceLock;
 
 use tokio::runtime::Runtime;
-use chainrpc_http::HttpRpcClient;
-use chainrpc_core::{pool::ProviderPool, request::JsonRpcRequest};
+use chainrpc_http::{HttpRpcClient, pool_from_urls};
+use chainrpc_core::{pool::ProviderPool, request::JsonRpcRequest, transport::RpcTransport};
 
 // ─── Global Tokio runtime ─────────────────────────────────────────────────────
 
@@ -101,17 +101,14 @@ pub extern "C" fn chainrpc_call(
         }
     };
 
-    let client = match HttpRpcClient::new(&url_str) {
-        Ok(c) => c,
-        Err(e) => { set_last_error(&e.to_string()); return std::ptr::null_mut(); }
-    };
+    let client = HttpRpcClient::default_for(&url_str);
 
     let params: Vec<serde_json::Value> = match serde_json::from_str(&params_str) {
         Ok(p) => p,
         Err(e) => { set_last_error(&format!("params parse: {e}")); return std::ptr::null_mut(); }
     };
 
-    let req = JsonRpcRequest::new(method_str, params);
+    let req = JsonRpcRequest::auto(method_str, params);
     let result = runtime().block_on(async move { client.send(req).await });
 
     match result {
@@ -171,7 +168,7 @@ pub extern "C" fn chainrpc_pool_call(
         Err(e) => { set_last_error(&format!("urls_json parse: {e}")); return std::ptr::null_mut(); }
     };
     let url_refs: Vec<&str> = urls.iter().map(|s| s.as_str()).collect();
-    let pool = match ProviderPool::from_urls(&url_refs) {
+    let pool = match pool_from_urls(&url_refs) {
         Ok(p) => p,
         Err(e) => { set_last_error(&e.to_string()); return std::ptr::null_mut(); }
     };
@@ -181,7 +178,7 @@ pub extern "C" fn chainrpc_pool_call(
         Err(e) => { set_last_error(&format!("params parse: {e}")); return std::ptr::null_mut(); }
     };
 
-    let req = JsonRpcRequest::new(method_str, params);
+    let req = JsonRpcRequest::auto(method_str, params);
     let result = runtime().block_on(async move { pool.send(req).await });
 
     match result {

@@ -10,5 +10,5 @@ pub mod rate_limiter;
 pub mod retry;
 
 pub use circuit_breaker::{CircuitBreaker, CircuitBreakerConfig, CircuitState};
-pub use rate_limiter::{RateLimiter, RateLimiterConfig, TokenBucket};
+pub use rate_limiter::{MethodAwareRateLimiter, RateLimiter, RateLimiterConfig, TokenBucket};
 pub use retry::{RetryConfig, RetryPolicy};

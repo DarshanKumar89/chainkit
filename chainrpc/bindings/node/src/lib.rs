@@ -27,10 +27,11 @@
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
 
-use chainrpc_http::HttpRpcClient as RustHttpClient;
+use chainrpc_http::{HttpRpcClient as RustHttpClient, pool_from_urls};
 use chainrpc_core::{
     pool::ProviderPool as RustPool,
     request::JsonRpcRequest,
+    transport::RpcTransport,
 };
 
 // ─── HttpRpcClient ────────────────────────────────────────────────────────────
@@ -47,8 +48,7 @@ impl HttpRpcClient {
     /// `url` should be the full RPC endpoint URL including API key if required.
     #[napi(factory)]
     pub fn create(url: String) -> Result<Self> {
-        let inner = RustHttpClient::new(&url)
-            .map_err(|e| Error::from_reason(e.to_string()))?;
+        let inner = RustHttpClient::default_for(&url);
         Ok(Self { inner })
     }
 
@@ -61,7 +61,7 @@ impl HttpRpcClient {
         let params: Vec<serde_json::Value> = serde_json::from_str(&params_json)
             .map_err(|e| Error::from_reason(format!("params parse: {e}")))?;
 
-        let req = JsonRpcRequest::new(method, params);
+        let req = JsonRpcRequest::auto(method, params);
         let resp = self.inner.send(req).await
             .map_err(|e| Error::from_reason(e.to_string()))?;
 
@@ -89,7 +89,7 @@ impl HttpRpcClient {
         let rpc_reqs: Vec<JsonRpcRequest> = reqs.iter().map(|r| {
             let method = r["method"].as_str().unwrap_or("").to_string();
             let params = r["params"].as_array().cloned().unwrap_or_default();
-            JsonRpcRequest::new(method, params)
+            JsonRpcRequest::auto(method, params)
         }).collect();
 
         let responses = self.inner.send_batch(rpc_reqs).await
@@ -129,7 +129,8 @@ impl ProviderPool {
     /// until they recover. Requests are automatically retried on failure.
     #[napi(factory)]
     pub fn create(urls: Vec<String>) -> Result<Self> {
-        let inner = RustPool::from_urls(&urls)
+        let url_refs: Vec<&str> = urls.iter().map(|s| s.as_str()).collect();
+        let inner = pool_from_urls(&url_refs)
             .map_err(|e| Error::from_reason(e.to_string()))?;
         Ok(Self { inner })
     }
@@ -142,7 +143,7 @@ impl ProviderPool {
         let params: Vec<serde_json::Value> = serde_json::from_str(&params_json)
             .map_err(|e| Error::from_reason(format!("params parse: {e}")))?;
 
-        let req = JsonRpcRequest::new(method, params);
+        let req = JsonRpcRequest::auto(method, params);
         let resp = self.inner.send(req).await
             .map_err(|e| Error::from_reason(e.to_string()))?;
 

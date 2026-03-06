@@ -14,8 +14,10 @@
 pub mod checkpoint;
 pub mod cursor;
 pub mod error;
+pub mod finality;
 pub mod handler;
 pub mod indexer;
+pub mod metrics;
 pub mod reorg;
 pub mod tracker;
 pub mod types;
