@@ -11,10 +11,10 @@ ChainKit is a monorepo of four foundational Rust libraries for building blockcha
 
 | Module | Description | Status | Docs | Examples |
 |--------|-------------|--------|------|----------|
-| [`chaincodec`](./chaincodec/) | Universal ABI decoder — EVM events, calls, EIP-712, proxy detection, 50+ schemas | ✅ v0.1.2 | [docs](./chaincodec/docs/) | [examples](./chaincodec/examples/) |
-| [`chainerrors`](./chainerrors/) | EVM revert / panic / custom error decoder with golden fixtures | ✅ Complete | [docs](./chainerrors/docs/) | — |
-| [`chainrpc`](./chainrpc/) | Production RPC transport — circuit breaker, rate limiter, caching, pool, MEV, 27 modules | ✅ Complete | [docs](./chainrpc/docs/) | [22 examples](./chainrpc/examples/) |
-| [`chainindex`](./chainindex/) | Reorg-safe blockchain indexer with pluggable storage (SQLite/Postgres) | ✅ Complete | — | — |
+| [`chaincodec`](./chaincodec/) | Universal ABI decoder — EVM events, calls, EIP-712, proxy detection, 50+ schemas | ✅ v0.1.2 (crates.io + npm) | [docs](./chaincodec/docs/) | [examples](./chaincodec/examples/) |
+| [`chainerrors`](./chainerrors/) | EVM revert / panic / custom error decoder with golden fixtures | ✅ Complete — unpublished | [docs](./chainerrors/docs/) | — |
+| [`chainrpc`](./chainrpc/) | Production RPC transport — circuit breaker, rate limiter, caching, pool, MEV, 27 modules | ✅ Complete — unpublished | [docs](./chainrpc/docs/) | [22 examples](./chainrpc/examples/) |
+| [`chainindex`](./chainindex/) | Reorg-safe blockchain indexer with pluggable storage (SQLite/Postgres/RocksDB) | ✅ Complete — unpublished | [docs](./chainindex/docs/) | [16 examples](./chainindex/examples/) |
 
 ### Language Bindings
 
@@ -32,7 +32,7 @@ All 4 modules ship with native bindings:
 
 ## ChainRPC — Production RPC Transport
 
-**27 modules**, **188 tests**, composable middleware stack for EVM RPC.
+**31 modules**, **262 tests**, composable middleware stack for EVM + Solana RPC.
 
 ```
 DedupTransport → CacheTransport → BackpressureTransport → ProviderPool → HttpRpcClient
@@ -191,15 +191,16 @@ chainkit/
 ├── chainerrors/         # Error decoder
 │   ├── crates/          # core, evm
 │   └── bindings/        # node, python, go, java
-├── chainrpc/            # RPC transport — 27 modules, 188 tests
-│   ├── crates/          # core (27 modules), http, ws, providers
+├── chainrpc/            # RPC transport — 31 modules, 262 tests
+│   ├── crates/          # core (31 modules), http, ws, providers
 │   ├── bindings/        # node, python, go, java
-│   ├── examples/        # 22 runnable examples
+│   ├── examples/        # 26 runnable examples
 │   ├── docs/            # 5 documentation files
 │   └── cli/
-└── chainindex/          # Blockchain indexer
-    ├── crates/          # core, evm, storage
-    └── bindings/        # node, python, go, java
+└── chainindex/          # Blockchain indexer — 324 tests
+    ├── crates/          # core, evm, solana, storage
+    ├── bindings/        # node, python, go, java
+    └── examples/        # 16 runnable examples
 ```
 
 ---
@@ -265,7 +266,6 @@ Built by [@darshan_aqua](https://x.com/darshan_aqua) — questions, feedback, an
 
 ## Roadmap
 
-- **v0.1** (done): chaincodec production release — Rust + npm + Python + WASM
-- **v0.2**: chainerrors + chainrpc publish to crates.io / npm / PyPI
-- **v0.3**: chainindex publish with SQLite/Postgres backends
-- **v1.0**: Full multi-chain support (Solana, Cosmos), E2E integration tests
+- **v0.1** (done): chaincodec production release — crates.io v0.1.2 + npm v0.1.2
+- **v0.2** (next): chainerrors + chainrpc + chainindex publish to crates.io / npm / PyPI
+- **v1.0**: E2E integration tests with Anvil, fuzz testing, Cosmos support
