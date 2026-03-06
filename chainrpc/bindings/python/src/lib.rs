@@ -28,10 +28,11 @@
 use pyo3::prelude::*;
 use pyo3_asyncio::tokio::future_into_py;
 
-use chainrpc_http::HttpRpcClient as RustHttpClient;
+use chainrpc_http::{HttpRpcClient as RustHttpClient, pool_from_urls};
 use chainrpc_core::{
     pool::ProviderPool as RustPool,
     request::JsonRpcRequest,
+    transport::RpcTransport,
 };
 
 // ─── HttpRpcClient ────────────────────────────────────────────────────────────
@@ -46,8 +47,7 @@ impl PyHttpRpcClient {
     /// Create a new HTTP JSON-RPC client.
     #[new]
     fn new(url: &str) -> PyResult<Self> {
-        let inner = RustHttpClient::new(url)
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
+        let inner = RustHttpClient::default_for(url);
         Ok(Self { inner: std::sync::Arc::new(inner) })
     }
 
@@ -60,7 +60,7 @@ impl PyHttpRpcClient {
         future_into_py(py, async move {
             let params: Vec<serde_json::Value> = serde_json::from_str(&params_json)
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("params parse: {e}")))?;
-            let req = JsonRpcRequest::new(method, params);
+            let req = JsonRpcRequest::auto(method, params);
             let resp = inner.send(req).await
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
             if let Some(err) = resp.error {
@@ -84,7 +84,7 @@ impl PyHttpRpcClient {
             let rpc_reqs: Vec<JsonRpcRequest> = reqs.iter().map(|r| {
                 let method = r["method"].as_str().unwrap_or("").to_string();
                 let params = r["params"].as_array().cloned().unwrap_or_default();
-                JsonRpcRequest::new(method, params)
+                JsonRpcRequest::auto(method, params)
             }).collect();
 
             let responses = inner.send_batch(rpc_reqs).await
@@ -121,7 +121,7 @@ impl PyProviderPool {
     #[new]
     fn new(urls: Vec<String>) -> PyResult<Self> {
         let url_refs: Vec<&str> = urls.iter().map(|s| s.as_str()).collect();
-        let inner = RustPool::from_urls(&url_refs)
+        let inner = pool_from_urls(&url_refs)
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
         Ok(Self { inner: std::sync::Arc::new(inner) })
     }
@@ -132,7 +132,7 @@ impl PyProviderPool {
         future_into_py(py, async move {
             let params: Vec<serde_json::Value> = serde_json::from_str(&params_json)
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))?;
-            let req = JsonRpcRequest::new(method, params);
+            let req = JsonRpcRequest::auto(method, params);
             let resp = inner.send(req).await
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
             if let Some(err) = resp.error {

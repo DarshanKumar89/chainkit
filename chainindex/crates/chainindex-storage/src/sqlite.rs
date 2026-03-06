@@ -177,6 +177,7 @@ impl SqliteStorage {
                 serde_json::from_str(&fields_str).unwrap_or(serde_json::Value::Null);
 
             events.push(DecodedEvent {
+                chain: String::new(), // not stored in SQLite events table
                 schema: row.get("schema"),
                 address: row.get("address"),
                 tx_hash: row.get("tx_hash"),
@@ -345,6 +346,7 @@ mod tests {
 
     fn sample_event(schema: &str, block: u64) -> DecodedEvent {
         DecodedEvent {
+            chain: "ethereum".into(),
             schema: schema.to_string(),
             address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48".into(),
             tx_hash: format!("0x{block:064x}"),

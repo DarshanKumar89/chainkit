@@ -74,7 +74,10 @@ pub trait RpcTransport: Send + Sync + 'static {
         id: u64,
         method: &str,
         params: Vec<Value>,
-    ) -> Result<T, TransportError> {
+    ) -> Result<T, TransportError>
+    where
+        Self: Sized,
+    {
         let req = JsonRpcRequest::new(id, method, params);
         let resp = self.send(req).await?;
         let result = resp.into_result().map_err(TransportError::Rpc)?;

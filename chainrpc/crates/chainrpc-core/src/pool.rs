@@ -7,6 +7,7 @@ use std::time::Duration;
 use async_trait::async_trait;
 
 use crate::error::TransportError;
+use crate::metrics::ProviderMetrics;
 use crate::policy::{CircuitBreaker, CircuitBreakerConfig};
 use crate::request::{JsonRpcRequest, JsonRpcResponse};
 use crate::transport::{HealthStatus, RpcTransport};
@@ -32,6 +33,7 @@ impl Default for ProviderPoolConfig {
 struct ProviderSlot {
     transport: Arc<dyn RpcTransport>,
     circuit: CircuitBreaker,
+    metrics: Option<Arc<ProviderMetrics>>,
 }
 
 /// Round-robin provider pool with per-provider circuit breakers.
@@ -55,6 +57,30 @@ impl ProviderPool {
             .map(|t| ProviderSlot {
                 transport: t,
                 circuit: CircuitBreaker::new(config.circuit_breaker.clone()),
+                metrics: None,
+            })
+            .collect();
+        Self {
+            slots,
+            cursor: AtomicUsize::new(0),
+            config,
+        }
+    }
+
+    /// Build a pool with per-provider metrics automatically created.
+    pub fn new_with_metrics(
+        transports: Vec<Arc<dyn RpcTransport>>,
+        config: ProviderPoolConfig,
+    ) -> Self {
+        let slots = transports
+            .into_iter()
+            .map(|t| {
+                let m = Arc::new(ProviderMetrics::new(t.url()));
+                ProviderSlot {
+                    transport: t,
+                    circuit: CircuitBreaker::new(config.circuit_breaker.clone()),
+                    metrics: Some(m),
+                }
             })
             .collect();
         Self {
@@ -87,6 +113,49 @@ impl ProviderPool {
             .collect()
     }
 
+    /// Number of providers whose circuit breaker allows requests.
+    pub fn healthy_count(&self) -> usize {
+        self.slots.iter().filter(|s| s.circuit.is_allowed()).count()
+    }
+
+    /// Return metrics snapshots for all providers that have metrics enabled.
+    pub fn metrics(&self) -> Vec<crate::metrics::MetricsSnapshot> {
+        self.slots
+            .iter()
+            .filter_map(|s| s.metrics.as_ref().map(|m| m.snapshot()))
+            .collect()
+    }
+
+    /// Detailed health report for each provider as JSON-serializable values.
+    ///
+    /// When per-provider metrics are available the report includes
+    /// additional fields such as `total_requests`, `success_rate`, and
+    /// `avg_latency_ms`.
+    pub fn health_report(&self) -> Vec<serde_json::Value> {
+        self.slots
+            .iter()
+            .map(|s| {
+                let mut report = serde_json::json!({
+                    "url": s.transport.url(),
+                    "health": s.transport.health().to_string(),
+                    "circuit": s.circuit.state().to_string(),
+                });
+                if let Some(ref m) = s.metrics {
+                    let snap = m.snapshot();
+                    let obj = report.as_object_mut().unwrap();
+                    obj.insert("total_requests".into(), serde_json::json!(snap.total_requests));
+                    obj.insert("successful_requests".into(), serde_json::json!(snap.successful_requests));
+                    obj.insert("failed_requests".into(), serde_json::json!(snap.failed_requests));
+                    obj.insert("success_rate".into(), serde_json::json!(snap.success_rate));
+                    obj.insert("avg_latency_ms".into(), serde_json::json!(snap.avg_latency_ms));
+                    obj.insert("rate_limit_hits".into(), serde_json::json!(snap.rate_limit_hits));
+                    obj.insert("circuit_open_count".into(), serde_json::json!(snap.circuit_open_count));
+                }
+                report
+            })
+            .collect()
+    }
+
     /// Find the next available (circuit-closed/half-open) slot, starting
     /// from the round-robin cursor.
     fn next_slot(&self) -> Option<&ProviderSlot> {
@@ -113,6 +182,7 @@ impl RpcTransport for ProviderPool {
             .ok_or(TransportError::AllProvidersDown)?;
 
         let timeout = self.config.request_timeout;
+        let start = std::time::Instant::now();
         let result = tokio::time::timeout(timeout, slot.transport.send(req))
             .await
             .map_err(|_| TransportError::Timeout {
@@ -122,13 +192,18 @@ impl RpcTransport for ProviderPool {
         match result {
             Ok(resp) => {
                 slot.circuit.record_success();
+                if let Some(ref m) = slot.metrics { m.record_success(start.elapsed()); }
                 Ok(resp)
             }
             Err(e) if e.is_retryable() => {
                 slot.circuit.record_failure();
+                if let Some(ref m) = slot.metrics { m.record_failure(); }
                 Err(e)
             }
-            Err(e) => Err(e),
+            Err(e) => {
+                if let Some(ref m) = slot.metrics { m.record_failure(); }
+                Err(e)
+            }
         }
     }
 

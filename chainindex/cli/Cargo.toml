@@ -13,6 +13,75 @@ path = "src/main.rs"
 
 [dependencies]
 chainindex-core    = { workspace = true }
+chainindex-evm     = { workspace = true }
 chainindex-storage = { workspace = true }
+chainindex-solana  = { workspace = true }
 tokio              = { workspace = true }
+async-trait        = { workspace = true }
+serde              = { workspace = true }
 serde_json         = { workspace = true }
+chrono             = { workspace = true }
+
+[[example]]
+name = "01_basic_indexer"
+path = "../examples/01_basic_indexer.rs"
+
+[[example]]
+name = "02_reorg_detection"
+path = "../examples/02_reorg_detection.rs"
+
+[[example]]
+name = "03_factory_tracking"
+path = "../examples/03_factory_tracking.rs"
+
+[[example]]
+name = "04_entity_system"
+path = "../examples/04_entity_system.rs"
+
+[[example]]
+name = "05_dead_letter_queue"
+path = "../examples/05_dead_letter_queue.rs"
+
+[[example]]
+name = "06_call_traces"
+path = "../examples/06_call_traces.rs"
+
+[[example]]
+name = "07_streaming"
+path = "../examples/07_streaming.rs"
+
+[[example]]
+name = "08_data_export"
+path = "../examples/08_data_export.rs"
+
+[[example]]
+name = "09_graphql"
+path = "../examples/09_graphql.rs"
+
+[[example]]
+name = "10_parallel_backfill"
+path = "../examples/10_parallel_backfill.rs"
+
+[[example]]
+name = "11_multichain"
+path = "../examples/11_multichain.rs"
+
+[[example]]
+name = "12_solana_indexer"
+path = "../examples/12_solana_indexer.rs"
+
+[[example]]
+name = "13_rocksdb_storage"
+path = "../examples/13_rocksdb_storage.rs"
+
+[[example]]
+name = "14_hot_reload"
+path = "../examples/14_hot_reload.rs"
+
+[[example]]
+name = "15_idempotency"
+path = "../examples/15_idempotency.rs"
+
+[[example]]
+name = "16_block_handlers"
+path = "../examples/16_block_handlers.rs"

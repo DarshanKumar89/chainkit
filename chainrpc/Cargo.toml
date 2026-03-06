@@ -46,10 +46,10 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tokio-retry = "0.3"
 
 # Internal crates
-chainrpc-core      = { path = "crates/chainrpc-core" }
-chainrpc-http      = { path = "crates/chainrpc-http" }
-chainrpc-ws        = { path = "crates/chainrpc-ws" }
-chainrpc-providers = { path = "crates/chainrpc-providers" }
+chainrpc-core      = { path = "crates/chainrpc-core", version = "0.1.0" }
+chainrpc-http      = { path = "crates/chainrpc-http", version = "0.1.0" }
+chainrpc-ws        = { path = "crates/chainrpc-ws", version = "0.1.0" }
+chainrpc-providers = { path = "crates/chainrpc-providers", version = "0.1.0" }
 
 [profile.release]
 opt-level     = 3

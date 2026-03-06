@@ -1,0 +1,473 @@
+name: Publish chainrpc
+
+# Triggered by:
+#   1. Pushing a chainrpc version tag:
+#        git tag chainrpc-v0.1.0 && git push --tags
+#   2. Manual via Actions -> "Run workflow" (pick any branch):
+#        dry_run=true  -> build only, skip publish steps
+#        ref           -> optional branch/tag to check out (default: current branch)
+on:
+  push:
+    tags:
+      - 'chainrpc-v[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (build only, skip all publish steps)'
+        required: true
+        default: 'true'
+        type: choice
+        options: ['true', 'false']
+      ref:
+        description: 'Branch or tag to build from (e.g. main, chainrpc-v0.1.0)'
+        required: false
+        default: ''
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 1: Publish Rust crates to crates.io in dependency order
+  #
+  #   chainrpc-core
+  #     ├─ chainrpc-http (depends on chainrpc-core)
+  #     └─ chainrpc-ws   (depends on chainrpc-core)
+  #         ↳ chainrpc-providers (depends on chainrpc-core, chainrpc-http)
+  #
+  # 30-second sleeps let crates.io finish indexing before dependent crates
+  # resolve the freshly published version.
+  # ─────────────────────────────────────────────────────────────────────────────
+  publish-rust:
+    name: Publish Rust crates to crates.io
+    runs-on: ubuntu-latest
+    environment: Prod
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-publish-chainrpc-${{ hashFiles('chainrpc/Cargo.lock') }}
+
+      - name: Publish chainrpc-core
+        if: github.event.inputs.dry_run != 'true'
+        working-directory: chainrpc
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          if ! cargo publish -p chainrpc-core 2>&1 | tee /tmp/pub_out; then
+            grep -q "already exists" /tmp/pub_out || { cat /tmp/pub_out; exit 1; }
+            echo "chainrpc-core already published – skip"
+          fi
+
+      - name: Wait for crates.io to index chainrpc-core
+        if: github.event.inputs.dry_run != 'true'
+        run: sleep 30
+
+      - name: Publish chainrpc-http
+        if: github.event.inputs.dry_run != 'true'
+        working-directory: chainrpc
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          if ! cargo publish -p chainrpc-http 2>&1 | tee /tmp/pub_out; then
+            grep -q "already exists" /tmp/pub_out || { cat /tmp/pub_out; exit 1; }
+            echo "chainrpc-http already published – skip"
+          fi
+
+      - name: Publish chainrpc-ws
+        if: github.event.inputs.dry_run != 'true'
+        working-directory: chainrpc
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          if ! cargo publish -p chainrpc-ws 2>&1 | tee /tmp/pub_out; then
+            grep -q "already exists" /tmp/pub_out || { cat /tmp/pub_out; exit 1; }
+            echo "chainrpc-ws already published – skip"
+          fi
+
+      - name: Wait for crates.io to index chainrpc-http + chainrpc-ws
+        if: github.event.inputs.dry_run != 'true'
+        run: sleep 30
+
+      - name: Publish chainrpc-providers
+        if: github.event.inputs.dry_run != 'true'
+        working-directory: chainrpc
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          if ! cargo publish -p chainrpc-providers 2>&1 | tee /tmp/pub_out; then
+            grep -q "already exists" /tmp/pub_out || { cat /tmp/pub_out; exit 1; }
+            echo "chainrpc-providers already published – skip"
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 2: Build Node.js native .node files for all supported platforms
+  #
+  # Matrix targets:
+  #   linux-x64-gnu   — Ubuntu / most Linux servers
+  #   linux-x64-musl  — Alpine / Docker-minimal images
+  #   linux-arm64-gnu — AWS Graviton, Raspberry Pi 4
+  #   macos-x64       — Intel Macs
+  #   macos-arm64     — Apple Silicon (M1/M2/M3)
+  #   windows-x64     — Windows servers / desktops
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-node-bindings:
+    name: Build Node bindings · ${{ matrix.settings.name }}
+    runs-on: ${{ matrix.settings.host }}
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - name: linux-x64-gnu
+            host: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            build: >
+              cd chainrpc/bindings/node &&
+              npx napi build --platform --release --target x86_64-unknown-linux-gnu
+
+          - name: linux-x64-musl
+            host: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            build: |
+              sudo apt-get install -y musl-tools
+              rustup target add x86_64-unknown-linux-musl
+              cd chainrpc/bindings/node
+              npx napi build --platform --release --target x86_64-unknown-linux-musl
+
+          - name: linux-arm64-gnu
+            host: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            build: |
+              sudo apt-get install -y gcc-aarch64-linux-gnu
+              rustup target add aarch64-unknown-linux-gnu
+              cd chainrpc/bindings/node
+              CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc \
+                npx napi build --platform --release --target aarch64-unknown-linux-gnu
+
+          - name: macos-x64
+            host: macos-latest
+            target: x86_64-apple-darwin
+            build: |
+              rustup target add x86_64-apple-darwin
+              cd chainrpc/bindings/node
+              npx napi build --platform --release --target x86_64-apple-darwin
+
+          - name: macos-arm64
+            host: macos-latest
+            target: aarch64-apple-darwin
+            build: |
+              rustup target add aarch64-apple-darwin
+              cd chainrpc/bindings/node
+              npx napi build --platform --release --target aarch64-apple-darwin
+
+          - name: windows-x64
+            host: windows-latest
+            target: x86_64-pc-windows-msvc
+            build: >
+              cd chainrpc/bindings/node &&
+              npx napi build --platform --release --target x86_64-pc-windows-msvc
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.settings.target }}
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: chainrpc/bindings/node/package.json
+
+      - name: Install napi-rs CLI and dependencies
+        working-directory: chainrpc/bindings/node
+        run: npm install
+
+      - name: Build native module
+        shell: bash
+        run: ${{ matrix.settings.build }}
+
+      - name: Upload .node artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bindings-${{ matrix.settings.name }}
+          path: chainrpc/bindings/node/*.node
+          if-no-files-found: error
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 3: Collect all .node files and publish @chainfoundry/chainrpc to npm
+  # ─────────────────────────────────────────────────────────────────────────────
+  publish-npm:
+    name: Publish @chainfoundry/chainrpc to npm
+    runs-on: ubuntu-latest
+    needs: [build-node-bindings]
+    environment: Prod
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Download all platform .node artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: chainrpc/bindings/node/artifacts
+
+      - name: Move .node files into package root
+        working-directory: chainrpc/bindings/node
+        run: |
+          find artifacts -name '*.node' -exec mv {} . \;
+          echo "Collected binaries:"
+          ls -la *.node
+
+      - name: Install package dependencies
+        working-directory: chainrpc/bindings/node
+        run: npm install
+
+      - name: Publish to npm
+        if: github.event.inputs.dry_run != 'true'
+        working-directory: chainrpc/bindings/node
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 4: Build Python wheels for all supported platforms (maturin)
+  #
+  # Produces manylinux2014, musllinux, macOS (x64 + arm64), Windows wheels
+  # for the chainrpc Python package.
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-python-wheels:
+    name: Build Python wheel · ${{ matrix.platform.name }}
+    if: startsWith(github.ref, 'refs/tags/chainrpc-v') || github.event_name == 'workflow_dispatch'
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - name: linux-x64
+            runner: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            manylinux: auto
+
+          - name: linux-arm64
+            runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            manylinux: auto
+
+          - name: linux-x64-musl
+            runner: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            manylinux: musllinux_1_1
+
+          - name: macos-x64
+            runner: macos-latest
+            target: x86_64-apple-darwin
+            manylinux: ''
+
+          - name: macos-arm64
+            runner: macos-latest
+            target: aarch64-apple-darwin
+            manylinux: ''
+
+          - name: windows-x64
+            runner: windows-latest
+            target: x86_64-pc-windows-msvc
+            manylinux: ''
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install maturin
+        run: pip install maturin
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform.target }}
+
+      - name: Build wheels (Linux manylinux via docker — x86_64 + arm64)
+        if: runner.os == 'Linux' && matrix.platform.manylinux != 'musllinux_1_1'
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          manylinux: ${{ matrix.platform.manylinux }}
+          working-directory: chainrpc/bindings/python
+          args: --release --out dist
+          sccache: true
+
+      # musl: the musllinux Docker cross-image has no Python interpreters.
+      # Build directly on the host after installing musl-tools instead.
+      - name: Build wheels (Linux musl — direct maturin, no Docker)
+        if: runner.os == 'Linux' && matrix.platform.manylinux == 'musllinux_1_1'
+        working-directory: chainrpc/bindings/python
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q musl-tools
+          rustup target add x86_64-unknown-linux-musl
+          maturin build --release --out dist --target x86_64-unknown-linux-musl
+
+      - name: Build wheels (macOS / Windows — native)
+        if: runner.os != 'Linux'
+        shell: bash
+        run: |
+          maturin build --release --out dist \
+            --manifest-path chainrpc/bindings/python/Cargo.toml \
+            --target ${{ matrix.platform.target }}
+
+      - name: Upload wheel artifact (Linux)
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-wheel-${{ matrix.platform.name }}
+          path: chainrpc/bindings/python/dist/*.whl
+          if-no-files-found: error
+
+      - name: Upload wheel artifact (macOS / Windows)
+        if: runner.os != 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-wheel-${{ matrix.platform.name }}
+          path: dist/*.whl
+          if-no-files-found: error
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 5: Publish Python wheels to PyPI (OIDC trusted publishing)
+  # ─────────────────────────────────────────────────────────────────────────────
+  publish-pypi:
+    name: Publish chainrpc to PyPI
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/chainrpc-v') || github.event_name == 'workflow_dispatch'
+    needs: [build-python-wheels]
+    environment:
+      name: pypi
+      url: https://pypi.org/p/chainrpc
+    permissions:
+      id-token: write  # OIDC trusted publishing
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install maturin and twine
+        run: pip install maturin twine
+
+      - name: Download all wheel artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: python-wheel-*
+          path: dist
+          merge-multiple: true
+
+      - name: List wheels
+        run: ls -la dist/
+
+      - name: Publish to PyPI via OIDC trusted publishing
+        if: github.event.inputs.dry_run != 'true'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          skip-existing: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 6: Create a GitHub Release with install instructions
+  # ─────────────────────────────────────────────────────────────────────────────
+  github-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [publish-rust, publish-npm, publish-pypi]
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
+      - name: Extract version from tag
+        id: version
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF_NAME" == chainrpc-v* ]]; then
+            echo "version=${GITHUB_REF_NAME#chainrpc-v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=0.0.0-manual" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: chainrpc v${{ steps.version.outputs.version }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+          body: |
+            ## chainrpc v${{ steps.version.outputs.version }}
+
+            Production-grade JSON-RPC client for EVM blockchains — HTTP + WebSocket
+            transports with circuit breaker, rate limiter, and retry policies
+            for Rust, TypeScript/Node.js, and Python.
+
+            ### Install
+
+            **Rust (Cargo.toml)**
+            ```toml
+            [dependencies]
+            chainrpc-core      = "${{ steps.version.outputs.version }}"
+            chainrpc-http       = "${{ steps.version.outputs.version }}"
+            chainrpc-ws         = "${{ steps.version.outputs.version }}"
+            chainrpc-providers  = "${{ steps.version.outputs.version }}"
+            ```
+
+            **npm / Node.js**
+            ```bash
+            npm install @chainfoundry/chainrpc
+            ```
+
+            **Python (pip)**
+            ```bash
+            pip install chainrpc
+            ```
+
+            ### Published crates
+
+            | Crate | crates.io |
+            |-------|-----------|
+            | chainrpc-core | https://crates.io/crates/chainrpc-core |
+            | chainrpc-http | https://crates.io/crates/chainrpc-http |
+            | chainrpc-ws | https://crates.io/crates/chainrpc-ws |
+            | chainrpc-providers | https://crates.io/crates/chainrpc-providers |
+
+            **npm:** https://www.npmjs.com/package/@chainfoundry/chainrpc
+            **PyPI:** https://pypi.org/project/chainrpc/

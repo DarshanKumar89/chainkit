@@ -5,6 +5,7 @@ members = [
     "crates/chainindex-core",
     "crates/chainindex-evm",
     "crates/chainindex-storage",
+    "crates/chainindex-solana",
     "cli",
 ]
 
@@ -41,9 +42,10 @@ tracing = "0.1"
 chrono = { version = "0.4", features = ["serde"] }
 
 # Internal crates
-chainindex-core    = { path = "crates/chainindex-core" }
-chainindex-evm     = { path = "crates/chainindex-evm" }
-chainindex-storage = { path = "crates/chainindex-storage" }
+chainindex-core    = { path = "crates/chainindex-core", version = "0.1.0" }
+chainindex-evm     = { path = "crates/chainindex-evm", version = "0.1.0" }
+chainindex-storage = { path = "crates/chainindex-storage", version = "0.1.0" }
+chainindex-solana  = { path = "crates/chainindex-solana", version = "0.1.0" }
 
 [profile.release]
 opt-level     = 3

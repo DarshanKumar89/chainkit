@@ -1,9 +1,14 @@
 //! WebSocket JSON-RPC client with auto-reconnect and subscription management.
 
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::atomic::{AtomicU64, AtomicU8, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
+
+// Connection states
+const WS_CONNECTING: u8 = 0;
+const WS_CONNECTED: u8 = 1;
+const WS_DISCONNECTED: u8 = 2;
 
 use async_trait::async_trait;
 use futures::{SinkExt, StreamExt};
@@ -56,6 +61,7 @@ pub struct WsRpcClient {
     cmd_tx: mpsc::UnboundedSender<WsCommand>,
     subscriptions: SubscriptionManager,
     _req_id: AtomicU64,
+    conn_state: Arc<AtomicU8>,
 }
 
 impl WsRpcClient {
@@ -69,9 +75,11 @@ impl WsRpcClient {
         let subscriptions = SubscriptionManager::new();
         let subs_clone = subscriptions.clone();
         let url_clone = url.clone();
+        let conn_state = Arc::new(AtomicU8::new(WS_CONNECTING));
+        let conn_state_clone = conn_state.clone();
 
         tokio::spawn(async move {
-            ws_task(url_clone, cmd_rx, subs_clone, config).await;
+            ws_task(url_clone, cmd_rx, subs_clone, config, conn_state_clone).await;
         });
 
         Ok(Self {
@@ -79,6 +87,7 @@ impl WsRpcClient {
             cmd_tx,
             subscriptions,
             _req_id: AtomicU64::new(1),
+            conn_state,
         })
     }
 
@@ -126,8 +135,11 @@ impl RpcTransport for WsRpcClient {
     }
 
     fn health(&self) -> HealthStatus {
-        // Could track reconnect state, for now return Unknown
-        HealthStatus::Unknown
+        match self.conn_state.load(Ordering::Relaxed) {
+            WS_CONNECTED => HealthStatus::Healthy,
+            WS_CONNECTING => HealthStatus::Degraded,
+            _ => HealthStatus::Unhealthy,
+        }
     }
 
     fn url(&self) -> &str {
@@ -141,23 +153,27 @@ async fn ws_task(
     mut cmd_rx: mpsc::UnboundedReceiver<WsCommand>,
     subscriptions: SubscriptionManager,
     config: WsClientConfig,
+    conn_state: Arc<AtomicU8>,
 ) {
     let pending: PendingMap = Arc::new(Mutex::new(HashMap::new()));
     let mut backoff = config.reconnect_initial;
 
     loop {
         tracing::info!(url = %url, "connecting via WebSocket");
+        conn_state.store(WS_CONNECTING, Ordering::Relaxed);
 
         let conn = tokio_tungstenite::connect_async(&url).await;
 
         match conn {
             Err(e) => {
+                conn_state.store(WS_DISCONNECTED, Ordering::Relaxed);
                 tracing::warn!(error = %e, "WS connect failed, retrying in {backoff:?}");
                 time::sleep(backoff).await;
                 backoff = (backoff * 2).min(config.reconnect_max);
                 continue;
             }
             Ok((ws_stream, _)) => {
+                conn_state.store(WS_CONNECTED, Ordering::Relaxed);
                 backoff = config.reconnect_initial; // reset on success
                 let (mut sink, mut stream) = ws_stream.split();
 
@@ -217,6 +233,7 @@ async fn ws_task(
                     }
                 }
 
+                conn_state.store(WS_DISCONNECTED, Ordering::Relaxed);
                 tracing::warn!(url = %url, "WS disconnected, reconnecting in {backoff:?}");
                 time::sleep(backoff).await;
                 backoff = (backoff * 2).min(config.reconnect_max);

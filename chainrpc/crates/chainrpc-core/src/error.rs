@@ -39,6 +39,14 @@ pub enum TransportError {
     #[error("Deserialization error: {0}")]
     Deserialization(#[from] serde_json::Error),
 
+    /// Request rejected due to backpressure — too many in-flight requests.
+    #[error("Transport overloaded ({queue_depth} requests in flight)")]
+    Overloaded { queue_depth: usize },
+
+    /// Operation was cancelled via cancellation token.
+    #[error("Operation cancelled")]
+    Cancelled,
+
     /// An unexpected error.
     #[error("{0}")]
     Other(String),

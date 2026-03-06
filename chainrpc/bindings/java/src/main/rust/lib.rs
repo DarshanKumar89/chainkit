@@ -8,8 +8,8 @@ use jni::objects::{JClass, JString, JObjectArray};
 use jni::sys::jstring;
 
 use tokio::runtime::Runtime;
-use chainrpc_http::HttpRpcClient;
-use chainrpc_core::{pool::ProviderPool, request::JsonRpcRequest};
+use chainrpc_http::{HttpRpcClient, pool_from_urls};
+use chainrpc_core::{pool::ProviderPool, request::JsonRpcRequest, transport::RpcTransport};
 
 static RUNTIME: OnceLock<Runtime> = OnceLock::new();
 
@@ -70,15 +70,12 @@ pub extern "system" fn Java_io_chainfoundry_chainrpc_ChainRpc_call(
         Err(e) => { let _ = env.throw_new("java/lang/IllegalArgumentException", e.to_string()); return std::ptr::null_mut(); }
     };
 
-    let client = match HttpRpcClient::new(&url_str) {
-        Ok(c) => c,
-        Err(e) => { let _ = env.throw_new("java/lang/RuntimeException", e.to_string()); return std::ptr::null_mut(); }
-    };
+    let client = HttpRpcClient::default_for(&url_str);
     let params: Vec<serde_json::Value> = match serde_json::from_str(&params_str) {
         Ok(p) => p,
         Err(e) => { let _ = env.throw_new("java/lang/IllegalArgumentException", format!("params: {e}")); return std::ptr::null_mut(); }
     };
-    let req = JsonRpcRequest::new(method_str, params);
+    let req = JsonRpcRequest::auto(method_str, params);
 
     match runtime().block_on(async move { client.send(req).await }) {
         Err(e) => { let _ = env.throw_new("java/lang/RuntimeException", e.to_string()); std::ptr::null_mut() }
@@ -128,7 +125,7 @@ pub extern "system" fn Java_io_chainfoundry_chainrpc_ChainRpc_poolCall(
         Err(e) => { let _ = env.throw_new("java/lang/IllegalArgumentException", format!("urls: {e}")); return std::ptr::null_mut(); }
     };
     let url_refs: Vec<&str> = urls.iter().map(|s| s.as_str()).collect();
-    let pool = match ProviderPool::from_urls(&url_refs) {
+    let pool = match pool_from_urls(&url_refs) {
         Ok(p) => p,
         Err(e) => { let _ = env.throw_new("java/lang/RuntimeException", e.to_string()); return std::ptr::null_mut(); }
     };
@@ -136,7 +133,7 @@ pub extern "system" fn Java_io_chainfoundry_chainrpc_ChainRpc_poolCall(
         Ok(p) => p,
         Err(e) => { let _ = env.throw_new("java/lang/IllegalArgumentException", format!("params: {e}")); return std::ptr::null_mut(); }
     };
-    let req = JsonRpcRequest::new(method_str, params);
+    let req = JsonRpcRequest::auto(method_str, params);
 
     match runtime().block_on(async move { pool.send(req).await }) {
         Err(e) => { let _ = env.throw_new("java/lang/RuntimeException", e.to_string()); std::ptr::null_mut() }

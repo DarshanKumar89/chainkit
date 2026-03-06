@@ -138,6 +138,7 @@ impl<C: EvmRpcClient> IndexLoop<C> {
                 };
                 // Build a minimal DecodedEvent from the raw log
                 let event = chainindex_core::handler::DecodedEvent {
+                    chain: self.config.chain.clone(),
                     schema: log.topics.first().cloned().unwrap_or_default(),
                     address: log.address.clone(),
                     tx_hash: log.tx_hash.clone(),
@@ -198,7 +199,8 @@ impl<C: EvmRpcClient> IndexLoop<C> {
             };
 
             // Reorg check
-            if let Some(prev) = self.tracker.head() {
+            let prev_head = self.tracker.head().cloned();
+            if let Some(prev) = prev_head {
                 if let Err(depth) = self.tracker.push(block.clone()) {
                     // Reorg detected
                     self.state = IndexerState::ReorgRecovery;
@@ -209,7 +211,7 @@ impl<C: EvmRpcClient> IndexLoop<C> {
                         phase: IndexPhase::Live,
                         chain: self.config.chain.clone(),
                     };
-                    let dropped: Vec<_> = std::iter::once(prev.clone()).collect();
+                    let dropped: Vec<_> = std::iter::once(prev).collect();
                     self.handlers.dispatch_reorg(&dropped, &ctx).await?;
                     self.tracker.rewind_to(block.number.saturating_sub(depth));
                     self.state = IndexerState::Live;
@@ -238,6 +240,7 @@ impl<C: EvmRpcClient> IndexLoop<C> {
                     continue;
                 }
                 let event = chainindex_core::handler::DecodedEvent {
+                    chain: self.config.chain.clone(),
                     schema: log.topics.first().cloned().unwrap_or_default(),
                     address: log.address.clone(),
                     tx_hash: log.tx_hash.clone(),

@@ -11,6 +11,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use chainrpc_core::error::TransportError;
+use chainrpc_core::metrics::ProviderMetrics;
 use chainrpc_core::policy::{
     CircuitBreaker, CircuitBreakerConfig, RateLimiter, RateLimiterConfig, RetryConfig, RetryPolicy,
 };
@@ -45,6 +46,9 @@ pub struct HttpRpcClient {
     circuit: CircuitBreaker,
     rate_limiter: RateLimiter,
     request_timeout: Duration,
+    metrics: Option<Arc<ProviderMetrics>>,
+    /// Adaptive rate limit state from response headers.
+    adaptive_remaining: std::sync::atomic::AtomicU32,
 }
 
 impl HttpRpcClient {
@@ -62,7 +66,20 @@ impl HttpRpcClient {
             circuit: CircuitBreaker::new(config.circuit_breaker),
             rate_limiter: RateLimiter::new(config.rate_limiter),
             request_timeout: config.request_timeout,
+            metrics: None,
+            adaptive_remaining: std::sync::atomic::AtomicU32::new(u32::MAX),
         }
+    }
+
+    /// Create a new client with metrics recording enabled.
+    pub fn with_metrics(
+        url: impl Into<String>,
+        config: HttpClientConfig,
+        metrics: Arc<ProviderMetrics>,
+    ) -> Self {
+        let mut client = Self::new(url, config);
+        client.metrics = Some(metrics);
+        client
     }
 
     /// Create with default configuration.
@@ -78,6 +95,27 @@ impl HttpRpcClient {
             .send()
             .await
             .map_err(|e| TransportError::Http(e.to_string()))?;
+
+        // Parse rate limit headers from response
+        let rl_info = chainrpc_core::rate_limit_headers::RateLimitInfo::from_headers(
+            resp.headers().iter().map(|(k, v)| {
+                (k.as_str(), v.to_str().unwrap_or(""))
+            }),
+        );
+        if let Some(remaining) = rl_info.remaining {
+            self.adaptive_remaining
+                .store(remaining, std::sync::atomic::Ordering::Relaxed);
+        }
+
+        if resp.status() == reqwest::StatusCode::TOO_MANY_REQUESTS {
+            if let Some(ref m) = self.metrics {
+                m.record_rate_limit();
+            }
+            let _wait = rl_info.retry_after.unwrap_or(std::time::Duration::from_secs(1));
+            return Err(TransportError::RateLimited {
+                provider: self.url.clone(),
+            });
+        }
 
         if !resp.status().is_success() {
             let status = resp.status().as_u16();
@@ -98,6 +136,7 @@ impl RpcTransport for HttpRpcClient {
     async fn send(&self, req: JsonRpcRequest) -> Result<JsonRpcResponse, TransportError> {
         // Rate limiter check
         if !self.rate_limiter.try_acquire() {
+            if let Some(ref m) = self.metrics { m.record_rate_limit(); }
             let wait = self.rate_limiter.wait_time();
             tracing::debug!(wait_ms = wait.as_millis(), "rate limited — backing off");
             tokio::time::sleep(wait).await;
@@ -105,10 +144,16 @@ impl RpcTransport for HttpRpcClient {
 
         // Circuit breaker check
         if !self.circuit.is_allowed() {
+            if let Some(ref m) = self.metrics { m.record_circuit_open(); }
             return Err(TransportError::CircuitOpen {
                 provider: self.url.clone(),
             });
         }
+
+        let start = std::time::Instant::now();
+
+        // Method safety classification — only Safe methods are auto-retried.
+        let safety = chainrpc_core::method_safety::classify_method(&req.method);
 
         // Retry loop
         let mut attempt = 0u32;
@@ -117,9 +162,10 @@ impl RpcTransport for HttpRpcClient {
             match self.send_once(&req).await {
                 Ok(resp) => {
                     self.circuit.record_success();
+                    if let Some(ref m) = self.metrics { m.record_success(start.elapsed()); }
                     return Ok(resp);
                 }
-                Err(e) if e.is_retryable() => {
+                Err(e) if e.is_retryable() && safety == chainrpc_core::method_safety::MethodSafety::Safe => {
                     self.circuit.record_failure();
                     match self.retry.next_delay(attempt) {
                         Some(delay) => {
@@ -139,12 +185,15 @@ impl RpcTransport for HttpRpcClient {
                                 url = %self.url,
                                 "max retries exceeded"
                             );
+                            if let Some(ref m) = self.metrics { m.record_failure(); }
                             return Err(e);
                         }
                     }
                 }
                 Err(e) => {
-                    // Non-retryable (e.g. RPC execution error)
+                    // Non-retryable: either the error itself isn't retryable,
+                    // or the method is Idempotent/Unsafe and must not be auto-retried.
+                    if let Some(ref m) = self.metrics { m.record_failure(); }
                     return Err(e);
                 }
             }
