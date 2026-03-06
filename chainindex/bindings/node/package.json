@@ -1,10 +1,10 @@
 {
   "name": "@chainfoundry/chainindex",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "High-performance EVM indexer with reorg detection and pluggable storage",
   "main": "index.js",
   "types": "index.d.ts",
-  "files": ["index.js", "index.d.ts", "*.node"],
+  "files": ["index.js", "index.d.ts", "*.node", "README.md"],
   "license": "MIT",
   "repository": {
     "type": "git",

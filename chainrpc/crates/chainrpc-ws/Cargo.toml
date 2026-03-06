@@ -1,6 +1,7 @@
 [package]
 name        = "chainrpc-ws"
 description = "WebSocket JSON-RPC transport with auto-reconnect for ChainRPC"
+readme      = "../../README.md"
 keywords    = ["ethereum", "rpc", "websocket", "subscribe", "blockchain"]
 categories  = ["cryptography::cryptocurrencies", "network-programming"]
 version.workspace    = true

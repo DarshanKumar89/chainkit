@@ -17,7 +17,7 @@ exclude = [
 ]
 
 [workspace.package]
-version      = "0.1.0"
+version      = "0.1.1"
 edition      = "2021"
 license      = "MIT"
 repository   = "https://github.com/DarshanKumar89/chainkit"
@@ -49,10 +49,10 @@ tracing = "0.1"
 chrono = { version = "0.4", features = ["serde"] }
 
 # Internal crates
-chainindex-core    = { path = "crates/chainindex-core", version = "0.1.0" }
-chainindex-evm     = { path = "crates/chainindex-evm", version = "0.1.0" }
-chainindex-storage = { path = "crates/chainindex-storage", version = "0.1.0" }
-chainindex-solana  = { path = "crates/chainindex-solana", version = "0.1.0" }
+chainindex-core    = { path = "crates/chainindex-core", version = "0.1.1" }
+chainindex-evm     = { path = "crates/chainindex-evm", version = "0.1.1" }
+chainindex-storage = { path = "crates/chainindex-storage", version = "0.1.1" }
+chainindex-solana  = { path = "crates/chainindex-solana", version = "0.1.1" }
 
 [profile.release]
 opt-level     = 3

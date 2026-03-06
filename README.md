@@ -13,8 +13,8 @@ ChainKit is a monorepo of four foundational Rust libraries for building blockcha
 |--------|-------------|--------|------|----------|
 | [`chaincodec`](./chaincodec/) | Universal ABI decoder — EVM events, calls, EIP-712, proxy detection, 50+ schemas | ✅ v0.1.2 (crates.io + npm) | [docs](./chaincodec/docs/) | [examples](./chaincodec/examples/) |
 | [`chainerrors`](./chainerrors/) | EVM revert / panic / custom error decoder with golden fixtures | ✅ Complete — unpublished | [docs](./chainerrors/docs/) | — |
-| [`chainrpc`](./chainrpc/) | Production RPC transport — circuit breaker, rate limiter, caching, pool, MEV, 27 modules | ✅ Complete — unpublished | [docs](./chainrpc/docs/) | [22 examples](./chainrpc/examples/) |
-| [`chainindex`](./chainindex/) | Reorg-safe blockchain indexer with pluggable storage (SQLite/Postgres/RocksDB) | ✅ Complete — unpublished | [docs](./chainindex/docs/) | [16 examples](./chainindex/examples/) |
+| [`chainrpc`](./chainrpc/) | Production RPC transport — circuit breaker, rate limiter, caching, pool, MEV, 27 modules | ✅ v0.1.1 (crates.io + npm) | [docs](./chainrpc/docs/) | [22 examples](./chainrpc/examples/) |
+| [`chainindex`](./chainindex/) | Reorg-safe blockchain indexer with pluggable storage (SQLite/Postgres/RocksDB) | ✅ v0.1.1 (crates.io + npm) | [docs](./chainindex/docs/) | [16 examples](./chainindex/examples/) |
 
 ### Language Bindings
 
@@ -266,6 +266,6 @@ Built by [@darshan_aqua](https://x.com/darshan_aqua) — questions, feedback, an
 
 ## Roadmap
 
-- **v0.1** (done): chaincodec production release — crates.io v0.1.2 + npm v0.1.2
-- **v0.2** (next): chainerrors + chainrpc + chainindex publish to crates.io / npm / PyPI
+- **v0.1** (done): chaincodec v0.1.2, chainrpc v0.1.1, chainindex v0.1.1 — published to crates.io + npm
+- **v0.2** (next): chainerrors publish to crates.io / npm / PyPI, PyPI wheels for chainrpc + chainindex
 - **v1.0**: E2E integration tests with Anvil, fuzz testing, Cosmos support

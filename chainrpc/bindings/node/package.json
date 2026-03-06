@@ -1,10 +1,10 @@
 {
   "name": "@chainfoundry/chainrpc",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Production-grade blockchain RPC transport with retry, circuit breaker, and multi-provider failover",
   "main": "index.js",
   "types": "index.d.ts",
-  "files": ["index.js", "index.d.ts", "*.node"],
+  "files": ["index.js", "index.d.ts", "*.node", "README.md"],
   "license": "MIT",
   "keywords": ["ethereum", "rpc", "blockchain", "web3", "transport", "circuit-breaker", "retry"],
   "repository": {

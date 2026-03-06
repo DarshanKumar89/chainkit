@@ -243,6 +243,9 @@ jobs:
           echo "Collected binaries:"
           ls -la *.node
 
+      - name: Copy README into package
+        run: cp chainindex/README.md chainindex/bindings/node/README.md
+
       - name: Install package dependencies
         working-directory: chainindex/bindings/node
         run: npm install

@@ -1,6 +1,7 @@
 [package]
 name        = "chainrpc-core"
 description = "Transport trait, policy engine and types for ChainRPC"
+readme      = "../../README.md"
 keywords    = ["ethereum", "rpc", "retry", "circuit-breaker", "blockchain"]
 categories  = ["cryptography::cryptocurrencies", "network-programming"]
 version.workspace    = true

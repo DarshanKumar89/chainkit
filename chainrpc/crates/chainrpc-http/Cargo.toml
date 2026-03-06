@@ -1,6 +1,7 @@
 [package]
 name        = "chainrpc-http"
 description = "HTTP JSON-RPC transport with retry, circuit breaker and auto-batching"
+readme      = "../../README.md"
 keywords    = ["ethereum", "rpc", "http", "retry", "blockchain"]
 categories  = ["cryptography::cryptocurrencies", "network-programming"]
 version.workspace    = true

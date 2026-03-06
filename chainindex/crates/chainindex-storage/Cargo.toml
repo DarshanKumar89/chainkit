@@ -1,6 +1,7 @@
 [package]
 name        = "chainindex-storage"
 description = "Storage backends for ChainIndex (memory, SQLite, Postgres)"
+readme      = "../../README.md"
 keywords    = ["ethereum", "indexer", "sqlite", "storage", "blockchain"]
 categories  = ["cryptography::cryptocurrencies", "database"]
 version.workspace    = true

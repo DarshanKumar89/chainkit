@@ -1,6 +1,7 @@
 [package]
 name        = "chainindex-core"
 description = "Core traits, block tracker, reorg detection, and checkpoint management for ChainIndex"
+readme      = "../../README.md"
 keywords    = ["ethereum", "indexer", "reorg", "blockchain", "index"]
 categories  = ["cryptography::cryptocurrencies"]
 version.workspace    = true

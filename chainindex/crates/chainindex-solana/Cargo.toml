@@ -1,6 +1,7 @@
 [package]
 name        = "chainindex-solana"
 description = "Solana-specific indexer for ChainIndex — slot tracking, program log parsing, and account monitoring"
+readme      = "../../README.md"
 keywords    = ["solana", "indexer", "blockchain", "slots", "programs"]
 categories  = ["cryptography::cryptocurrencies"]
 version.workspace    = true
