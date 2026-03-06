@@ -266,11 +266,8 @@ impl TraceFilter {
 #[async_trait]
 pub trait TraceHandler: Send + Sync {
     /// Called for each trace that passes the handler's filter.
-    async fn handle_trace(
-        &self,
-        trace: &CallTrace,
-        ctx: &IndexContext,
-    ) -> Result<(), IndexerError>;
+    async fn handle_trace(&self, trace: &CallTrace, ctx: &IndexContext)
+        -> Result<(), IndexerError>;
 
     /// Human-readable name for this handler (used in error messages and logging).
     fn name(&self) -> &str;
@@ -401,6 +398,7 @@ pub fn parse_geth_traces(
 }
 
 /// Recursively flatten a Geth callTracer node into the traces vector.
+#[allow(clippy::too_many_arguments)]
 fn flatten_geth_call(
     node: &serde_json::Value,
     block_number: u64,
@@ -411,10 +409,7 @@ fn flatten_geth_call(
     trace_index: &mut u32,
     out: &mut Vec<CallTrace>,
 ) {
-    let call_type_str = node
-        .get("type")
-        .and_then(|v| v.as_str())
-        .unwrap_or("CALL");
+    let call_type_str = node.get("type").and_then(|v| v.as_str()).unwrap_or("CALL");
 
     let call_type = CallType::from_geth(call_type_str).unwrap_or(CallType::Call);
 
@@ -527,10 +522,7 @@ pub fn parse_parity_traces(
     for (i, entry) in traces_arr.iter().enumerate() {
         let action = entry.get("action").unwrap_or(entry);
 
-        let trace_type = entry
-            .get("type")
-            .and_then(|v| v.as_str())
-            .unwrap_or("call");
+        let trace_type = entry.get("type").and_then(|v| v.as_str()).unwrap_or("call");
 
         let call_type = CallType::from_parity(trace_type).unwrap_or(CallType::Call);
 
@@ -590,7 +582,10 @@ pub fn parse_parity_traces(
             .map(|a| a.len() as u32)
             .unwrap_or(0);
 
-        let error_str = entry.get("error").and_then(|v| v.as_str()).map(String::from);
+        let error_str = entry
+            .get("error")
+            .and_then(|v| v.as_str())
+            .map(String::from);
         let reverted = error_str.is_some();
 
         let function_selector = CallTrace::extract_selector(&input);
@@ -679,20 +674,38 @@ mod tests {
     #[test]
     fn call_type_from_geth() {
         assert_eq!(CallType::from_geth("CALL"), Some(CallType::Call));
-        assert_eq!(CallType::from_geth("DELEGATECALL"), Some(CallType::DelegateCall));
-        assert_eq!(CallType::from_geth("STATICCALL"), Some(CallType::StaticCall));
+        assert_eq!(
+            CallType::from_geth("DELEGATECALL"),
+            Some(CallType::DelegateCall)
+        );
+        assert_eq!(
+            CallType::from_geth("STATICCALL"),
+            Some(CallType::StaticCall)
+        );
         assert_eq!(CallType::from_geth("CREATE"), Some(CallType::Create));
         assert_eq!(CallType::from_geth("CREATE2"), Some(CallType::Create2));
-        assert_eq!(CallType::from_geth("SELFDESTRUCT"), Some(CallType::SelfDestruct));
+        assert_eq!(
+            CallType::from_geth("SELFDESTRUCT"),
+            Some(CallType::SelfDestruct)
+        );
         assert_eq!(CallType::from_geth("UNKNOWN"), None);
     }
 
     #[test]
     fn call_type_from_parity() {
         assert_eq!(CallType::from_parity("call"), Some(CallType::Call));
-        assert_eq!(CallType::from_parity("delegatecall"), Some(CallType::DelegateCall));
-        assert_eq!(CallType::from_parity("suicide"), Some(CallType::SelfDestruct));
-        assert_eq!(CallType::from_parity("selfdestruct"), Some(CallType::SelfDestruct));
+        assert_eq!(
+            CallType::from_parity("delegatecall"),
+            Some(CallType::DelegateCall)
+        );
+        assert_eq!(
+            CallType::from_parity("suicide"),
+            Some(CallType::SelfDestruct)
+        );
+        assert_eq!(
+            CallType::from_parity("selfdestruct"),
+            Some(CallType::SelfDestruct)
+        );
         assert_eq!(CallType::from_parity("create"), Some(CallType::Create));
     }
 
@@ -717,7 +730,14 @@ mod tests {
     #[test]
     fn filter_matches_all_by_default() {
         let filter = TraceFilter::new();
-        let trace = make_trace(CallType::Call, "0xaaa", "0xbbb", Some("0xa9059cbb"), 0, false);
+        let trace = make_trace(
+            CallType::Call,
+            "0xaaa",
+            "0xbbb",
+            Some("0xa9059cbb"),
+            0,
+            false,
+        );
         assert!(filter.matches(&trace));
     }
 
@@ -726,15 +746,36 @@ mod tests {
         let filter = TraceFilter::new().with_address("0xaaa");
 
         // Matches on `from`.
-        let t1 = make_trace(CallType::Call, "0xaaa", "0xbbb", Some("0xa9059cbb"), 0, false);
+        let t1 = make_trace(
+            CallType::Call,
+            "0xaaa",
+            "0xbbb",
+            Some("0xa9059cbb"),
+            0,
+            false,
+        );
         assert!(filter.matches(&t1));
 
         // Matches on `to`.
-        let t2 = make_trace(CallType::Call, "0xbbb", "0xaaa", Some("0xa9059cbb"), 0, false);
+        let t2 = make_trace(
+            CallType::Call,
+            "0xbbb",
+            "0xaaa",
+            Some("0xa9059cbb"),
+            0,
+            false,
+        );
         assert!(filter.matches(&t2));
 
         // No match.
-        let t3 = make_trace(CallType::Call, "0xbbb", "0xccc", Some("0xa9059cbb"), 0, false);
+        let t3 = make_trace(
+            CallType::Call,
+            "0xbbb",
+            "0xccc",
+            Some("0xa9059cbb"),
+            0,
+            false,
+        );
         assert!(!filter.matches(&t3));
     }
 
@@ -742,10 +783,24 @@ mod tests {
     fn filter_by_selector() {
         let filter = TraceFilter::new().with_selector("0xa9059cbb");
 
-        let t1 = make_trace(CallType::Call, "0xaaa", "0xbbb", Some("0xa9059cbb"), 0, false);
+        let t1 = make_trace(
+            CallType::Call,
+            "0xaaa",
+            "0xbbb",
+            Some("0xa9059cbb"),
+            0,
+            false,
+        );
         assert!(filter.matches(&t1));
 
-        let t2 = make_trace(CallType::Call, "0xaaa", "0xbbb", Some("0x12345678"), 0, false);
+        let t2 = make_trace(
+            CallType::Call,
+            "0xaaa",
+            "0xbbb",
+            Some("0x12345678"),
+            0,
+            false,
+        );
         assert!(!filter.matches(&t2));
 
         // No selector (short input).
@@ -1118,19 +1173,47 @@ mod tests {
             .exclude_reverted(true);
 
         // Matches all criteria.
-        let t1 = make_trace(CallType::Call, "0xaaa", "0xbbb", Some("0xa9059cbb"), 0, false);
+        let t1 = make_trace(
+            CallType::Call,
+            "0xaaa",
+            "0xbbb",
+            Some("0xa9059cbb"),
+            0,
+            false,
+        );
         assert!(filter.matches(&t1));
 
         // Wrong call type.
-        let t2 = make_trace(CallType::Create, "0xaaa", "0xbbb", Some("0xa9059cbb"), 0, false);
+        let t2 = make_trace(
+            CallType::Create,
+            "0xaaa",
+            "0xbbb",
+            Some("0xa9059cbb"),
+            0,
+            false,
+        );
         assert!(!filter.matches(&t2));
 
         // Wrong address.
-        let t3 = make_trace(CallType::Call, "0xzzz", "0xbbb", Some("0xa9059cbb"), 0, false);
+        let t3 = make_trace(
+            CallType::Call,
+            "0xzzz",
+            "0xbbb",
+            Some("0xa9059cbb"),
+            0,
+            false,
+        );
         assert!(!filter.matches(&t3));
 
         // Reverted.
-        let t4 = make_trace(CallType::Call, "0xaaa", "0xbbb", Some("0xa9059cbb"), 0, true);
+        let t4 = make_trace(
+            CallType::Call,
+            "0xaaa",
+            "0xbbb",
+            Some("0xa9059cbb"),
+            0,
+            true,
+        );
         assert!(!filter.matches(&t4));
     }
 }

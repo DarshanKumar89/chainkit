@@ -14,9 +14,10 @@ use std::sync::Mutex;
 use std::time::Duration;
 
 /// A selection strategy decides which provider index to use next.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub enum SelectionStrategy {
     /// Round-robin across all allowed providers.
+    #[default]
     RoundRobin,
     /// Try providers in priority order (based on their registration order).
     Priority,
@@ -26,12 +27,6 @@ pub enum SelectionStrategy {
     LatencyBased,
     /// Stick to the same provider for a given key (e.g. sender address).
     Sticky { key: String },
-}
-
-impl Default for SelectionStrategy {
-    fn default() -> Self {
-        Self::RoundRobin
-    }
 }
 
 /// State for stateful selection strategies.
@@ -61,11 +56,7 @@ impl SelectionState {
     ///
     /// `allowed` is a slice of booleans indicating which providers are available
     /// (circuit breaker allows requests).
-    pub fn select(
-        &self,
-        strategy: &SelectionStrategy,
-        allowed: &[bool],
-    ) -> Option<usize> {
+    pub fn select(&self, strategy: &SelectionStrategy, allowed: &[bool]) -> Option<usize> {
         let count = allowed.len();
         if count == 0 {
             return None;
@@ -211,9 +202,15 @@ mod tests {
         let state = SelectionState::new(3);
         let allowed = [true, true, true];
 
-        let a = state.select(&SelectionStrategy::RoundRobin, &allowed).unwrap();
-        let b = state.select(&SelectionStrategy::RoundRobin, &allowed).unwrap();
-        let c = state.select(&SelectionStrategy::RoundRobin, &allowed).unwrap();
+        let a = state
+            .select(&SelectionStrategy::RoundRobin, &allowed)
+            .unwrap();
+        let b = state
+            .select(&SelectionStrategy::RoundRobin, &allowed)
+            .unwrap();
+        let c = state
+            .select(&SelectionStrategy::RoundRobin, &allowed)
+            .unwrap();
 
         // Should cycle through all 3
         assert_ne!(a, b);
@@ -227,7 +224,9 @@ mod tests {
 
         let mut selected = std::collections::HashSet::new();
         for _ in 0..10 {
-            let idx = state.select(&SelectionStrategy::RoundRobin, &allowed).unwrap();
+            let idx = state
+                .select(&SelectionStrategy::RoundRobin, &allowed)
+                .unwrap();
             selected.insert(idx);
             assert_ne!(idx, 1, "should never select disallowed provider");
         }
@@ -238,13 +237,22 @@ mod tests {
         let state = SelectionState::new(3);
 
         let allowed1 = [true, true, true];
-        assert_eq!(state.select(&SelectionStrategy::Priority, &allowed1), Some(0));
+        assert_eq!(
+            state.select(&SelectionStrategy::Priority, &allowed1),
+            Some(0)
+        );
 
         let allowed2 = [false, true, true];
-        assert_eq!(state.select(&SelectionStrategy::Priority, &allowed2), Some(1));
+        assert_eq!(
+            state.select(&SelectionStrategy::Priority, &allowed2),
+            Some(1)
+        );
 
         let allowed3 = [false, false, true];
-        assert_eq!(state.select(&SelectionStrategy::Priority, &allowed3), Some(2));
+        assert_eq!(
+            state.select(&SelectionStrategy::Priority, &allowed3),
+            Some(2)
+        );
     }
 
     #[test]
@@ -269,8 +277,14 @@ mod tests {
         }
 
         // Provider 0 should get ~60% of traffic (3/5)
-        assert!(counts[0] > counts[1], "weighted provider should get more traffic");
-        assert!(counts[0] > counts[2], "weighted provider should get more traffic");
+        assert!(
+            counts[0] > counts[1],
+            "weighted provider should get more traffic"
+        );
+        assert!(
+            counts[0] > counts[2],
+            "weighted provider should get more traffic"
+        );
     }
 
     #[test]
@@ -283,7 +297,9 @@ mod tests {
         state.record_latency(1, Duration::from_millis(10)); // fastest
         state.record_latency(2, Duration::from_millis(50));
 
-        let idx = state.select(&SelectionStrategy::LatencyBased, &allowed).unwrap();
+        let idx = state
+            .select(&SelectionStrategy::LatencyBased, &allowed)
+            .unwrap();
         assert_eq!(idx, 1, "should select fastest provider");
     }
 
@@ -296,7 +312,9 @@ mod tests {
         state.record_latency(1, Duration::from_millis(1)); // fastest but disallowed
         state.record_latency(2, Duration::from_millis(50));
 
-        let idx = state.select(&SelectionStrategy::LatencyBased, &allowed).unwrap();
+        let idx = state
+            .select(&SelectionStrategy::LatencyBased, &allowed)
+            .unwrap();
         assert_eq!(idx, 2, "should select fastest ALLOWED provider");
     }
 
@@ -304,7 +322,9 @@ mod tests {
     fn sticky_consistent_hashing() {
         let state = SelectionState::new(3);
         let allowed = [true, true, true];
-        let strategy = SelectionStrategy::Sticky { key: "0xAlice".to_string() };
+        let strategy = SelectionStrategy::Sticky {
+            key: "0xAlice".to_string(),
+        };
 
         let idx1 = state.select(&strategy, &allowed).unwrap();
         let idx2 = state.select(&strategy, &allowed).unwrap();
@@ -320,8 +340,12 @@ mod tests {
         let state = SelectionState::new(100);
         let allowed = vec![true; 100];
 
-        let s1 = SelectionStrategy::Sticky { key: "0xAlice".to_string() };
-        let s2 = SelectionStrategy::Sticky { key: "0xBob".to_string() };
+        let s1 = SelectionStrategy::Sticky {
+            key: "0xAlice".to_string(),
+        };
+        let s2 = SelectionStrategy::Sticky {
+            key: "0xBob".to_string(),
+        };
 
         let idx1 = state.select(&s1, &allowed).unwrap();
         let idx2 = state.select(&s2, &allowed).unwrap();
@@ -337,7 +361,9 @@ mod tests {
     fn sticky_fallback_when_preferred_down() {
         let state = SelectionState::new(3);
         let allowed_all = [true, true, true];
-        let strategy = SelectionStrategy::Sticky { key: "test".to_string() };
+        let strategy = SelectionStrategy::Sticky {
+            key: "test".to_string(),
+        };
 
         let preferred = state.select(&strategy, &allowed_all).unwrap();
 
@@ -360,6 +386,9 @@ mod tests {
         let latencies = state.latencies.lock().unwrap();
         let lat_us = latencies[0];
         // Should be smoothed, not just the latest sample
-        assert!(lat_us > 100_000 && lat_us < 200_000, "EMA should smooth: {lat_us}");
+        assert!(
+            lat_us > 100_000 && lat_us < 200_000,
+            "EMA should smooth: {lat_us}"
+        );
     }
 }

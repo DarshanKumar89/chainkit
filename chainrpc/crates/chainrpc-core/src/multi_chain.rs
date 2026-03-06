@@ -84,9 +84,7 @@ impl ChainRouter {
         for handle in handles {
             match handle.await {
                 Ok(result) => results.push(result),
-                Err(e) => results.push(Err(TransportError::Other(format!(
-                    "task join error: {e}"
-                )))),
+                Err(e) => results.push(Err(TransportError::Other(format!("task join error: {e}")))),
             }
         }
         results
@@ -125,8 +123,8 @@ impl Default for ChainRouter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use async_trait::async_trait;
     use crate::request::RpcId;
+    use async_trait::async_trait;
 
     struct MockChainTransport {
         chain_id: u64,

@@ -57,7 +57,11 @@ impl SubscriptionManager {
         let (tx, rx) = mpsc::unbounded_channel();
         self.entries.lock().unwrap().insert(
             id,
-            SubscriptionEntry { kind, params, sender: tx },
+            SubscriptionEntry {
+                kind,
+                params,
+                sender: tx,
+            },
         );
         rx
     }
@@ -126,7 +130,11 @@ mod tests {
     fn active_subscriptions_for_resubscribe() {
         let mgr = SubscriptionManager::new();
         mgr.register(SubscriptionId("0xa".into()), "newHeads".into(), vec![]);
-        mgr.register(SubscriptionId("0xb".into()), "logs".into(), vec![serde_json::json!({})]);
+        mgr.register(
+            SubscriptionId("0xb".into()),
+            "logs".into(),
+            vec![serde_json::json!({})],
+        );
 
         let active = mgr.active_subscriptions();
         assert_eq!(active.len(), 2);

@@ -199,10 +199,7 @@ impl IdempotentHandler {
 
     /// Returns the number of events processed by this handler.
     pub fn processed_count(&self) -> usize {
-        self.processed_ids
-            .lock()
-            .map(|ids| ids.len())
-            .unwrap_or(0)
+        self.processed_ids.lock().map(|ids| ids.len()).unwrap_or(0)
     }
 
     /// Returns `true` if an event with the given deterministic ID has been processed.

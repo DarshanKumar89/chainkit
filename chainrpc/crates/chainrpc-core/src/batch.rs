@@ -165,10 +165,7 @@ mod tests {
 
     #[async_trait]
     impl RpcTransport for CountingTransport {
-        async fn send(
-            &self,
-            _req: JsonRpcRequest,
-        ) -> Result<JsonRpcResponse, TransportError> {
+        async fn send(&self, _req: JsonRpcRequest) -> Result<JsonRpcResponse, TransportError> {
             self.send_count.fetch_add(1, Ordering::SeqCst);
             Ok(JsonRpcResponse {
                 jsonrpc: "2.0".into(),

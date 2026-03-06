@@ -47,14 +47,14 @@ pub struct ReorgDetector {
     /// Last known finalized block number (for RPC inconsistency detection).
     last_finalized: Option<u64>,
     /// Confirmation depth — blocks behind head considered finalized.
-    confirmation_depth: u64,
+    _confirmation_depth: u64,
 }
 
 impl ReorgDetector {
     pub fn new(confirmation_depth: u64) -> Self {
         Self {
             last_finalized: None,
-            confirmation_depth,
+            _confirmation_depth: confirmation_depth,
         }
     }
 

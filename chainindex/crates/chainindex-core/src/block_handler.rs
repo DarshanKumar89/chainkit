@@ -129,10 +129,13 @@ impl BlockHandlerScheduler {
 
         for handler in &self.setup_handlers {
             tracing::info!(handler = handler.name(), "running setup handler");
-            handler.setup(ctx).await.map_err(|e| IndexerError::Handler {
-                handler: handler.name().to_string(),
-                reason: e.to_string(),
-            })?;
+            handler
+                .setup(ctx)
+                .await
+                .map_err(|e| IndexerError::Handler {
+                    handler: handler.name().to_string(),
+                    reason: e.to_string(),
+                })?;
         }
 
         self.setup_complete = true;
@@ -176,7 +179,7 @@ impl BlockHandlerScheduler {
         if interval == 0 {
             return false;
         }
-        block_number % interval == 0
+        block_number.is_multiple_of(interval)
     }
 
     /// Returns whether setup has been completed.

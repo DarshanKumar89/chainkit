@@ -116,22 +116,40 @@ impl CacheTierResolver {
             "eth_getBlockByHash" => CacheTier::Immutable,
 
             // -- SemiStable ---------------------------------------------------
-            "eth_chainId" | "net_version" | "eth_getCode" | "net_listening"
-            | "web3_clientVersion" | "eth_protocolVersion" | "eth_accounts" => {
-                CacheTier::SemiStable
-            }
+            "eth_chainId"
+            | "net_version"
+            | "eth_getCode"
+            | "net_listening"
+            | "web3_clientVersion"
+            | "eth_protocolVersion"
+            | "eth_accounts" => CacheTier::SemiStable,
 
             // -- Volatile (frequently changing) -------------------------------
-            "eth_blockNumber" | "eth_gasPrice" | "eth_estimateGas" | "eth_getBalance"
-            | "eth_getTransactionCount" | "eth_call" | "eth_feeHistory"
-            | "eth_maxPriorityFeePerGas" | "eth_getStorageAt" => CacheTier::Volatile,
+            "eth_blockNumber"
+            | "eth_gasPrice"
+            | "eth_estimateGas"
+            | "eth_getBalance"
+            | "eth_getTransactionCount"
+            | "eth_call"
+            | "eth_feeHistory"
+            | "eth_maxPriorityFeePerGas"
+            | "eth_getStorageAt" => CacheTier::Volatile,
 
             // -- NeverCache (writes, subscriptions) ---------------------------
-            "eth_sendRawTransaction" | "eth_sendTransaction" | "eth_subscribe"
-            | "eth_unsubscribe" | "eth_newFilter" | "eth_newBlockFilter"
-            | "eth_newPendingTransactionFilter" | "eth_uninstallFilter"
-            | "eth_getFilterChanges" | "eth_getFilterLogs" | "personal_sign"
-            | "eth_sign" | "eth_signTransaction" | "eth_signTypedData_v4" => CacheTier::NeverCache,
+            "eth_sendRawTransaction"
+            | "eth_sendTransaction"
+            | "eth_subscribe"
+            | "eth_unsubscribe"
+            | "eth_newFilter"
+            | "eth_newBlockFilter"
+            | "eth_newPendingTransactionFilter"
+            | "eth_uninstallFilter"
+            | "eth_getFilterChanges"
+            | "eth_getFilterLogs"
+            | "personal_sign"
+            | "eth_sign"
+            | "eth_signTransaction"
+            | "eth_signTypedData_v4" => CacheTier::NeverCache,
 
             // Unknown methods — default to NeverCache (safe default).
             _ => CacheTier::NeverCache,
@@ -258,10 +276,7 @@ impl CacheTransport {
     }
 
     /// Send a request, returning a cached response when available.
-    pub async fn send(
-        &self,
-        req: JsonRpcRequest,
-    ) -> Result<JsonRpcResponse, TransportError> {
+    pub async fn send(&self, req: JsonRpcRequest) -> Result<JsonRpcResponse, TransportError> {
         // Determine cacheability and TTL.
         let (is_cacheable, tier, ttl) = self.resolve_cacheability(&req);
 
@@ -386,18 +401,13 @@ impl CacheTransport {
     ///
     /// When a `tier_resolver` is configured, the resolver decides.
     /// Otherwise, fall back to the flat `cacheable_methods` + `default_ttl`.
-    fn resolve_cacheability(
-        &self,
-        req: &JsonRpcRequest,
-    ) -> (bool, CacheTier, Duration) {
+    fn resolve_cacheability(&self, req: &JsonRpcRequest) -> (bool, CacheTier, Duration) {
         if let Some(ref resolver) = self.config.tier_resolver {
             let tier = resolver.tier_for(&req.method, &req.params);
             match tier {
                 CacheTier::NeverCache => (false, tier, Duration::ZERO),
                 _ => {
-                    let ttl = tier
-                        .default_ttl()
-                        .unwrap_or(self.config.default_ttl);
+                    let ttl = tier.default_ttl().unwrap_or(self.config.default_ttl);
                     (true, tier, ttl)
                 }
             }
@@ -477,12 +487,8 @@ fn is_concrete_block_number(value: &serde_json::Value) -> bool {
 /// parse every possible method's params.
 fn extract_block_ref(method: &str, params: &[serde_json::Value]) -> Option<u64> {
     match method {
-        "eth_getBlockByNumber" => {
-            params.first().and_then(|v| parse_hex_block(v))
-        }
-        "eth_getTransactionByBlockNumberAndIndex" => {
-            params.first().and_then(|v| parse_hex_block(v))
-        }
+        "eth_getBlockByNumber" => params.first().and_then(parse_hex_block),
+        "eth_getTransactionByBlockNumberAndIndex" => params.first().and_then(parse_hex_block),
         _ => None,
     }
 }
@@ -524,10 +530,7 @@ mod tests {
 
     #[async_trait]
     impl RpcTransport for CountingTransport {
-        async fn send(
-            &self,
-            _req: JsonRpcRequest,
-        ) -> Result<JsonRpcResponse, TransportError> {
+        async fn send(&self, _req: JsonRpcRequest) -> Result<JsonRpcResponse, TransportError> {
             self.call_count.fetch_add(1, Ordering::SeqCst);
             Ok(JsonRpcResponse {
                 jsonrpc: "2.0".into(),
@@ -740,14 +743,8 @@ mod tests {
 
     #[test]
     fn cache_key_differs_by_params() {
-        let k1 = cache_key(
-            "eth_getCode",
-            &[serde_json::Value::String("0xabc".into())],
-        );
-        let k2 = cache_key(
-            "eth_getCode",
-            &[serde_json::Value::String("0xdef".into())],
-        );
+        let k1 = cache_key("eth_getCode", &[serde_json::Value::String("0xabc".into())]);
+        let k2 = cache_key("eth_getCode", &[serde_json::Value::String("0xdef".into())]);
         assert_ne!(k1, k2);
     }
 
@@ -784,26 +781,14 @@ mod tests {
             resolver.tier_for("eth_getTransactionByHash", &[]),
             CacheTier::Immutable
         );
-        assert_eq!(
-            resolver.tier_for("eth_chainId", &[]),
-            CacheTier::SemiStable
-        );
-        assert_eq!(
-            resolver.tier_for("net_version", &[]),
-            CacheTier::SemiStable
-        );
-        assert_eq!(
-            resolver.tier_for("eth_getCode", &[]),
-            CacheTier::SemiStable
-        );
+        assert_eq!(resolver.tier_for("eth_chainId", &[]), CacheTier::SemiStable);
+        assert_eq!(resolver.tier_for("net_version", &[]), CacheTier::SemiStable);
+        assert_eq!(resolver.tier_for("eth_getCode", &[]), CacheTier::SemiStable);
         assert_eq!(
             resolver.tier_for("eth_blockNumber", &[]),
             CacheTier::Volatile
         );
-        assert_eq!(
-            resolver.tier_for("eth_gasPrice", &[]),
-            CacheTier::Volatile
-        );
+        assert_eq!(resolver.tier_for("eth_gasPrice", &[]), CacheTier::Volatile);
         assert_eq!(
             resolver.tier_for("eth_sendRawTransaction", &[]),
             CacheTier::NeverCache
@@ -829,9 +814,7 @@ mod tests {
 
         let req = make_req_with_params(
             "eth_getTransactionReceipt",
-            vec![serde_json::Value::String(
-                "0xabc123def456".into(),
-            )],
+            vec![serde_json::Value::String("0xabc123def456".into())],
         );
         cache.send(req.clone()).await.unwrap();
         assert_eq!(transport.calls(), 1);
@@ -1024,10 +1007,7 @@ mod tests {
             ),
             None
         );
-        assert_eq!(
-            extract_block_ref("eth_chainId", &[]),
-            None
-        );
+        assert_eq!(extract_block_ref("eth_chainId", &[]), None);
     }
 
     #[tokio::test]

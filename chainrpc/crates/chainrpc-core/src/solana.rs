@@ -29,7 +29,7 @@ use crate::transport::{HealthStatus, RpcTransport};
 /// Solana commitment levels — controls the consistency/finality guarantee of
 /// a query.  Equivalent in spirit to Ethereum block tags ("latest",
 /// "safe", "finalized"), but Solana-specific.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum SolanaCommitment {
     /// Fastest — the node has processed the transaction/block but the cluster
@@ -37,6 +37,7 @@ pub enum SolanaCommitment {
     Processed,
     /// A super-majority of the cluster has voted to confirm the block.
     /// This is the default and strikes a balance between speed and safety.
+    #[default]
     Confirmed,
     /// The block has been rooted (31+ confirmed blocks on top) and **cannot**
     /// be rolled back.  Safest for indexing and accounting.
@@ -64,12 +65,6 @@ impl SolanaCommitment {
     /// qualify.
     pub fn is_safe_for_display(&self) -> bool {
         matches!(self, Self::Confirmed | Self::Finalized)
-    }
-}
-
-impl Default for SolanaCommitment {
-    fn default() -> Self {
-        Self::Confirmed
     }
 }
 
@@ -281,13 +276,10 @@ impl SolanaTransport {
         let commitment_value = Value::String(self.commitment.as_str().to_string());
 
         // Look for an existing config object as the last param.
-        if let Some(last) = req.params.last_mut() {
-            if let Value::Object(map) = last {
-                // Only inject if the caller did not already set commitment.
-                map.entry("commitment")
-                    .or_insert(commitment_value);
-                return;
-            }
+        if let Some(Value::Object(map)) = req.params.last_mut() {
+            // Only inject if the caller did not already set commitment.
+            map.entry("commitment").or_insert(commitment_value);
+            return;
         }
 
         // No config object found — append one.
@@ -299,10 +291,7 @@ impl SolanaTransport {
 
 #[async_trait]
 impl RpcTransport for SolanaTransport {
-    async fn send(
-        &self,
-        req: JsonRpcRequest,
-    ) -> Result<JsonRpcResponse, TransportError> {
+    async fn send(&self, req: JsonRpcRequest) -> Result<JsonRpcResponse, TransportError> {
         let mut req = req;
         self.inject_commitment(&mut req);
         self.inner.send(req).await
@@ -387,10 +376,7 @@ mod tests {
 
     #[async_trait]
     impl RpcTransport for MockTransport {
-        async fn send(
-            &self,
-            req: JsonRpcRequest,
-        ) -> Result<JsonRpcResponse, TransportError> {
+        async fn send(&self, req: JsonRpcRequest) -> Result<JsonRpcResponse, TransportError> {
             self.sent.lock().unwrap().push(req.clone());
             Ok(JsonRpcResponse {
                 jsonrpc: "2.0".into(),
@@ -526,8 +512,7 @@ mod tests {
         assert_eq!(json, "\"finalized\"");
 
         // Round-trip.
-        let parsed: SolanaCommitment =
-            serde_json::from_str("\"finalized\"").unwrap();
+        let parsed: SolanaCommitment = serde_json::from_str("\"finalized\"").unwrap();
         assert_eq!(parsed, SolanaCommitment::Finalized);
     }
 
@@ -564,9 +549,7 @@ mod tests {
         assert_eq!(table.cost_for("getMultipleAccounts"), 30);
 
         // getProgramAccounts (100) should cost more than getSlot (5).
-        assert!(
-            table.cost_for("getProgramAccounts") > table.cost_for("getSlot")
-        );
+        assert!(table.cost_for("getProgramAccounts") > table.cost_for("getSlot"));
 
         // Unknown methods get the default cost (15).
         assert_eq!(table.cost_for("someUnknownMethod"), 15);
@@ -583,8 +566,10 @@ mod tests {
     #[tokio::test]
     async fn inject_commitment() {
         let mock = Arc::new(MockTransport::new("https://api.devnet.solana.com"));
-        let transport =
-            SolanaTransport::new(Arc::clone(&mock) as Arc<dyn RpcTransport>, SolanaCommitment::Finalized);
+        let transport = SolanaTransport::new(
+            Arc::clone(&mock) as Arc<dyn RpcTransport>,
+            SolanaCommitment::Finalized,
+        );
 
         // -- (a) Method that accepts commitment and has no config object yet.
         let req = JsonRpcRequest::new(
@@ -606,10 +591,7 @@ mod tests {
 
         // -- (b) Method that already has a config object with commitment.
         let mut config = serde_json::Map::new();
-        config.insert(
-            "commitment".to_string(),
-            Value::String("processed".into()),
-        );
+        config.insert("commitment".to_string(), Value::String("processed".into()));
         let req = JsonRpcRequest::new(
             2,
             "getAccountInfo",
@@ -684,8 +666,7 @@ mod tests {
         assert!(!solana_testnet_endpoints().is_empty());
 
         // Mainnet should include the official Solana endpoint.
-        assert!(solana_mainnet_endpoints()
-            .contains(&"https://api.mainnet-beta.solana.com"));
+        assert!(solana_mainnet_endpoints().contains(&"https://api.mainnet-beta.solana.com"));
     }
 
     // -- 12. unknown_method_is_safe ---------------------------------------
@@ -734,11 +715,7 @@ mod tests {
         );
 
         let reqs = vec![
-            JsonRpcRequest::new(
-                1,
-                "getBalance",
-                vec![Value::String("addr1".into())],
-            ),
+            JsonRpcRequest::new(1, "getBalance", vec![Value::String("addr1".into())]),
             JsonRpcRequest::new(2, "getVersion", vec![]),
         ];
 

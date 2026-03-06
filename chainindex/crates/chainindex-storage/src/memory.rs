@@ -10,7 +10,6 @@ use std::sync::Mutex;
 use chainindex_core::checkpoint::{Checkpoint, CheckpointStore};
 use chainindex_core::error::IndexerError;
 use chainindex_core::handler::DecodedEvent;
-use chainindex_core::types::BlockSummary;
 
 /// In-memory indexer storage.
 ///
@@ -39,7 +38,11 @@ impl InMemoryStorage {
 
     /// Look up the hash of a previously indexed block.
     pub fn get_block_hash(&self, block_number: u64) -> Option<String> {
-        self.block_hashes.lock().unwrap().get(&block_number).cloned()
+        self.block_hashes
+            .lock()
+            .unwrap()
+            .get(&block_number)
+            .cloned()
     }
 
     /// Return all indexed events for a schema (e.g. `"ERC20Transfer"`).

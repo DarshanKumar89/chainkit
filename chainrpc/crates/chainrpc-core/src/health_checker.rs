@@ -119,9 +119,9 @@ pub fn start_health_checker(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use async_trait::async_trait;
     use crate::error::TransportError;
     use crate::request::{JsonRpcResponse, RpcId};
+    use async_trait::async_trait;
 
     struct OkTransport;
 
@@ -173,12 +173,7 @@ mod tests {
     #[tokio::test]
     async fn probe_healthy_provider() {
         let transport = OkTransport;
-        let result = probe_provider(
-            &transport,
-            "eth_blockNumber",
-            Duration::from_secs(5),
-        )
-        .await;
+        let result = probe_provider(&transport, "eth_blockNumber", Duration::from_secs(5)).await;
 
         assert!(result.success);
         assert!(result.latency.is_some());
@@ -189,12 +184,7 @@ mod tests {
     #[tokio::test]
     async fn probe_failed_provider() {
         let transport = FailTransport;
-        let result = probe_provider(
-            &transport,
-            "eth_blockNumber",
-            Duration::from_secs(5),
-        )
-        .await;
+        let result = probe_provider(&transport, "eth_blockNumber", Duration::from_secs(5)).await;
 
         assert!(!result.success);
         assert!(result.error.is_some());

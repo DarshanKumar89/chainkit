@@ -147,7 +147,9 @@ impl FactoryRegistry {
             config.factory_address.to_lowercase(),
             config.creation_event_topic0.to_lowercase(),
         );
-        inner.factory_addresses.insert(config.factory_address.to_lowercase());
+        inner
+            .factory_addresses
+            .insert(config.factory_address.to_lowercase());
         inner.configs.insert(key, config);
     }
 
@@ -197,11 +199,7 @@ impl FactoryRegistry {
         };
 
         inner.child_addresses.insert(child_addr_lower);
-        inner
-            .children
-            .entry(addr)
-            .or_default()
-            .push(child.clone());
+        inner.children.entry(addr).or_default().push(child.clone());
 
         Some(child)
     }
@@ -253,7 +251,9 @@ impl FactoryRegistry {
                 config.factory_address.to_lowercase(),
                 config.creation_event_topic0.to_lowercase(),
             );
-            inner.factory_addresses.insert(config.factory_address.to_lowercase());
+            inner
+                .factory_addresses
+                .insert(config.factory_address.to_lowercase());
             inner.configs.insert(key, config);
         }
 

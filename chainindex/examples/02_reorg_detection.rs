@@ -50,10 +50,7 @@ fn main() {
         Ok(()) => println!("Block accepted (no reorg)"),
         Err(depth) => println!(
             "REORG DETECTED! Depth: {} blocks (block {} has parent {} but expected {})",
-            depth,
-            reorged_103.number,
-            reorged_103.parent_hash,
-            blocks[2].hash
+            depth, reorged_103.number, reorged_103.parent_hash, blocks[2].hash
         ),
     }
 

@@ -32,11 +32,17 @@ async fn main() {
     };
 
     storage.save(checkpoint.clone()).await.unwrap();
-    println!("Saved checkpoint: block {} ({})", checkpoint.block_number, checkpoint.block_hash);
+    println!(
+        "Saved checkpoint: block {} ({})",
+        checkpoint.block_number, checkpoint.block_hash
+    );
 
     let loaded = storage.load("ethereum", "uniswap-tracker").await.unwrap();
     if let Some(cp) = loaded {
-        println!("Loaded checkpoint: block {} ({})", cp.block_number, cp.block_hash);
+        println!(
+            "Loaded checkpoint: block {} ({})",
+            cp.block_number, cp.block_hash
+        );
     }
 
     // 3. Event storage
@@ -97,7 +103,10 @@ async fn main() {
     let transfers = storage.events_by_schema("Transfer").unwrap();
     println!("\nTransfer events: {}", transfers.len());
     for ev in &transfers {
-        println!("  Block {} — {} → tx: {}", ev.block_number, ev.address, ev.tx_hash);
+        println!(
+            "  Block {} — {} → tx: {}",
+            ev.block_number, ev.address, ev.tx_hash
+        );
     }
 
     // Query by address

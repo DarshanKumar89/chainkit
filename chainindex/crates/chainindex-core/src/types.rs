@@ -65,13 +65,19 @@ impl EventFilter {
     /// Returns `true` if `address` matches this filter.
     pub fn matches_address(&self, address: &str) -> bool {
         self.addresses.is_empty()
-            || self.addresses.iter().any(|a| a.eq_ignore_ascii_case(address))
+            || self
+                .addresses
+                .iter()
+                .any(|a| a.eq_ignore_ascii_case(address))
     }
 
     /// Returns `true` if `topic0` matches this filter.
     pub fn matches_topic0(&self, topic0: &str) -> bool {
         self.topic0_values.is_empty()
-            || self.topic0_values.iter().any(|t| t.eq_ignore_ascii_case(topic0))
+            || self
+                .topic0_values
+                .iter()
+                .any(|t| t.eq_ignore_ascii_case(topic0))
     }
 }
 

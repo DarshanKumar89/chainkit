@@ -33,10 +33,7 @@ pub enum BumpStrategy {
     /// Use a specific gas speed tier from fee history.
     SpeedTier(GasSpeed),
     /// Set gas to specific values (wei).
-    Fixed {
-        max_fee: u64,
-        max_priority_fee: u64,
-    },
+    Fixed { max_fee: u64, max_priority_fee: u64 },
     /// Aggressive: 2x the current gas.
     Double,
     /// Cancel: replace with 0-value self-transfer at minimum bump.
@@ -67,8 +64,8 @@ pub struct BumpConfig {
 impl Default for BumpConfig {
     fn default() -> Self {
         Self {
-            min_bump_bps: 1000,               // 10%
-            max_gas_price: 500_000_000_000,    // 500 gwei cap
+            min_bump_bps: 1000,             // 10%
+            max_gas_price: 500_000_000_000, // 500 gwei cap
             max_bumps: 5,
         }
     }
@@ -148,16 +145,13 @@ pub fn compute_bump(
             max_priority_fee,
         } => {
             // Ensure fixed values meet minimum bump
-            let min_max_fee =
-                current_max_fee * (10000 + config.min_bump_bps as u64) / 10000;
-            let min_priority =
-                current_priority * (10000 + config.min_bump_bps as u64) / 10000;
+            let min_max_fee = current_max_fee * (10000 + config.min_bump_bps as u64) / 10000;
+            let min_priority = current_priority * (10000 + config.min_bump_bps as u64) / 10000;
             (max_fee.max(min_max_fee), max_priority_fee.max(min_priority))
         }
         BumpStrategy::SpeedTier(speed) => {
             if let Some(base_fee) = current_base_fee {
-                let rec =
-                    compute_gas_recommendation(base_fee, priority_fee_samples, 0);
+                let rec = compute_gas_recommendation(base_fee, priority_fee_samples, 0);
                 let estimate = match speed {
                     GasSpeed::Slow => &rec.slow,
                     GasSpeed::Standard => &rec.standard,
@@ -167,12 +161,8 @@ pub fn compute_bump(
                 let new_fee = estimate.max_fee_per_gas as u64;
                 let new_tip = estimate.max_priority_fee_per_gas as u64;
                 // Ensure meets minimum bump
-                let min_fee = current_max_fee
-                    * (10000 + config.min_bump_bps as u64)
-                    / 10000;
-                let min_tip = current_priority
-                    * (10000 + config.min_bump_bps as u64)
-                    / 10000;
+                let min_fee = current_max_fee * (10000 + config.min_bump_bps as u64) / 10000;
+                let min_tip = current_priority * (10000 + config.min_bump_bps as u64) / 10000;
                 (new_fee.max(min_fee), new_tip.max(min_tip))
             } else {
                 // No base fee info, fall back to percentage
@@ -238,6 +228,7 @@ pub fn compute_bump(
 /// The `raw_tx_builder` receives `(nonce, new_max_fee, new_priority_fee)` and
 /// returns the raw signed transaction hex string. This keeps signing external
 /// to chainrpc.
+#[allow(clippy::too_many_arguments)]
 pub async fn bump_and_send<F>(
     transport: &dyn RpcTransport,
     tracker: &TxTracker,
@@ -252,9 +243,9 @@ pub async fn bump_and_send<F>(
 where
     F: FnOnce(u64, u64, u64) -> String, // (nonce, max_fee, priority_fee) -> raw_tx_hex
 {
-    let tx = tracker.get(tx_hash).ok_or_else(|| {
-        TransportError::Other(format!("transaction {tx_hash} not tracked"))
-    })?;
+    let tx = tracker
+        .get(tx_hash)
+        .ok_or_else(|| TransportError::Other(format!("transaction {tx_hash} not tracked")))?;
 
     let bump = compute_bump(
         &tx,
@@ -266,23 +257,17 @@ where
     )?;
 
     // Build the replacement transaction
-    let raw_tx =
-        raw_tx_builder(tx.nonce, bump.new_max_fee, bump.new_max_priority_fee);
+    let raw_tx = raw_tx_builder(tx.nonce, bump.new_max_fee, bump.new_max_priority_fee);
 
     // Send it
-    let req = JsonRpcRequest::auto(
-        "eth_sendRawTransaction",
-        vec![Value::String(raw_tx)],
-    );
+    let req = JsonRpcRequest::auto("eth_sendRawTransaction", vec![Value::String(raw_tx)]);
     let resp = transport.send(req).await?;
     let result = resp.into_result().map_err(TransportError::Rpc)?;
 
     let new_hash = result
         .as_str()
         .ok_or_else(|| {
-            TransportError::Other(
-                "eth_sendRawTransaction did not return a hash".into(),
-            )
+            TransportError::Other("eth_sendRawTransaction did not return a hash".into())
         })?
         .to_string();
 
@@ -399,10 +384,7 @@ mod tests {
 
     #[async_trait]
     impl RpcTransport for MockTransport {
-        async fn send(
-            &self,
-            req: JsonRpcRequest,
-        ) -> Result<JsonRpcResponse, TransportError> {
+        async fn send(&self, req: JsonRpcRequest) -> Result<JsonRpcResponse, TransportError> {
             let map = self.responses.lock().unwrap();
             let result = map.get(&req.method).cloned().unwrap_or(Value::Null);
             Ok(JsonRpcResponse {
@@ -428,9 +410,8 @@ mod tests {
         let tx = pending_eip1559_tx("0xabc", 100_000_000_000, 2_000_000_000);
         let config = BumpConfig::default();
 
-        let result =
-            compute_bump(&tx, BumpStrategy::default(), &config, 0, None, &[])
-                .expect("should succeed");
+        let result = compute_bump(&tx, BumpStrategy::default(), &config, 0, None, &[])
+            .expect("should succeed");
 
         // 12% bump: 100_000_000_000 * 11200 / 10000 = 112_000_000_000
         assert_eq!(result.new_max_fee, 112_000_000_000);
@@ -447,8 +428,7 @@ mod tests {
         let config = BumpConfig::default();
 
         let result =
-            compute_bump(&tx, BumpStrategy::Double, &config, 0, None, &[])
-                .expect("should succeed");
+            compute_bump(&tx, BumpStrategy::Double, &config, 0, None, &[]).expect("should succeed");
 
         assert_eq!(result.new_max_fee, 100_000_000_000);
         assert_eq!(result.new_max_priority_fee, 2_000_000_000);
@@ -464,7 +444,7 @@ mod tests {
         let result = compute_bump(
             &tx,
             BumpStrategy::Fixed {
-                max_fee: 105_000_000_000,       // 5% bump — too low
+                max_fee: 105_000_000_000,        // 5% bump — too low
                 max_priority_fee: 2_100_000_000, // 5% bump — too low
             },
             &config,
@@ -488,7 +468,7 @@ mod tests {
         let result = compute_bump(
             &tx,
             BumpStrategy::Fixed {
-                max_fee: 200_000_000_000,       // 100% bump — well above min
+                max_fee: 200_000_000_000,        // 100% bump — well above min
                 max_priority_fee: 5_000_000_000, // 150% bump — well above min
             },
             &config,
@@ -508,8 +488,7 @@ mod tests {
         let config = BumpConfig::default();
 
         let result =
-            compute_bump(&tx, BumpStrategy::Cancel, &config, 0, None, &[])
-                .expect("should succeed");
+            compute_bump(&tx, BumpStrategy::Cancel, &config, 0, None, &[]).expect("should succeed");
 
         // Cancel uses minimum bump (10%)
         assert_eq!(result.new_max_fee, 110_000_000_000);
@@ -526,15 +505,8 @@ mod tests {
         };
 
         // A 30% bump would put us at 520 gwei, above the cap
-        let err = compute_bump(
-            &tx,
-            BumpStrategy::Percentage(3000),
-            &config,
-            0,
-            None,
-            &[],
-        )
-        .unwrap_err();
+        let err =
+            compute_bump(&tx, BumpStrategy::Percentage(3000), &config, 0, None, &[]).unwrap_err();
 
         let msg = format!("{err}");
         assert!(msg.contains("exceeds cap"));
@@ -549,15 +521,7 @@ mod tests {
         };
 
         // bump_count = 3 (already bumped 3 times) >= max_bumps (3)
-        let err = compute_bump(
-            &tx,
-            BumpStrategy::default(),
-            &config,
-            3,
-            None,
-            &[],
-        )
-        .unwrap_err();
+        let err = compute_bump(&tx, BumpStrategy::default(), &config, 3, None, &[]).unwrap_err();
 
         let msg = format!("{err}");
         assert!(msg.contains("max bumps"));
@@ -572,15 +536,7 @@ mod tests {
         };
         let config = BumpConfig::default();
 
-        let err = compute_bump(
-            &tx,
-            BumpStrategy::default(),
-            &config,
-            0,
-            None,
-            &[],
-        )
-        .unwrap_err();
+        let err = compute_bump(&tx, BumpStrategy::default(), &config, 0, None, &[]).unwrap_err();
 
         let msg = format!("{err}");
         assert!(msg.contains("pending"));
@@ -589,10 +545,7 @@ mod tests {
     #[tokio::test]
     async fn bump_and_send_updates_tracker() {
         let transport = MockTransport::new();
-        transport.set_response(
-            "eth_sendRawTransaction",
-            Value::String("0xnew_hash".into()),
-        );
+        transport.set_response("eth_sendRawTransaction", Value::String("0xnew_hash".into()));
 
         let tracker = TxTracker::new(TxTrackerConfig::default());
         let tx = pending_eip1559_tx("0xoriginal", 100_000_000_000, 2_000_000_000);
@@ -703,9 +656,8 @@ mod tests {
         let tx = pending_legacy_tx("0xlegacy", 20_000_000_000);
         let config = BumpConfig::default();
 
-        let result =
-            compute_bump(&tx, BumpStrategy::default(), &config, 0, None, &[])
-                .expect("should succeed");
+        let result = compute_bump(&tx, BumpStrategy::default(), &config, 0, None, &[])
+            .expect("should succeed");
 
         // Legacy tx: gas_price is Some, so new_gas_price should be set
         assert!(result.new_gas_price.is_some());
@@ -721,9 +673,8 @@ mod tests {
         tx.max_priority_fee = Some(0);
         let config = BumpConfig::default();
 
-        let result =
-            compute_bump(&tx, BumpStrategy::default(), &config, 0, None, &[])
-                .expect("should succeed");
+        let result = compute_bump(&tx, BumpStrategy::default(), &config, 0, None, &[])
+            .expect("should succeed");
 
         // Zero priority fee should be bumped to at least 1 gwei
         assert_eq!(result.new_max_priority_fee, 1_000_000_000);

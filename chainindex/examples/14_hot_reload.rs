@@ -155,7 +155,10 @@ async fn main() {
     println!("After adding: {:?}", reloader.current().await.addresses);
 
     reloader.remove_address("0xToken1").await;
-    println!("After removing 0xToken1: {:?}", reloader.current().await.addresses);
+    println!(
+        "After removing 0xToken1: {:?}",
+        reloader.current().await.addresses
+    );
 
     reloader.add_topic0("0xa9059cbb").await;
     println!("Topics: {:?}", reloader.current().await.topic0_values);

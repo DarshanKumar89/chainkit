@@ -46,7 +46,11 @@ pub trait EventHandler: Send + Sync {
 /// Called once per block regardless of events.
 #[async_trait]
 pub trait BlockHandler: Send + Sync {
-    async fn handle_block(&self, block: &BlockSummary, ctx: &IndexContext) -> Result<(), IndexerError>;
+    async fn handle_block(
+        &self,
+        block: &BlockSummary,
+        ctx: &IndexContext,
+    ) -> Result<(), IndexerError>;
 }
 
 /// Trait for reorg handlers.
@@ -193,8 +197,14 @@ mod tests {
         registry.on_event(handler);
 
         let ctx = dummy_ctx();
-        registry.dispatch_event(&dummy_event("ERC20Transfer"), &ctx).await.unwrap();
-        registry.dispatch_event(&dummy_event("UniswapSwap"), &ctx).await.unwrap(); // no handler
+        registry
+            .dispatch_event(&dummy_event("ERC20Transfer"), &ctx)
+            .await
+            .unwrap();
+        registry
+            .dispatch_event(&dummy_event("UniswapSwap"), &ctx)
+            .await
+            .unwrap(); // no handler
 
         assert_eq!(count.load(Ordering::Relaxed), 1);
     }

@@ -354,34 +354,37 @@ impl Default for MemoryEntityStore {
 /// Check whether a single row matches a query filter.
 fn matches_filter(row: &EntityRow, filter: &QueryFilter) -> bool {
     match filter {
-        QueryFilter::Eq(field, value) => {
-            row.data.get(field).map_or(false, |v| v == value)
-        }
-        QueryFilter::Gt(field, value) => {
-            row.data.get(field).map_or(false, |v| json_cmp(v, value) == Some(std::cmp::Ordering::Greater))
-        }
-        QueryFilter::Lt(field, value) => {
-            row.data.get(field).map_or(false, |v| json_cmp(v, value) == Some(std::cmp::Ordering::Less))
-        }
-        QueryFilter::Gte(field, value) => {
-            row.data.get(field).map_or(false, |v| {
-                matches!(json_cmp(v, value), Some(std::cmp::Ordering::Greater | std::cmp::Ordering::Equal))
-            })
-        }
-        QueryFilter::Lte(field, value) => {
-            row.data.get(field).map_or(false, |v| {
-                matches!(json_cmp(v, value), Some(std::cmp::Ordering::Less | std::cmp::Ordering::Equal))
-            })
-        }
-        QueryFilter::In(field, values) => {
-            row.data.get(field).map_or(false, |v| values.contains(v))
-        }
-        QueryFilter::Between(field, low, high) => {
-            row.data.get(field).map_or(false, |v| {
-                matches!(json_cmp(v, low), Some(std::cmp::Ordering::Greater | std::cmp::Ordering::Equal))
-                    && matches!(json_cmp(v, high), Some(std::cmp::Ordering::Less | std::cmp::Ordering::Equal))
-            })
-        }
+        QueryFilter::Eq(field, value) => row.data.get(field) == Some(value),
+        QueryFilter::Gt(field, value) => row
+            .data
+            .get(field)
+            .is_some_and(|v| json_cmp(v, value) == Some(std::cmp::Ordering::Greater)),
+        QueryFilter::Lt(field, value) => row
+            .data
+            .get(field)
+            .is_some_and(|v| json_cmp(v, value) == Some(std::cmp::Ordering::Less)),
+        QueryFilter::Gte(field, value) => row.data.get(field).is_some_and(|v| {
+            matches!(
+                json_cmp(v, value),
+                Some(std::cmp::Ordering::Greater | std::cmp::Ordering::Equal)
+            )
+        }),
+        QueryFilter::Lte(field, value) => row.data.get(field).is_some_and(|v| {
+            matches!(
+                json_cmp(v, value),
+                Some(std::cmp::Ordering::Less | std::cmp::Ordering::Equal)
+            )
+        }),
+        QueryFilter::In(field, values) => row.data.get(field).is_some_and(|v| values.contains(v)),
+        QueryFilter::Between(field, low, high) => row.data.get(field).is_some_and(|v| {
+            matches!(
+                json_cmp(v, low),
+                Some(std::cmp::Ordering::Greater | std::cmp::Ordering::Equal)
+            ) && matches!(
+                json_cmp(v, high),
+                Some(std::cmp::Ordering::Less | std::cmp::Ordering::Equal)
+            )
+        }),
     }
 }
 
@@ -401,17 +404,19 @@ fn json_cmp(a: &serde_json::Value, b: &serde_json::Value) -> Option<std::cmp::Or
 #[async_trait::async_trait]
 impl EntityStore for MemoryEntityStore {
     async fn register_schema(&self, schema: &EntitySchema) -> Result<(), IndexerError> {
-        let mut schemas = self.schemas.lock().map_err(|e| {
-            IndexerError::Storage(format!("lock poisoned: {e}"))
-        })?;
+        let mut schemas = self
+            .schemas
+            .lock()
+            .map_err(|e| IndexerError::Storage(format!("lock poisoned: {e}")))?;
         schemas.insert(schema.name.clone(), schema.clone());
         Ok(())
     }
 
     async fn insert(&self, row: EntityRow) -> Result<(), IndexerError> {
-        let mut rows = self.rows.lock().map_err(|e| {
-            IndexerError::Storage(format!("lock poisoned: {e}"))
-        })?;
+        let mut rows = self
+            .rows
+            .lock()
+            .map_err(|e| IndexerError::Storage(format!("lock poisoned: {e}")))?;
         let key = (row.entity_type.clone(), row.id.clone());
         if rows.contains_key(&key) {
             return Err(IndexerError::Storage(format!(
@@ -424,18 +429,20 @@ impl EntityStore for MemoryEntityStore {
     }
 
     async fn upsert(&self, row: EntityRow) -> Result<(), IndexerError> {
-        let mut rows = self.rows.lock().map_err(|e| {
-            IndexerError::Storage(format!("lock poisoned: {e}"))
-        })?;
+        let mut rows = self
+            .rows
+            .lock()
+            .map_err(|e| IndexerError::Storage(format!("lock poisoned: {e}")))?;
         let key = (row.entity_type.clone(), row.id.clone());
         rows.insert(key, row);
         Ok(())
     }
 
     async fn delete(&self, entity_type: &str, id: &str) -> Result<(), IndexerError> {
-        let mut rows = self.rows.lock().map_err(|e| {
-            IndexerError::Storage(format!("lock poisoned: {e}"))
-        })?;
+        let mut rows = self
+            .rows
+            .lock()
+            .map_err(|e| IndexerError::Storage(format!("lock poisoned: {e}")))?;
         rows.remove(&(entity_type.to_string(), id.to_string()));
         Ok(())
     }
@@ -445,9 +452,10 @@ impl EntityStore for MemoryEntityStore {
         entity_type: &str,
         block_number: u64,
     ) -> Result<u64, IndexerError> {
-        let mut rows = self.rows.lock().map_err(|e| {
-            IndexerError::Storage(format!("lock poisoned: {e}"))
-        })?;
+        let mut rows = self
+            .rows
+            .lock()
+            .map_err(|e| IndexerError::Storage(format!("lock poisoned: {e}")))?;
         let to_remove: Vec<_> = rows
             .iter()
             .filter(|((et, _), row)| et == entity_type && row.block_number > block_number)
@@ -461,9 +469,10 @@ impl EntityStore for MemoryEntityStore {
     }
 
     async fn query(&self, query: EntityQuery) -> Result<Vec<EntityRow>, IndexerError> {
-        let rows = self.rows.lock().map_err(|e| {
-            IndexerError::Storage(format!("lock poisoned: {e}"))
-        })?;
+        let rows = self
+            .rows
+            .lock()
+            .map_err(|e| IndexerError::Storage(format!("lock poisoned: {e}")))?;
 
         // Filter by entity_type and all query filters.
         let mut results: Vec<EntityRow> = rows
@@ -511,9 +520,10 @@ impl EntityStore for MemoryEntityStore {
     }
 
     async fn count(&self, entity_type: &str) -> Result<u64, IndexerError> {
-        let rows = self.rows.lock().map_err(|e| {
-            IndexerError::Storage(format!("lock poisoned: {e}"))
-        })?;
+        let rows = self
+            .rows
+            .lock()
+            .map_err(|e| IndexerError::Storage(format!("lock poisoned: {e}")))?;
         let count = rows
             .values()
             .filter(|row| row.entity_type == entity_type)
@@ -570,10 +580,7 @@ mod tests {
         let row = make_row("t1", "0xAlice", "0xBob", 100, 10);
         store.insert(row).await.unwrap();
 
-        let results = store
-            .query(EntityQuery::new("transfer"))
-            .await
-            .unwrap();
+        let results = store.query(EntityQuery::new("transfer")).await.unwrap();
         assert_eq!(results.len(), 1);
         assert_eq!(results[0].id, "t1");
     }
@@ -603,10 +610,7 @@ mod tests {
         let row2 = make_row("t1", "0xAlice", "0xBob", 200, 11);
         store.upsert(row2).await.unwrap();
 
-        let results = store
-            .query(EntityQuery::new("transfer"))
-            .await
-            .unwrap();
+        let results = store.query(EntityQuery::new("transfer")).await.unwrap();
         assert_eq!(results.len(), 1);
         assert_eq!(results[0].data["amount"], serde_json::json!(200));
         assert_eq!(results[0].block_number, 11);
@@ -617,18 +621,21 @@ mod tests {
         let store = MemoryEntityStore::new();
         store.register_schema(&test_schema()).await.unwrap();
 
-        store.insert(make_row("t1", "0xA", "0xB", 100, 10)).await.unwrap();
-        store.insert(make_row("t2", "0xA", "0xC", 200, 11)).await.unwrap();
+        store
+            .insert(make_row("t1", "0xA", "0xB", 100, 10))
+            .await
+            .unwrap();
+        store
+            .insert(make_row("t2", "0xA", "0xC", 200, 11))
+            .await
+            .unwrap();
 
         store.delete("transfer", "t1").await.unwrap();
 
         let count = store.count("transfer").await.unwrap();
         assert_eq!(count, 1);
 
-        let results = store
-            .query(EntityQuery::new("transfer"))
-            .await
-            .unwrap();
+        let results = store.query(EntityQuery::new("transfer")).await.unwrap();
         assert_eq!(results[0].id, "t2");
     }
 
@@ -637,10 +644,22 @@ mod tests {
         let store = MemoryEntityStore::new();
         store.register_schema(&test_schema()).await.unwrap();
 
-        store.insert(make_row("t1", "0xA", "0xB", 100, 10)).await.unwrap();
-        store.insert(make_row("t2", "0xA", "0xC", 200, 11)).await.unwrap();
-        store.insert(make_row("t3", "0xA", "0xD", 300, 12)).await.unwrap();
-        store.insert(make_row("t4", "0xA", "0xE", 400, 13)).await.unwrap();
+        store
+            .insert(make_row("t1", "0xA", "0xB", 100, 10))
+            .await
+            .unwrap();
+        store
+            .insert(make_row("t2", "0xA", "0xC", 200, 11))
+            .await
+            .unwrap();
+        store
+            .insert(make_row("t3", "0xA", "0xD", 300, 12))
+            .await
+            .unwrap();
+        store
+            .insert(make_row("t4", "0xA", "0xE", 400, 13))
+            .await
+            .unwrap();
 
         // Reorg: delete everything after block 11.
         let deleted = store.delete_after_block("transfer", 11).await.unwrap();
@@ -655,9 +674,18 @@ mod tests {
         let store = MemoryEntityStore::new();
         store.register_schema(&test_schema()).await.unwrap();
 
-        store.insert(make_row("t1", "0xAlice", "0xBob", 100, 10)).await.unwrap();
-        store.insert(make_row("t2", "0xAlice", "0xCharlie", 200, 11)).await.unwrap();
-        store.insert(make_row("t3", "0xBob", "0xCharlie", 300, 12)).await.unwrap();
+        store
+            .insert(make_row("t1", "0xAlice", "0xBob", 100, 10))
+            .await
+            .unwrap();
+        store
+            .insert(make_row("t2", "0xAlice", "0xCharlie", 200, 11))
+            .await
+            .unwrap();
+        store
+            .insert(make_row("t3", "0xBob", "0xCharlie", 300, 12))
+            .await
+            .unwrap();
 
         let results = store
             .query(
@@ -667,7 +695,9 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(results.len(), 2);
-        assert!(results.iter().all(|r| r.data["from"] == serde_json::json!("0xAlice")));
+        assert!(results
+            .iter()
+            .all(|r| r.data["from"] == serde_json::json!("0xAlice")));
     }
 
     #[tokio::test]
@@ -675,9 +705,18 @@ mod tests {
         let store = MemoryEntityStore::new();
         store.register_schema(&test_schema()).await.unwrap();
 
-        store.insert(make_row("t1", "0xA", "0xB", 100, 10)).await.unwrap();
-        store.insert(make_row("t2", "0xA", "0xC", 200, 11)).await.unwrap();
-        store.insert(make_row("t3", "0xA", "0xD", 300, 12)).await.unwrap();
+        store
+            .insert(make_row("t1", "0xA", "0xB", 100, 10))
+            .await
+            .unwrap();
+        store
+            .insert(make_row("t2", "0xA", "0xC", 200, 11))
+            .await
+            .unwrap();
+        store
+            .insert(make_row("t3", "0xA", "0xD", 300, 12))
+            .await
+            .unwrap();
 
         // amount > 100 AND amount < 300 => only t2 (200)
         let results = store
@@ -697,17 +736,24 @@ mod tests {
         let store = MemoryEntityStore::new();
         store.register_schema(&test_schema()).await.unwrap();
 
-        store.insert(make_row("t1", "0xAlice", "0xBob", 100, 10)).await.unwrap();
-        store.insert(make_row("t2", "0xBob", "0xCharlie", 200, 11)).await.unwrap();
-        store.insert(make_row("t3", "0xDave", "0xEve", 300, 12)).await.unwrap();
+        store
+            .insert(make_row("t1", "0xAlice", "0xBob", 100, 10))
+            .await
+            .unwrap();
+        store
+            .insert(make_row("t2", "0xBob", "0xCharlie", 200, 11))
+            .await
+            .unwrap();
+        store
+            .insert(make_row("t3", "0xDave", "0xEve", 300, 12))
+            .await
+            .unwrap();
 
         let results = store
-            .query(
-                EntityQuery::new("transfer").filter(QueryFilter::In(
-                    "from".into(),
-                    vec![serde_json::json!("0xAlice"), serde_json::json!("0xDave")],
-                )),
-            )
+            .query(EntityQuery::new("transfer").filter(QueryFilter::In(
+                "from".into(),
+                vec![serde_json::json!("0xAlice"), serde_json::json!("0xDave")],
+            )))
             .await
             .unwrap();
         assert_eq!(results.len(), 2);
@@ -718,9 +764,18 @@ mod tests {
         let store = MemoryEntityStore::new();
         store.register_schema(&test_schema()).await.unwrap();
 
-        store.insert(make_row("t1", "0xA", "0xB", 300, 10)).await.unwrap();
-        store.insert(make_row("t2", "0xA", "0xC", 100, 11)).await.unwrap();
-        store.insert(make_row("t3", "0xA", "0xD", 200, 12)).await.unwrap();
+        store
+            .insert(make_row("t1", "0xA", "0xB", 300, 10))
+            .await
+            .unwrap();
+        store
+            .insert(make_row("t2", "0xA", "0xC", 100, 11))
+            .await
+            .unwrap();
+        store
+            .insert(make_row("t3", "0xA", "0xD", 200, 12))
+            .await
+            .unwrap();
 
         // Sort by amount ascending, limit 2.
         let results = store
@@ -741,15 +796,21 @@ mod tests {
         let store = MemoryEntityStore::new();
         store.register_schema(&test_schema()).await.unwrap();
 
-        store.insert(make_row("t1", "0xA", "0xB", 100, 10)).await.unwrap();
-        store.insert(make_row("t2", "0xA", "0xC", 300, 11)).await.unwrap();
-        store.insert(make_row("t3", "0xA", "0xD", 200, 12)).await.unwrap();
+        store
+            .insert(make_row("t1", "0xA", "0xB", 100, 10))
+            .await
+            .unwrap();
+        store
+            .insert(make_row("t2", "0xA", "0xC", 300, 11))
+            .await
+            .unwrap();
+        store
+            .insert(make_row("t3", "0xA", "0xD", 200, 12))
+            .await
+            .unwrap();
 
         let results = store
-            .query(
-                EntityQuery::new("transfer")
-                    .order_by("amount", SortOrder::Desc),
-            )
+            .query(EntityQuery::new("transfer").order_by("amount", SortOrder::Desc))
             .await
             .unwrap();
         assert_eq!(results[0].data["amount"], serde_json::json!(300));
@@ -764,8 +825,14 @@ mod tests {
 
         assert_eq!(store.count("transfer").await.unwrap(), 0);
 
-        store.insert(make_row("t1", "0xA", "0xB", 100, 10)).await.unwrap();
-        store.insert(make_row("t2", "0xA", "0xC", 200, 11)).await.unwrap();
+        store
+            .insert(make_row("t1", "0xA", "0xB", 100, 10))
+            .await
+            .unwrap();
+        store
+            .insert(make_row("t2", "0xA", "0xC", 200, 11))
+            .await
+            .unwrap();
 
         assert_eq!(store.count("transfer").await.unwrap(), 2);
         // Different entity type returns 0.
@@ -792,19 +859,29 @@ mod tests {
         let store = MemoryEntityStore::new();
         store.register_schema(&test_schema()).await.unwrap();
 
-        store.insert(make_row("t1", "0xA", "0xB", 100, 10)).await.unwrap();
-        store.insert(make_row("t2", "0xA", "0xC", 200, 11)).await.unwrap();
-        store.insert(make_row("t3", "0xA", "0xD", 300, 12)).await.unwrap();
-        store.insert(make_row("t4", "0xA", "0xE", 400, 13)).await.unwrap();
+        store
+            .insert(make_row("t1", "0xA", "0xB", 100, 10))
+            .await
+            .unwrap();
+        store
+            .insert(make_row("t2", "0xA", "0xC", 200, 11))
+            .await
+            .unwrap();
+        store
+            .insert(make_row("t3", "0xA", "0xD", 300, 12))
+            .await
+            .unwrap();
+        store
+            .insert(make_row("t4", "0xA", "0xE", 400, 13))
+            .await
+            .unwrap();
 
         let results = store
-            .query(
-                EntityQuery::new("transfer").filter(QueryFilter::Between(
-                    "amount".into(),
-                    serde_json::json!(200),
-                    serde_json::json!(300),
-                )),
-            )
+            .query(EntityQuery::new("transfer").filter(QueryFilter::Between(
+                "amount".into(),
+                serde_json::json!(200),
+                serde_json::json!(300),
+            )))
             .await
             .unwrap();
         assert_eq!(results.len(), 2);
@@ -819,9 +896,18 @@ mod tests {
         let store = MemoryEntityStore::new();
         store.register_schema(&test_schema()).await.unwrap();
 
-        store.insert(make_row("t1", "0xA", "0xB", 100, 10)).await.unwrap();
-        store.insert(make_row("t2", "0xA", "0xC", 200, 11)).await.unwrap();
-        store.insert(make_row("t3", "0xA", "0xD", 300, 12)).await.unwrap();
+        store
+            .insert(make_row("t1", "0xA", "0xB", 100, 10))
+            .await
+            .unwrap();
+        store
+            .insert(make_row("t2", "0xA", "0xC", 200, 11))
+            .await
+            .unwrap();
+        store
+            .insert(make_row("t3", "0xA", "0xD", 300, 12))
+            .await
+            .unwrap();
 
         // Sort ascending by amount, skip first, take 1.
         let results = store

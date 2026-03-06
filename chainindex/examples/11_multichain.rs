@@ -111,10 +111,7 @@ async fn main() {
         );
     }
 
-    println!(
-        "\nAll healthy: {}",
-        coordinator.is_all_healthy().await
-    );
+    println!("\nAll healthy: {}", coordinator.is_all_healthy().await);
 
     // 5. Cross-chain event bus
     println!("\n--- Cross-Chain Event Bus ---");
@@ -182,10 +179,7 @@ async fn main() {
 
     // 7. Pause/resume
     println!("\n--- Pause/Resume ---");
-    coordinator
-        .pause_chain("eth-usdc-transfers")
-        .await
-        .unwrap();
+    coordinator.pause_chain("eth-usdc-transfers").await.unwrap();
     let active = coordinator.active_chains().await;
     println!("Active chains after pause: {:?}", active);
 

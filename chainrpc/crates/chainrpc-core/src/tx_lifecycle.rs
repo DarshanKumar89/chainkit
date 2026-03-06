@@ -189,9 +189,7 @@ pub async fn detect_stuck(
             if let Ok(resp) = transport.send(req).await {
                 if let Ok(val) = resp.into_result() {
                     if let Some(hex) = val.as_str() {
-                        if let Ok(nonce) =
-                            u64::from_str_radix(hex.trim_start_matches("0x"), 16)
-                        {
+                        if let Ok(nonce) = u64::from_str_radix(hex.trim_start_matches("0x"), 16) {
                             tracker.set_nonce(&tx.from, nonce);
                         }
                     }
@@ -239,10 +237,7 @@ mod tests {
 
     #[async_trait]
     impl RpcTransport for MockTransport {
-        async fn send(
-            &self,
-            req: JsonRpcRequest,
-        ) -> Result<JsonRpcResponse, TransportError> {
+        async fn send(&self, req: JsonRpcRequest) -> Result<JsonRpcResponse, TransportError> {
             let map = self.responses.lock().unwrap();
             let result = map.get(&req.method).cloned().unwrap_or(Value::Null);
             Ok(JsonRpcResponse {
@@ -265,22 +260,13 @@ mod tests {
     #[tokio::test]
     async fn send_and_track_records_tx() {
         let transport = MockTransport::new();
-        transport.set_response(
-            "eth_sendRawTransaction",
-            Value::String("0xdeadbeef".into()),
-        );
+        transport.set_response("eth_sendRawTransaction", Value::String("0xdeadbeef".into()));
 
         let tracker = TxTracker::new(TxTrackerConfig::default());
 
-        let hash = send_and_track(
-            &transport,
-            &tracker,
-            "0xraw_data",
-            "0xAlice",
-            42,
-        )
-        .await
-        .expect("send_and_track should succeed");
+        let hash = send_and_track(&transport, &tracker, "0xraw_data", "0xAlice", 42)
+            .await
+            .expect("send_and_track should succeed");
 
         assert_eq!(hash, "0xdeadbeef");
         assert_eq!(tracker.count(), 1);
@@ -295,10 +281,7 @@ mod tests {
     async fn detect_stuck_returns_old_txs() {
         let transport = MockTransport::new();
         // Return a nonce as a hex string for eth_getTransactionCount.
-        transport.set_response(
-            "eth_getTransactionCount",
-            Value::String("0x5".into()),
-        );
+        transport.set_response("eth_getTransactionCount", Value::String("0x5".into()));
 
         let config = TxTrackerConfig {
             stuck_timeout_secs: 60,

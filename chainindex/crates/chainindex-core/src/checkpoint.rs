@@ -137,7 +137,12 @@ impl CheckpointStore for MemoryCheckpointStore {
         chain_id: &str,
         indexer_id: &str,
     ) -> Result<Option<Checkpoint>, IndexerError> {
-        Ok(self.data.lock().unwrap().get(&Self::key(chain_id, indexer_id)).cloned())
+        Ok(self
+            .data
+            .lock()
+            .unwrap()
+            .get(&Self::key(chain_id, indexer_id))
+            .cloned())
     }
 
     async fn save(&self, checkpoint: Checkpoint) -> Result<(), IndexerError> {
@@ -147,7 +152,10 @@ impl CheckpointStore for MemoryCheckpointStore {
     }
 
     async fn delete(&self, chain_id: &str, indexer_id: &str) -> Result<(), IndexerError> {
-        self.data.lock().unwrap().remove(&Self::key(chain_id, indexer_id));
+        self.data
+            .lock()
+            .unwrap()
+            .remove(&Self::key(chain_id, indexer_id));
         Ok(())
     }
 }

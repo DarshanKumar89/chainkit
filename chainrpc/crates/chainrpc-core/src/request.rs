@@ -111,11 +111,7 @@ mod tests {
 
     #[test]
     fn request_serialization() {
-        let req = JsonRpcRequest::new(
-            1,
-            "eth_blockNumber",
-            vec![],
-        );
+        let req = JsonRpcRequest::new(1, "eth_blockNumber", vec![]);
         let json = serde_json::to_string(&req).unwrap();
         assert!(json.contains("\"jsonrpc\":\"2.0\""));
         assert!(json.contains("\"method\":\"eth_blockNumber\""));

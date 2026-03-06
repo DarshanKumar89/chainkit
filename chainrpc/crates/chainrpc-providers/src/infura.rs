@@ -11,7 +11,7 @@ pub fn http_client(project_id: &str, chain_id: u64) -> HttpRpcClient {
         retry: RetryConfig::default(),
         circuit_breaker: CircuitBreakerConfig::default(),
         rate_limiter: RateLimiterConfig {
-            capacity: 10.0,  // 10 req/s free tier
+            capacity: 10.0, // 10 req/s free tier
             refill_rate: 10.0,
         },
         request_timeout: Duration::from_secs(30),

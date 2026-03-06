@@ -103,8 +103,7 @@ async fn cmd_test(args: &[String]) -> Result<(), String> {
         .map_err(|e| e.to_string())?;
     let latency = start.elapsed();
 
-    let block_num = u64::from_str_radix(block.trim_start_matches("0x"), 16)
-        .unwrap_or(0);
+    let block_num = u64::from_str_radix(block.trim_start_matches("0x"), 16).unwrap_or(0);
 
     println!("  Status:       OK");
     println!("  Block number: {block_num} ({block})");
@@ -119,8 +118,8 @@ async fn cmd_call(args: &[String]) -> Result<(), String> {
     let method = parse_flag(args, "--method").ok_or("--method is required")?;
     let params_str = parse_flag(args, "--params").unwrap_or_else(|| "[]".to_string());
 
-    let params: Vec<serde_json::Value> = serde_json::from_str(&params_str)
-        .map_err(|e| format!("invalid --params JSON: {e}"))?;
+    let params: Vec<serde_json::Value> =
+        serde_json::from_str(&params_str).map_err(|e| format!("invalid --params JSON: {e}"))?;
 
     let client = HttpRpcClient::default_for(&url);
     let req = JsonRpcRequest::auto(method, params);
@@ -131,7 +130,10 @@ async fn cmd_call(args: &[String]) -> Result<(), String> {
     }
 
     let result = resp.result.unwrap_or(serde_json::Value::Null);
-    println!("{}", serde_json::to_string_pretty(&result).unwrap_or_default());
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&result).unwrap_or_default()
+    );
     Ok(())
 }
 
@@ -161,10 +163,7 @@ async fn cmd_bench(args: &[String]) -> Result<(), String> {
         let permit = sem.clone().acquire_owned().await.unwrap();
         handles.push(tokio::spawn(async move {
             let req_start = std::time::Instant::now();
-            let req = JsonRpcRequest::auto(
-                "eth_blockNumber".to_string(),
-                vec![],
-            );
+            let req = JsonRpcRequest::auto("eth_blockNumber".to_string(), vec![]);
             match client.send(req).await {
                 Ok(_) => metrics.record_success(req_start.elapsed()),
                 Err(_) => metrics.record_failure(),
@@ -203,20 +202,20 @@ async fn cmd_pool(args: &[String]) -> Result<(), String> {
         .and_then(|s| s.parse().ok())
         .unwrap_or(20);
 
-    println!("Testing provider pool ({} providers, {} requests)...\n", urls.len(), count);
+    println!(
+        "Testing provider pool ({} providers, {} requests)...\n",
+        urls.len(),
+        count
+    );
 
-    let pool = chainrpc_http::pool_from_urls(&urls)
-        .map_err(|e| e.to_string())?;
+    let pool = chainrpc_http::pool_from_urls(&urls).map_err(|e| e.to_string())?;
 
     let mut successes = 0u64;
     let mut failures = 0u64;
     let start = std::time::Instant::now();
 
     for _ in 0..count {
-        let req = JsonRpcRequest::auto(
-            "eth_blockNumber".to_string(),
-            vec![],
-        );
+        let req = JsonRpcRequest::auto("eth_blockNumber".to_string(), vec![]);
         match pool.send(req).await {
             Ok(_) => successes += 1,
             Err(e) => {
@@ -234,7 +233,8 @@ async fn cmd_pool(args: &[String]) -> Result<(), String> {
 
     println!("\nProvider status:");
     for report in pool.health_report() {
-        println!("  {} — health: {}, circuit: {}",
+        println!(
+            "  {} — health: {}, circuit: {}",
             report["url"].as_str().unwrap_or("?"),
             report["health"].as_str().unwrap_or("?"),
             report["circuit"].as_str().unwrap_or("?"),

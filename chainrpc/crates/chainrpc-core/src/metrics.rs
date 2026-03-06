@@ -328,9 +328,7 @@ impl RpcMetrics {
         let mut out = String::with_capacity(512);
         out.push_str("# HELP chainrpc_requests_total Total RPC requests per provider.\n");
         out.push_str("# TYPE chainrpc_requests_total counter\n");
-        out.push_str(
-            "# HELP chainrpc_latency_avg_ms Average request latency in milliseconds.\n",
-        );
+        out.push_str("# HELP chainrpc_latency_avg_ms Average request latency in milliseconds.\n");
         out.push_str("# TYPE chainrpc_latency_avg_ms gauge\n");
         for snap in self.snapshot_all() {
             out.push_str(&snap.to_prometheus());
@@ -509,9 +507,7 @@ mod tests {
         m.record_failure();
         let snap = m.snapshot();
         let prom = snap.to_prometheus();
-        assert!(prom.contains(
-            "chainrpc_requests_total{provider=\"https://rpc.example.com\"} 2"
-        ));
+        assert!(prom.contains("chainrpc_requests_total{provider=\"https://rpc.example.com\"} 2"));
         assert!(prom.contains("chainrpc_requests_successful_total"));
         assert!(prom.contains("chainrpc_requests_failed_total"));
         assert!(prom.contains("chainrpc_latency_avg_ms"));

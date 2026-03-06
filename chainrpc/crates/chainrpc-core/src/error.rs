@@ -57,10 +57,7 @@ impl TransportError {
     pub fn is_retryable(&self) -> bool {
         matches!(
             self,
-            Self::Http(_)
-                | Self::WebSocket(_)
-                | Self::Timeout { .. }
-                | Self::RateLimited { .. }
+            Self::Http(_) | Self::WebSocket(_) | Self::Timeout { .. } | Self::RateLimited { .. }
         )
     }
 

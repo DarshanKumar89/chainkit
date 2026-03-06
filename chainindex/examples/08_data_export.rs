@@ -66,7 +66,10 @@ fn main() {
     let mut buf = Vec::new();
     let config = ExportConfig::default(); // JSONL, no filters
     let stats = export_events(&events, &config, &mut buf).unwrap();
-    println!("Exported: {} events, {} bytes", stats.events_exported, stats.bytes_written);
+    println!(
+        "Exported: {} events, {} bytes",
+        stats.events_exported, stats.bytes_written
+    );
     println!("Preview (first 200 chars):");
     let output = String::from_utf8(buf).unwrap();
     println!("  {}", &output[..output.len().min(200)]);
@@ -79,7 +82,10 @@ fn main() {
         ..Default::default()
     };
     let stats = export_events(&events, &config, &mut buf).unwrap();
-    println!("Exported: {} events, {} bytes", stats.events_exported, stats.bytes_written);
+    println!(
+        "Exported: {} events, {} bytes",
+        stats.events_exported, stats.bytes_written
+    );
     let output = String::from_utf8(buf).unwrap();
     for line in output.lines().take(3) {
         println!("  {}", line);

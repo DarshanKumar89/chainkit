@@ -179,12 +179,9 @@ mod tests {
         assert!(child.is_cancelled());
 
         // The async wait should return immediately.
-        tokio::time::timeout(
-            std::time::Duration::from_millis(100),
-            child.cancelled(),
-        )
-        .await
-        .expect("child.cancelled() should complete immediately when parent is cancelled");
+        tokio::time::timeout(std::time::Duration::from_millis(100), child.cancelled())
+            .await
+            .expect("child.cancelled() should complete immediately when parent is cancelled");
     }
 
     #[tokio::test]
@@ -200,11 +197,8 @@ mod tests {
         assert!(!parent.is_cancelled());
 
         // The child's async wait should return immediately.
-        tokio::time::timeout(
-            std::time::Duration::from_millis(100),
-            child.cancelled(),
-        )
-        .await
-        .expect("child.cancelled() should complete immediately after local cancel");
+        tokio::time::timeout(std::time::Duration::from_millis(100), child.cancelled())
+            .await
+            .expect("child.cancelled() should complete immediately after local cancel");
     }
 }

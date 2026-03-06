@@ -165,12 +165,8 @@ fn main() {
     // 6. Decode program log to DecodedEvent
     println!("\n--- Event Decoder ---");
     if !parsed.is_empty() {
-        let event = SolanaEventDecoder::decode_program_log(
-            &parsed[0],
-            250_000_001,
-            "SIG123abc",
-            "solana",
-        );
+        let event =
+            SolanaEventDecoder::decode_program_log(&parsed[0], 250_000_001, "SIG123abc", "solana");
         println!("DecodedEvent:");
         println!("  Chain:  {}", event.chain);
         println!("  Schema: {}", event.schema);

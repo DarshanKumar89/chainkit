@@ -94,10 +94,7 @@ async fn main() {
     // 4. Query with filters
     println!("\n--- Query: swaps from 0xPool1 ---");
     let query = EntityQuery::new("swap")
-        .filter(QueryFilter::Eq(
-            "pool".into(),
-            serde_json::json!("0xPool1"),
-        ))
+        .filter(QueryFilter::Eq("pool".into(), serde_json::json!("0xPool1")))
         .order_by("block_number", SortOrder::Desc)
         .limit(10);
 
@@ -142,10 +139,8 @@ async fn main() {
     };
 
     store.upsert(updated_swap).await.unwrap();
-    let q = EntityQuery::new("swap").filter(QueryFilter::Eq(
-        "id".into(),
-        serde_json::json!("0xtx1-0"),
-    ));
+    let q =
+        EntityQuery::new("swap").filter(QueryFilter::Eq("id".into(), serde_json::json!("0xtx1-0")));
     let after = store.query(q).await.unwrap();
     println!(
         "After upsert: amount0 = {}",

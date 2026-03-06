@@ -31,9 +31,9 @@ use std::collections::HashMap;
 use std::time::{Duration, Instant};
 
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 use tokio::sync::broadcast;
 use tokio::sync::RwLock;
-use std::sync::Arc;
 
 use crate::error::IndexerError;
 use crate::handler::DecodedEvent;
@@ -260,9 +260,9 @@ impl MultiChainCoordinator {
     /// be paused. Returns an error if the chain is not found or not active.
     pub async fn pause_chain(&self, chain_id: &str) -> Result<(), IndexerError> {
         let mut guard = self.instances.write().await;
-        let instance = guard.get_mut(chain_id).ok_or_else(|| {
-            IndexerError::Other(format!("chain '{}' not found", chain_id))
-        })?;
+        let instance = guard
+            .get_mut(chain_id)
+            .ok_or_else(|| IndexerError::Other(format!("chain '{}' not found", chain_id)))?;
         if !instance.is_active() {
             return Err(IndexerError::Other(format!(
                 "chain '{}' is not active (state: {})",
@@ -280,9 +280,9 @@ impl MultiChainCoordinator {
     /// Returns an error if the chain is not found or is already active.
     pub async fn resume_chain(&self, chain_id: &str) -> Result<(), IndexerError> {
         let mut guard = self.instances.write().await;
-        let instance = guard.get_mut(chain_id).ok_or_else(|| {
-            IndexerError::Other(format!("chain '{}' not found", chain_id))
-        })?;
+        let instance = guard
+            .get_mut(chain_id)
+            .ok_or_else(|| IndexerError::Other(format!("chain '{}' not found", chain_id)))?;
         if instance.is_active() {
             return Err(IndexerError::Other(format!(
                 "chain '{}' is already active (state: {})",
@@ -307,13 +307,13 @@ impl MultiChainCoordinator {
         error: Option<String>,
     ) -> Result<(), IndexerError> {
         let mut guard = self.instances.write().await;
-        let instance = guard.get_mut(chain_id).ok_or_else(|| {
-            IndexerError::Other(format!("chain '{}' not found", chain_id))
-        })?;
-        if new_state == IndexerState::Backfilling || new_state == IndexerState::Live {
-            if instance.started_at.is_none() {
-                instance.started_at = Some(chrono::Utc::now().timestamp());
-            }
+        let instance = guard
+            .get_mut(chain_id)
+            .ok_or_else(|| IndexerError::Other(format!("chain '{}' not found", chain_id)))?;
+        if (new_state == IndexerState::Backfilling || new_state == IndexerState::Live)
+            && instance.started_at.is_none()
+        {
+            instance.started_at = Some(chrono::Utc::now().timestamp());
         }
         instance.transition(new_state, error);
         Ok(())
@@ -327,9 +327,9 @@ impl MultiChainCoordinator {
         events: u64,
     ) -> Result<(), IndexerError> {
         let mut guard = self.instances.write().await;
-        let instance = guard.get_mut(chain_id).ok_or_else(|| {
-            IndexerError::Other(format!("chain '{}' not found", chain_id))
-        })?;
+        let instance = guard
+            .get_mut(chain_id)
+            .ok_or_else(|| IndexerError::Other(format!("chain '{}' not found", chain_id)))?;
         if block_number > instance.head_block {
             instance.head_block = block_number;
         }
@@ -383,7 +383,9 @@ impl MultiChainCoordinator {
     /// Returns `true` when every registered chain is healthy (active, no error).
     pub async fn is_all_healthy(&self) -> bool {
         let guard = self.instances.read().await;
-        guard.values().all(|inst| inst.is_active() && inst.last_error.is_none())
+        guard
+            .values()
+            .all(|inst| inst.is_active() && inst.last_error.is_none())
     }
 
     /// Returns `true` when every registered chain has reached at least
@@ -686,14 +688,20 @@ mod tests {
     #[tokio::test]
     async fn coordinator_add_chain() {
         let coord = make_coordinator(&[]);
-        coord.add_chain(make_config("eth", "ethereum")).await.unwrap();
+        coord
+            .add_chain(make_config("eth", "ethereum"))
+            .await
+            .unwrap();
         assert_eq!(coord.chain_count().await, 1);
     }
 
     #[tokio::test]
     async fn coordinator_add_duplicate_chain_errors() {
         let coord = make_coordinator(&[("eth", "ethereum")]);
-        let err = coord.add_chain(make_config("eth", "ethereum")).await.unwrap_err();
+        let err = coord
+            .add_chain(make_config("eth", "ethereum"))
+            .await
+            .unwrap_err();
         assert!(err.to_string().contains("already registered"));
     }
 

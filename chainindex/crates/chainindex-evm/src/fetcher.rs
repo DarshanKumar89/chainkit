@@ -5,7 +5,7 @@
 
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::Value;
 
 use chainindex_core::error::IndexerError;
 use chainindex_core::types::{BlockSummary, EventFilter};
@@ -120,7 +120,10 @@ pub fn block_from_json(v: &Value) -> Option<BlockSummary> {
         hash: v["hash"].as_str()?.to_string(),
         parent_hash: v["parentHash"].as_str()?.to_string(),
         timestamp: parse_hex_u64(v["timestamp"].as_str()?) as i64,
-        tx_count: v["transactions"].as_array().map(|a| a.len() as u32).unwrap_or(0),
+        tx_count: v["transactions"]
+            .as_array()
+            .map(|a| a.len() as u32)
+            .unwrap_or(0),
     })
 }
 

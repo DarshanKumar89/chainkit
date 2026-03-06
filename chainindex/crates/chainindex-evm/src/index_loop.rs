@@ -39,18 +39,14 @@ pub struct IndexLoop<C: EvmRpcClient> {
     config: IndexerConfig,
     fetcher: crate::fetcher::EvmFetcher<C>,
     tracker: BlockTracker,
-    reorg_detector: ReorgDetector,
+    _reorg_detector: ReorgDetector,
     checkpoint: CheckpointManager,
     handlers: HandlerRegistry,
     state: IndexerState,
 }
 
 impl<C: EvmRpcClient> IndexLoop<C> {
-    pub fn new(
-        config: IndexerConfig,
-        client: C,
-        handlers: HandlerRegistry,
-    ) -> Self {
+    pub fn new(config: IndexerConfig, client: C, handlers: HandlerRegistry) -> Self {
         let checkpoint = CheckpointManager::new(
             Box::new(MemoryCheckpointStore::new()),
             &config.chain,
@@ -60,7 +56,7 @@ impl<C: EvmRpcClient> IndexLoop<C> {
         Self {
             fetcher: crate::fetcher::EvmFetcher::new(client),
             tracker: BlockTracker::new(128),
-            reorg_detector: ReorgDetector::new(config.confirmation_depth),
+            _reorg_detector: ReorgDetector::new(config.confirmation_depth),
             checkpoint,
             handlers,
             state: IndexerState::Idle,
@@ -85,11 +81,7 @@ impl<C: EvmRpcClient> IndexLoop<C> {
         let target = head.saturating_sub(self.config.confirmation_depth);
         let from = self.config.from_block;
 
-        tracing::info!(
-            from,
-            target,
-            "Starting backfill phase"
-        );
+        tracing::info!(from, target, "Starting backfill phase");
 
         self.backfill(from, target).await?;
 
@@ -153,9 +145,7 @@ impl<C: EvmRpcClient> IndexLoop<C> {
             }
 
             // Save checkpoint
-            self.checkpoint
-                .maybe_save(batch_end, "backfill")
-                .await?;
+            self.checkpoint.maybe_save(batch_end, "backfill").await?;
 
             tracing::info!(
                 current,
@@ -173,8 +163,7 @@ impl<C: EvmRpcClient> IndexLoop<C> {
     }
 
     async fn live_loop(&mut self) -> Result<(), IndexerError> {
-        let poll_interval =
-            Duration::from_millis(self.config.poll_interval_ms);
+        let poll_interval = Duration::from_millis(self.config.poll_interval_ms);
 
         loop {
             tokio::time::sleep(poll_interval).await;
@@ -254,9 +243,7 @@ impl<C: EvmRpcClient> IndexLoop<C> {
                 self.handlers.dispatch_event(&event, &ctx).await?;
             }
 
-            self.checkpoint
-                .maybe_save(next, &block.hash)
-                .await?;
+            self.checkpoint.maybe_save(next, &block.hash).await?;
 
             // Check if we've reached the target block
             if let Some(to_block) = self.config.to_block {

@@ -78,10 +78,7 @@ mod tests {
             classify_method("eth_getTransactionReceipt"),
             MethodSafety::Safe
         );
-        assert_eq!(
-            classify_method("eth_getBlockByNumber"),
-            MethodSafety::Safe
-        );
+        assert_eq!(classify_method("eth_getBlockByNumber"), MethodSafety::Safe);
         assert_eq!(classify_method("eth_chainId"), MethodSafety::Safe);
         assert_eq!(classify_method("net_version"), MethodSafety::Safe);
     }
@@ -96,10 +93,7 @@ mod tests {
 
     #[test]
     fn unsafe_methods_test() {
-        assert_eq!(
-            classify_method("eth_sendTransaction"),
-            MethodSafety::Unsafe
-        );
+        assert_eq!(classify_method("eth_sendTransaction"), MethodSafety::Unsafe);
         assert_eq!(
             classify_method("personal_sendTransaction"),
             MethodSafety::Unsafe

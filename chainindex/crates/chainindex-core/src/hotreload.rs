@@ -184,15 +184,15 @@ pub fn diff_configs(old: &IndexerConfig, new: &IndexerConfig) -> Vec<ConfigDiff>
     if old.filter.from_block != new.filter.from_block {
         diffs.push(ConfigDiff::new(
             "filter.from_block",
-            serde_json::to_value(&old.filter.from_block).unwrap_or(serde_json::Value::Null),
-            serde_json::to_value(&new.filter.from_block).unwrap_or(serde_json::Value::Null),
+            serde_json::to_value(old.filter.from_block).unwrap_or(serde_json::Value::Null),
+            serde_json::to_value(new.filter.from_block).unwrap_or(serde_json::Value::Null),
         ));
     }
     if old.filter.to_block != new.filter.to_block {
         diffs.push(ConfigDiff::new(
             "filter.to_block",
-            serde_json::to_value(&old.filter.to_block).unwrap_or(serde_json::Value::Null),
-            serde_json::to_value(&new.filter.to_block).unwrap_or(serde_json::Value::Null),
+            serde_json::to_value(old.filter.to_block).unwrap_or(serde_json::Value::Null),
+            serde_json::to_value(new.filter.to_block).unwrap_or(serde_json::Value::Null),
         ));
     }
 
@@ -479,7 +479,10 @@ impl HotReloadManager {
                 w.field, w.severity, w.message
             );
         }
-        debug!("hot-reload[{id}] bumped to v{new_version} ({} diffs)", diffs.len());
+        debug!(
+            "hot-reload[{id}] bumped to v{new_version} ({} diffs)",
+            diffs.len()
+        );
 
         Ok(ReloadResult {
             version: new_version,
@@ -805,7 +808,10 @@ mod tests {
     fn diff_configs_empty_when_identical() {
         let cfg = base_config();
         let diffs = diff_configs(&cfg, &cfg);
-        assert!(diffs.is_empty(), "identical configs should produce no diffs");
+        assert!(
+            diffs.is_empty(),
+            "identical configs should produce no diffs"
+        );
     }
 
     #[test]
@@ -870,7 +876,10 @@ mod tests {
         let result = ConfigValidator::validate(&old, &new);
         assert!(result.is_err(), "chain change must be rejected");
         let err = result.unwrap_err().to_string();
-        assert!(err.contains("chain"), "error message should mention 'chain'");
+        assert!(
+            err.contains("chain"),
+            "error message should mention 'chain'"
+        );
     }
 
     #[test]

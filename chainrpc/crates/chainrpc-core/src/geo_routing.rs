@@ -68,14 +68,78 @@ impl Region {
     pub fn proximity_order(&self) -> Vec<Region> {
         use Region::*;
         match self {
-            UsEast => vec![UsWest, EuWest, SouthAmerica, EuCentral, AsiaSoutheast, AsiaEast, Oceania],
-            UsWest => vec![UsEast, AsiaEast, AsiaSoutheast, Oceania, SouthAmerica, EuWest, EuCentral],
-            EuWest => vec![EuCentral, UsEast, SouthAmerica, AsiaSoutheast, UsWest, AsiaEast, Oceania],
-            EuCentral => vec![EuWest, AsiaSoutheast, UsEast, AsiaEast, SouthAmerica, UsWest, Oceania],
-            AsiaSoutheast => vec![AsiaEast, Oceania, EuCentral, EuWest, UsWest, UsEast, SouthAmerica],
-            AsiaEast => vec![AsiaSoutheast, Oceania, UsWest, EuCentral, EuWest, UsEast, SouthAmerica],
-            SouthAmerica => vec![UsEast, UsWest, EuWest, EuCentral, AsiaSoutheast, AsiaEast, Oceania],
-            Oceania => vec![AsiaSoutheast, AsiaEast, UsWest, EuCentral, EuWest, UsEast, SouthAmerica],
+            UsEast => vec![
+                UsWest,
+                EuWest,
+                SouthAmerica,
+                EuCentral,
+                AsiaSoutheast,
+                AsiaEast,
+                Oceania,
+            ],
+            UsWest => vec![
+                UsEast,
+                AsiaEast,
+                AsiaSoutheast,
+                Oceania,
+                SouthAmerica,
+                EuWest,
+                EuCentral,
+            ],
+            EuWest => vec![
+                EuCentral,
+                UsEast,
+                SouthAmerica,
+                AsiaSoutheast,
+                UsWest,
+                AsiaEast,
+                Oceania,
+            ],
+            EuCentral => vec![
+                EuWest,
+                AsiaSoutheast,
+                UsEast,
+                AsiaEast,
+                SouthAmerica,
+                UsWest,
+                Oceania,
+            ],
+            AsiaSoutheast => vec![
+                AsiaEast,
+                Oceania,
+                EuCentral,
+                EuWest,
+                UsWest,
+                UsEast,
+                SouthAmerica,
+            ],
+            AsiaEast => vec![
+                AsiaSoutheast,
+                Oceania,
+                UsWest,
+                EuCentral,
+                EuWest,
+                UsEast,
+                SouthAmerica,
+            ],
+            SouthAmerica => vec![
+                UsEast,
+                UsWest,
+                EuWest,
+                EuCentral,
+                AsiaSoutheast,
+                AsiaEast,
+                Oceania,
+            ],
+            Oceania => vec![
+                AsiaSoutheast,
+                AsiaEast,
+                UsWest,
+                EuCentral,
+                EuWest,
+                UsEast,
+                SouthAmerica,
+            ],
         }
     }
 
@@ -228,10 +292,7 @@ impl GeoRouter {
 
     /// Add a single provider for a region.
     pub fn add_provider(&mut self, region: Region, transport: Arc<dyn RpcTransport>) {
-        self.providers
-            .entry(region)
-            .or_insert_with(Vec::new)
-            .push(transport);
+        self.providers.entry(region).or_default().push(transport);
         // Ensure health tracking exists for this region.
         self.health
             .lock()
@@ -272,7 +333,7 @@ impl GeoRouter {
                 RegionHealthSummary {
                     region: region.to_string(),
                     provider_count: provs.len(),
-                    healthy: h.map_or(true, |h| h.healthy),
+                    healthy: h.is_none_or(|h| h.healthy),
                     avg_latency_ms: h.map_or(0, |h| h.avg_latency.as_millis() as u64),
                     success_count: h.map_or(0, |h| h.success_count),
                     failure_count: h.map_or(0, |h| h.failure_count),
@@ -361,7 +422,11 @@ impl RpcTransport for GeoRouter {
     fn health(&self) -> HealthStatus {
         if self.is_region_healthy(&self.local_region) {
             HealthStatus::Healthy
-        } else if self.routing_order().iter().any(|r| self.is_region_healthy(r)) {
+        } else if self
+            .routing_order()
+            .iter()
+            .any(|r| self.is_region_healthy(r))
+        {
             HealthStatus::Degraded
         } else {
             HealthStatus::Unhealthy
@@ -379,7 +444,12 @@ impl RpcTransport for GeoRouter {
 /// `FLY_REGION`.  Returns `None` if no variable is set or the value cannot
 /// be mapped to a known [`Region`].
 pub fn detect_region_from_env() -> Option<Region> {
-    for var in &["AWS_REGION", "AWS_DEFAULT_REGION", "CLOUD_REGION", "FLY_REGION"] {
+    for var in &[
+        "AWS_REGION",
+        "AWS_DEFAULT_REGION",
+        "CLOUD_REGION",
+        "FLY_REGION",
+    ] {
         if let Ok(val) = std::env::var(var) {
             if let Some(region) = parse_cloud_region(&val) {
                 return Some(region);
@@ -395,15 +465,28 @@ fn parse_cloud_region(value: &str) -> Option<Region> {
     let lower = value.to_lowercase();
     if lower.contains("us-east") || lower.contains("iad") || lower.contains("ewr") {
         Some(Region::UsEast)
-    } else if lower.contains("us-west") || lower.contains("lax") || lower.contains("sjc") || lower.contains("sea") {
+    } else if lower.contains("us-west")
+        || lower.contains("lax")
+        || lower.contains("sjc")
+        || lower.contains("sea")
+    {
         Some(Region::UsWest)
-    } else if lower.contains("eu-west") || lower.contains("lhr") || lower.contains("dub") || lower.contains("cdg") {
+    } else if lower.contains("eu-west")
+        || lower.contains("lhr")
+        || lower.contains("dub")
+        || lower.contains("cdg")
+    {
         Some(Region::EuWest)
     } else if lower.contains("eu-central") || lower.contains("fra") {
         Some(Region::EuCentral)
     } else if lower.contains("ap-southeast") || lower.contains("sin") || lower.contains("sgp") {
         Some(Region::AsiaSoutheast)
-    } else if lower.contains("ap-northeast") || lower.contains("ap-east") || lower.contains("nrt") || lower.contains("hnd") || lower.contains("hkg") {
+    } else if lower.contains("ap-northeast")
+        || lower.contains("ap-east")
+        || lower.contains("nrt")
+        || lower.contains("hnd")
+        || lower.contains("hkg")
+    {
         Some(Region::AsiaEast)
     } else if lower.contains("sa-east") || lower.contains("gru") {
         Some(Region::SouthAmerica)
@@ -428,8 +511,14 @@ impl RegionalEndpoints {
     /// Alchemy endpoints (Ethereum mainnet).
     pub fn alchemy(api_key: &str) -> Vec<(Region, String)> {
         vec![
-            (Region::UsEast, format!("https://eth-mainnet.g.alchemy.com/v2/{api_key}")),
-            (Region::EuCentral, format!("https://eth-mainnet.g.alchemy.com/v2/{api_key}")),
+            (
+                Region::UsEast,
+                format!("https://eth-mainnet.g.alchemy.com/v2/{api_key}"),
+            ),
+            (
+                Region::EuCentral,
+                format!("https://eth-mainnet.g.alchemy.com/v2/{api_key}"),
+            ),
         ]
     }
 
@@ -444,9 +533,7 @@ impl RegionalEndpoints {
 
     /// Solana mainnet public RPC.
     pub fn public_solana() -> Vec<(Region, String)> {
-        vec![
-            (Region::UsEast, "https://api.mainnet-beta.solana.com".into()),
-        ]
+        vec![(Region::UsEast, "https://api.mainnet-beta.solana.com".into())]
     }
 }
 
@@ -505,7 +592,9 @@ mod tests {
 
     impl FailTransport {
         fn new(name: &str) -> Self {
-            Self { name: name.to_string() }
+            Self {
+                name: name.to_string(),
+            }
         }
     }
 
@@ -527,7 +616,9 @@ mod tests {
 
     impl NonRetryableFailTransport {
         fn new(name: &str) -> Self {
-            Self { name: name.to_string() }
+            Self {
+                name: name.to_string(),
+            }
         }
     }
 
@@ -551,7 +642,11 @@ mod tests {
     #[test]
     fn region_proximity_us_east() {
         let order = Region::UsEast.proximity_order();
-        assert_eq!(order[0], Region::UsWest, "UsEast's closest should be UsWest");
+        assert_eq!(
+            order[0],
+            Region::UsWest,
+            "UsEast's closest should be UsWest"
+        );
         assert_eq!(order.len(), 7, "should list all other regions");
         // Self must not appear in proximity list
         assert!(!order.contains(&Region::UsEast));
@@ -560,7 +655,11 @@ mod tests {
     #[test]
     fn region_proximity_asia() {
         let order = Region::AsiaEast.proximity_order();
-        assert_eq!(order[0], Region::AsiaSoutheast, "AsiaEast's closest should be AsiaSoutheast");
+        assert_eq!(
+            order[0],
+            Region::AsiaSoutheast,
+            "AsiaEast's closest should be AsiaSoutheast"
+        );
         assert!(!order.contains(&Region::AsiaEast));
     }
 
@@ -646,7 +745,11 @@ mod tests {
         assert_eq!(result, serde_json::Value::String("ok-us-east-1".into()));
 
         assert_eq!(us_ref.calls(), 1, "local provider should have been called");
-        assert_eq!(eu_ref.calls(), 0, "remote provider should NOT have been called");
+        assert_eq!(
+            eu_ref.calls(),
+            0,
+            "remote provider should NOT have been called"
+        );
     }
 
     #[tokio::test]
@@ -841,7 +944,9 @@ mod tests {
         // Manually mark UsEast as unhealthy by recording many failures.
         {
             let mut health = router.health.lock().unwrap();
-            let entry = health.entry(Region::UsEast).or_insert_with(RegionalHealth::new);
+            let entry = health
+                .entry(Region::UsEast)
+                .or_insert_with(RegionalHealth::new);
             for _ in 0..10 {
                 entry.record_failure();
             }

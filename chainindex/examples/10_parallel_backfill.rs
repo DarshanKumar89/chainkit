@@ -105,8 +105,14 @@ async fn main() {
     // 4. Check progress
     let progress = engine.progress().await;
     println!("\n--- Final Progress ---");
-    println!("Completed: {}/{} segments", progress.completed_segments, progress.total_segments);
-    println!("Processed: {}/{} blocks", progress.processed_blocks, progress.total_blocks);
+    println!(
+        "Completed: {}/{} segments",
+        progress.completed_segments, progress.total_segments
+    );
+    println!(
+        "Processed: {}/{} blocks",
+        progress.processed_blocks, progress.total_blocks
+    );
     println!("Events:    {}", progress.total_events);
     println!("Complete:  {:.1}%", progress.percent_complete());
     println!("Speed:     {:.0} blocks/sec", progress.blocks_per_second());
@@ -114,28 +120,24 @@ async fn main() {
     // 5. Segment merger
     println!("\n--- Segment Merger ---");
     // Create some mock events out of order
-    let events_seg1 = vec![
-        DecodedEvent {
-            chain: "ethereum".into(),
-            schema: "Transfer".into(),
-            address: "0xToken".into(),
-            tx_hash: "0xtx_200".into(),
-            block_number: 200,
-            log_index: 0,
-            fields_json: serde_json::Value::Null,
-        },
-    ];
-    let events_seg0 = vec![
-        DecodedEvent {
-            chain: "ethereum".into(),
-            schema: "Transfer".into(),
-            address: "0xToken".into(),
-            tx_hash: "0xtx_100".into(),
-            block_number: 100,
-            log_index: 0,
-            fields_json: serde_json::Value::Null,
-        },
-    ];
+    let events_seg1 = vec![DecodedEvent {
+        chain: "ethereum".into(),
+        schema: "Transfer".into(),
+        address: "0xToken".into(),
+        tx_hash: "0xtx_200".into(),
+        block_number: 200,
+        log_index: 0,
+        fields_json: serde_json::Value::Null,
+    }];
+    let events_seg0 = vec![DecodedEvent {
+        chain: "ethereum".into(),
+        schema: "Transfer".into(),
+        address: "0xToken".into(),
+        tx_hash: "0xtx_100".into(),
+        block_number: 100,
+        log_index: 0,
+        fields_json: serde_json::Value::Null,
+    }];
 
     let seg0 = BackfillSegment {
         id: 0,
@@ -156,10 +158,7 @@ async fn main() {
         error: None,
     };
 
-    let merged = SegmentMerger::merge(
-        &[seg0, seg1],
-        &[events_seg0, events_seg1],
-    );
+    let merged = SegmentMerger::merge(&[seg0, seg1], &[events_seg0, events_seg1]);
     println!("Merged {} events in block order:", merged.len());
     for ev in &merged {
         println!("  Block {}: {}", ev.block_number, ev.tx_hash);

@@ -190,10 +190,9 @@ impl PostgresStorage {
     /// Executes each SQL statement in order; stops on first error.
     pub async fn run_migrations(&self, sql: &[&str]) -> Result<(), IndexerError> {
         for stmt in sql {
-            sqlx::query(stmt)
-                .execute(&self.pool)
-                .await
-                .map_err(|e| IndexerError::Storage(format!("migration failed: {e}\nSQL: {stmt}")))?;
+            sqlx::query(stmt).execute(&self.pool).await.map_err(|e| {
+                IndexerError::Storage(format!("migration failed: {e}\nSQL: {stmt}"))
+            })?;
         }
         Ok(())
     }
@@ -329,7 +328,12 @@ impl PostgresStorage {
         .await
         .map_err(|e| IndexerError::Storage(e.to_string()))?;
 
-        debug!("rollback_after: removed {} events for chain={} from block={}", result.rows_affected(), chain_id, from_block);
+        debug!(
+            "rollback_after: removed {} events for chain={} from block={}",
+            result.rows_affected(),
+            chain_id,
+            from_block
+        );
         Ok(result.rows_affected())
     }
 
@@ -512,8 +516,8 @@ mod tests {
     async fn test_postgres_checkpoint_roundtrip() {
         use chainindex_core::checkpoint::CheckpointStore;
 
-        let url = std::env::var("DATABASE_URL")
-            .expect("DATABASE_URL must be set for integration tests");
+        let url =
+            std::env::var("DATABASE_URL").expect("DATABASE_URL must be set for integration tests");
         let store = super::PostgresStorage::connect(&url).await.unwrap();
 
         let checkpoint = chainindex_core::checkpoint::Checkpoint {
@@ -542,8 +546,8 @@ mod tests {
     #[tokio::test]
     #[ignore = "requires PostgreSQL (set DATABASE_URL to enable)"]
     async fn test_postgres_block_hash_and_rollback() {
-        let url = std::env::var("DATABASE_URL")
-            .expect("DATABASE_URL must be set for integration tests");
+        let url =
+            std::env::var("DATABASE_URL").expect("DATABASE_URL must be set for integration tests");
         let store = super::PostgresStorage::connect(&url).await.unwrap();
 
         // Store some block hashes

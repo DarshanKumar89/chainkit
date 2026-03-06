@@ -54,7 +54,9 @@ pub struct GraphqlError {
 
 impl GraphqlError {
     fn new(msg: impl Into<String>) -> Self {
-        Self { message: msg.into() }
+        Self {
+            message: msg.into(),
+        }
     }
 }
 
@@ -83,7 +85,10 @@ pub struct GraphqlResponse {
 impl GraphqlResponse {
     /// Construct a successful data response.
     pub fn ok(data: JsonValue) -> Self {
-        Self { data: Some(data), errors: None }
+        Self {
+            data: Some(data),
+            errors: None,
+        }
     }
 
     /// Construct an error response with a single message.
@@ -96,7 +101,10 @@ impl GraphqlResponse {
 
     /// Construct an error response from multiple errors.
     pub fn errors(errors: Vec<GraphqlError>) -> Self {
-        Self { data: None, errors: Some(errors) }
+        Self {
+            data: None,
+            errors: Some(errors),
+        }
     }
 
     /// Returns `true` if this response contains errors.
@@ -207,10 +215,7 @@ impl GraphqlSchema {
             let type_name = pascal_case(&schema.name);
             let singular = schema.name.clone();
             let plural = format!("{}s", schema.name);
-            out.push_str(&format!(
-                "  {}(id: String!): {}\n",
-                singular, type_name
-            ));
+            out.push_str(&format!("  {}(id: String!): {}\n", singular, type_name));
             out.push_str(&format!(
                 "  {}(where: {}_filter, orderBy: String, orderDirection: OrderDirection, first: Int, skip: Int): [{}!]!\n",
                 plural, schema.name, type_name
@@ -317,7 +322,10 @@ struct Parser<'a> {
 
 impl<'a> Parser<'a> {
     fn new(src: &'a str) -> Self {
-        Self { src: src.as_bytes(), pos: 0 }
+        Self {
+            src: src.as_bytes(),
+            pos: 0,
+        }
     }
 
     fn peek(&self) -> Option<u8> {
@@ -357,7 +365,10 @@ impl<'a> Parser<'a> {
                 "expected '{}' but got '{}' at position {}",
                 ch as char, b as char, self.pos
             )),
-            None => Err(format!("expected '{}' but reached end of input", ch as char)),
+            None => Err(format!(
+                "expected '{}' but reached end of input",
+                ch as char
+            )),
         }
     }
 
@@ -501,10 +512,7 @@ impl<'a> Parser<'a> {
                     fields.push(name);
                 }
                 None => {
-                    return Err(format!(
-                        "expected field name at pos {}",
-                        self.pos
-                    ));
+                    return Err(format!("expected field name at pos {}", self.pos));
                 }
             }
         }
@@ -526,7 +534,10 @@ impl<'a> Parser<'a> {
             }
             // Skip optional operation name.
             self.skip_ws();
-            if self.peek().map_or(false, |b| b.is_ascii_alphabetic() || b == b'_') {
+            if self
+                .peek()
+                .is_some_and(|b| b.is_ascii_alphabetic() || b == b'_')
+            {
                 self.read_name();
             }
         }
@@ -557,7 +568,11 @@ impl<'a> Parser<'a> {
                 sub_fields = self.read_sub_fields()?;
             }
 
-            selections.push(ParsedSelection { field, args, sub_fields });
+            selections.push(ParsedSelection {
+                field,
+                args,
+                sub_fields,
+            });
         }
 
         Ok(selections)
@@ -643,10 +658,7 @@ impl GraphqlExecutor {
     }
 
     /// Execute a single top-level selection against the store.
-    async fn execute_selection(
-        &self,
-        sel: &ParsedSelection,
-    ) -> Result<JsonValue, GraphqlError> {
+    async fn execute_selection(&self, sel: &ParsedSelection) -> Result<JsonValue, GraphqlError> {
         let field = &sel.field;
 
         // Determine whether this is a singular or plural field.
@@ -701,8 +713,11 @@ impl GraphqlExecutor {
             .and_then(|v| v.as_str())
             .ok_or_else(|| GraphqlError::new("Singular query requires an 'id' argument"))?;
 
-        let query = EntityQuery::new(entity_type)
-            .filter(QueryFilter::Eq("id".to_string(), JsonValue::String(id.to_string())))
+        let _query = EntityQuery::new(entity_type)
+            .filter(QueryFilter::Eq(
+                "id".to_string(),
+                JsonValue::String(id.to_string()),
+            ))
             .limit(1);
 
         // MemoryEntityStore filters by entity_type automatically; we also need to
@@ -821,9 +836,8 @@ impl GraphqlExecutor {
                     JsonValue::Array(arr) => arr,
                     JsonValue::String(s) => {
                         // Try to parse it as JSON array.
-                        serde_json::from_str::<Vec<JsonValue>>(&s).unwrap_or_else(|_| {
-                            vec![JsonValue::String(s)]
-                        })
+                        serde_json::from_str::<Vec<JsonValue>>(&s)
+                            .unwrap_or_else(|_| vec![JsonValue::String(s)])
                     }
                     other => vec![other],
                 };
@@ -845,16 +859,17 @@ impl GraphqlExecutor {
 
         let include_all = sub_fields.is_empty();
 
-        let want = |name: &str| -> bool {
-            include_all || sub_fields.iter().any(|f| f == name)
-        };
+        let want = |name: &str| -> bool { include_all || sub_fields.iter().any(|f| f == name) };
 
         // System fields.
         if want("id") {
             obj.insert("id".to_string(), JsonValue::String(row.id.clone()));
         }
         if want("blockNumber") {
-            obj.insert("blockNumber".to_string(), JsonValue::Number(row.block_number.into()));
+            obj.insert(
+                "blockNumber".to_string(),
+                JsonValue::Number(row.block_number.into()),
+            );
         }
         if want("txHash") {
             obj.insert("txHash".to_string(), JsonValue::String(row.tx_hash.clone()));
@@ -1018,12 +1033,27 @@ mod tests {
         store.register_schema(&swap_schema()).await.unwrap();
         store.register_schema(&transfer_schema()).await.unwrap();
 
-        store.upsert(make_swap("s1", "0xPOOL_A", 1000, 500, 10)).await.unwrap();
-        store.upsert(make_swap("s2", "0xPOOL_A", 2000, 1000, 11)).await.unwrap();
-        store.upsert(make_swap("s3", "0xPOOL_B", 3000, 1500, 12)).await.unwrap();
+        store
+            .upsert(make_swap("s1", "0xPOOL_A", 1000, 500, 10))
+            .await
+            .unwrap();
+        store
+            .upsert(make_swap("s2", "0xPOOL_A", 2000, 1000, 11))
+            .await
+            .unwrap();
+        store
+            .upsert(make_swap("s3", "0xPOOL_B", 3000, 1500, 12))
+            .await
+            .unwrap();
 
-        store.upsert(make_transfer("t1", "0xAlice", "0xBob", 100, 10)).await.unwrap();
-        store.upsert(make_transfer("t2", "0xBob", "0xCharlie", 200, 11)).await.unwrap();
+        store
+            .upsert(make_transfer("t1", "0xAlice", "0xBob", 100, 10))
+            .await
+            .unwrap();
+        store
+            .upsert(make_transfer("t2", "0xBob", "0xCharlie", 200, 11))
+            .await
+            .unwrap();
 
         let executor = GraphqlExecutor::new(store);
         executor.register_schema(swap_schema());
@@ -1040,9 +1070,18 @@ mod tests {
         let sdl = gql_schema.sdl();
 
         assert!(sdl.contains("type Swap {"), "SDL missing Swap type:\n{sdl}");
-        assert!(sdl.contains("pool: String!"), "SDL missing pool field:\n{sdl}");
-        assert!(sdl.contains("amount0: BigInt!"), "SDL missing amount0 field:\n{sdl}");
-        assert!(sdl.contains("trader: String"), "SDL missing nullable trader field:\n{sdl}");
+        assert!(
+            sdl.contains("pool: String!"),
+            "SDL missing pool field:\n{sdl}"
+        );
+        assert!(
+            sdl.contains("amount0: BigInt!"),
+            "SDL missing amount0 field:\n{sdl}"
+        );
+        assert!(
+            sdl.contains("trader: String"),
+            "SDL missing nullable trader field:\n{sdl}"
+        );
     }
 
     // ── Test 2: SDL contains filter input ─────────────────────────────────────
@@ -1053,9 +1092,18 @@ mod tests {
         gql_schema.add_entity(swap_schema());
         let sdl = gql_schema.sdl();
 
-        assert!(sdl.contains("input swap_filter {"), "SDL missing swap_filter input:\n{sdl}");
-        assert!(sdl.contains("amount0_gt:"), "SDL missing amount0_gt in filter:\n{sdl}");
-        assert!(sdl.contains("pool_in:"), "SDL missing pool_in in filter:\n{sdl}");
+        assert!(
+            sdl.contains("input swap_filter {"),
+            "SDL missing swap_filter input:\n{sdl}"
+        );
+        assert!(
+            sdl.contains("amount0_gt:"),
+            "SDL missing amount0_gt in filter:\n{sdl}"
+        );
+        assert!(
+            sdl.contains("pool_in:"),
+            "SDL missing pool_in in filter:\n{sdl}"
+        );
     }
 
     // ── Test 3: SDL contains Query type with singular and plural fields ────────
@@ -1066,8 +1114,14 @@ mod tests {
         gql_schema.add_entity(swap_schema());
         let sdl = gql_schema.sdl();
 
-        assert!(sdl.contains("type Query {"), "SDL missing Query type:\n{sdl}");
-        assert!(sdl.contains("swap(id: String!): Swap"), "SDL missing singular swap:\n{sdl}");
+        assert!(
+            sdl.contains("type Query {"),
+            "SDL missing Query type:\n{sdl}"
+        );
+        assert!(
+            sdl.contains("swap(id: String!): Swap"),
+            "SDL missing singular swap:\n{sdl}"
+        );
         assert!(sdl.contains("swaps("), "SDL missing plural swaps:\n{sdl}");
     }
 
@@ -1086,8 +1140,14 @@ mod tests {
     async fn test_introspection() {
         let executor = seeded_executor().await;
         let sdl = executor.introspect();
-        assert!(sdl.contains("type Swap {"), "introspect missing Swap type:\n{sdl}");
-        assert!(sdl.contains("type Transfer {"), "introspect missing Transfer type:\n{sdl}");
+        assert!(
+            sdl.contains("type Swap {"),
+            "introspect missing Swap type:\n{sdl}"
+        );
+        assert!(
+            sdl.contains("type Transfer {"),
+            "introspect missing Transfer type:\n{sdl}"
+        );
     }
 
     // ── Test 6: Introspection via __schema query ───────────────────────────────
@@ -1181,9 +1241,7 @@ mod tests {
     async fn test_collection_order_desc() {
         let executor = seeded_executor().await;
         let resp = executor
-            .execute(
-                r#"{ swaps(orderBy: "amount0", orderDirection: "desc") { id amount0 } }"#,
-            )
+            .execute(r#"{ swaps(orderBy: "amount0", orderDirection: "desc") { id amount0 } }"#)
             .await;
         assert!(!resp.is_error(), "unexpected error: {:?}", resp.errors);
         let arr = resp.data.unwrap()["swaps"].as_array().unwrap().clone();
@@ -1198,9 +1256,7 @@ mod tests {
     #[tokio::test]
     async fn test_unknown_entity_returns_error() {
         let executor = seeded_executor().await;
-        let resp = executor
-            .execute("{ unknownEntity { id } }")
-            .await;
+        let resp = executor.execute("{ unknownEntity { id } }").await;
         assert!(resp.is_error(), "expected an error for unknown entity");
         let errs = resp.errors.unwrap();
         assert!(
@@ -1258,13 +1314,18 @@ mod tests {
         let executor = seeded_executor().await;
         // Only request `id` and `pool` — amount0/amount1 should not appear.
         let resp = executor
-            .execute(r#"{ swaps(first: 1, orderBy: "amount0", orderDirection: "asc") { id pool } }"#)
+            .execute(
+                r#"{ swaps(first: 1, orderBy: "amount0", orderDirection: "asc") { id pool } }"#,
+            )
             .await;
         assert!(!resp.is_error(), "unexpected error: {:?}", resp.errors);
         let row = &resp.data.unwrap()["swaps"][0];
         assert!(row.get("id").is_some());
         assert!(row.get("pool").is_some());
-        assert!(row.get("amount0").is_none(), "amount0 should be projected out");
+        assert!(
+            row.get("amount0").is_none(),
+            "amount0 should be projected out"
+        );
     }
 
     // ── Test 18: Multiple entity types in one query ───────────────────────────
@@ -1272,9 +1333,7 @@ mod tests {
     #[tokio::test]
     async fn test_multi_entity_query() {
         let executor = seeded_executor().await;
-        let resp = executor
-            .execute("{ swaps { id } transfers { id } }")
-            .await;
+        let resp = executor.execute("{ swaps { id } transfers { id } }").await;
         assert!(!resp.is_error(), "unexpected error: {:?}", resp.errors);
         let data = resp.data.unwrap();
         assert_eq!(data["swaps"].as_array().unwrap().len(), 3);

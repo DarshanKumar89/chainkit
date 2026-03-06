@@ -137,10 +137,7 @@ impl DeadLetterQueue {
         let next_retry = now + self.config.initial_backoff.as_secs() as i64;
 
         let entry = DlqEntry {
-            id: format!(
-                "dlq-{}-{}-{}",
-                event.tx_hash, event.log_index, now
-            ),
+            id: format!("dlq-{}-{}-{}", event.tx_hash, event.log_index, now),
             event,
             handler_name: handler_name.into(),
             error_message: error_message.into(),
@@ -290,7 +287,10 @@ impl DeadLetterQueue {
     /// Compute the backoff duration for a given attempt number.
     fn compute_backoff(&self, attempt: u32) -> Duration {
         let base = self.config.initial_backoff.as_secs_f64();
-        let multiplier = self.config.backoff_multiplier.powi(attempt.saturating_sub(1) as i32);
+        let multiplier = self
+            .config
+            .backoff_multiplier
+            .powi(attempt.saturating_sub(1) as i32);
         let backoff_secs = base * multiplier;
         let max_secs = self.config.max_backoff.as_secs_f64();
         Duration::from_secs_f64(backoff_secs.min(max_secs))

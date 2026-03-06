@@ -60,8 +60,8 @@ pub async fn hedged_send(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use async_trait::async_trait;
     use crate::request::RpcId;
+    use async_trait::async_trait;
 
     struct DelayTransport {
         delay: Duration,

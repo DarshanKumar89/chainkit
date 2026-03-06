@@ -89,6 +89,7 @@ pub struct ReorgDetector {
     /// Last known tip.
     last_tip: Mutex<Option<u64>>,
     /// Registered callbacks -- called with ReorgEvent when reorg detected.
+    #[allow(clippy::type_complexity)]
     callbacks: Mutex<Vec<Box<dyn Fn(&ReorgEvent) + Send + Sync>>>,
     /// History of detected reorgs.
     reorg_history: Mutex<Vec<ReorgEvent>>,
@@ -118,11 +119,7 @@ impl ReorgDetector {
     /// Check a block against the window. Returns `Some(ReorgEvent)` if reorg detected.
     ///
     /// Call this with each new block as it arrives.
-    pub fn check_block(
-        &self,
-        block_number: u64,
-        block_hash: &str,
-    ) -> Option<ReorgEvent> {
+    pub fn check_block(&self, block_number: u64, block_hash: &str) -> Option<ReorgEvent> {
         let mut window = self.window.lock().unwrap();
         let mut last_tip = self.last_tip.lock().unwrap();
 
@@ -131,8 +128,7 @@ impl ReorgDetector {
             if stored_hash != block_hash {
                 // REORG DETECTED -- find fork point
                 let fork_block = block_number;
-                let depth =
-                    last_tip.unwrap_or(block_number) - fork_block + 1;
+                let depth = last_tip.unwrap_or(block_number) - fork_block + 1;
 
                 let event = ReorgEvent {
                     fork_block,
@@ -157,11 +153,7 @@ impl ReorgDetector {
                 *last_tip = Some(block_number);
 
                 // Trim window
-                Self::trim_window_inner(
-                    &self.config,
-                    &mut window,
-                    block_number,
-                );
+                Self::trim_window_inner(&self.config, &mut window, block_number);
 
                 // Fire callbacks
                 let callbacks = self.callbacks.lock().unwrap();
@@ -233,22 +225,13 @@ impl ReorgDetector {
 
         let block_number = value
             .as_str()
-            .and_then(|hex| {
-                u64::from_str_radix(hex.trim_start_matches("0x"), 16).ok()
-            })
-            .ok_or_else(|| {
-                TransportError::Other(
-                    "invalid eth_blockNumber response".into(),
-                )
-            })?;
+            .and_then(|hex| u64::from_str_radix(hex.trim_start_matches("0x"), 16).ok())
+            .ok_or_else(|| TransportError::Other("invalid eth_blockNumber response".into()))?;
 
         // Get block hash
-        let hash =
-            Self::fetch_block_hash(transport, block_number)
-                .await?
-                .ok_or_else(|| {
-                    TransportError::Other("block not found".into())
-                })?;
+        let hash = Self::fetch_block_hash(transport, block_number)
+            .await?
+            .ok_or_else(|| TransportError::Other("block not found".into()))?;
 
         Ok(self.check_block(block_number, &hash))
     }
@@ -265,10 +248,7 @@ impl ReorgDetector {
     ) -> Result<u64, TransportError> {
         let req = JsonRpcRequest::auto(
             "eth_getBlockByNumber",
-            vec![
-                Value::String("finalized".into()),
-                Value::Bool(false),
-            ],
+            vec![Value::String("finalized".into()), Value::Bool(false)],
         );
         let resp = transport.send(req).await?;
         let value = resp.into_result().map_err(TransportError::Rpc)?;
@@ -276,14 +256,8 @@ impl ReorgDetector {
         value
             .get("number")
             .and_then(|n| n.as_str())
-            .and_then(|hex| {
-                u64::from_str_radix(hex.trim_start_matches("0x"), 16).ok()
-            })
-            .ok_or_else(|| {
-                TransportError::Other(
-                    "invalid finalized block response".into(),
-                )
-            })
+            .and_then(|hex| u64::from_str_radix(hex.trim_start_matches("0x"), 16).ok())
+            .ok_or_else(|| TransportError::Other("invalid finalized block response".into()))
     }
 
     /// Get reorg history.
@@ -298,8 +272,7 @@ impl ReorgDetector {
 
     /// Check if a block number is in the safe zone (below safe_depth).
     pub fn is_block_safe(&self, block_number: u64) -> bool {
-        self.safe_block()
-            .map_or(false, |safe| block_number <= safe)
+        self.safe_block().is_some_and(|safe| block_number <= safe)
     }
 }
 
@@ -338,10 +311,7 @@ mod tests {
 
     #[async_trait]
     impl RpcTransport for MockTransport {
-        async fn send(
-            &self,
-            req: JsonRpcRequest,
-        ) -> Result<JsonRpcResponse, TransportError> {
+        async fn send(&self, req: JsonRpcRequest) -> Result<JsonRpcResponse, TransportError> {
             let map = self.responses.lock().unwrap();
             let result = map.get(&req.method).cloned().unwrap_or(Value::Null);
             Ok(JsonRpcResponse {
@@ -641,13 +611,9 @@ mod tests {
             }),
         );
 
-        let hash =
-            ReorgDetector::fetch_block_hash(&transport, 200).await;
+        let hash = ReorgDetector::fetch_block_hash(&transport, 200).await;
         assert!(hash.is_ok());
-        assert_eq!(
-            hash.unwrap(),
-            Some("0xblock_hash_200".to_string())
-        );
+        assert_eq!(hash.unwrap(), Some("0xblock_hash_200".to_string()));
     }
 
     #[tokio::test]
@@ -661,8 +627,7 @@ mod tests {
             }),
         );
 
-        let hash =
-            ReorgDetector::fetch_block_hash(&transport, 200).await;
+        let hash = ReorgDetector::fetch_block_hash(&transport, 200).await;
         assert!(hash.is_ok());
         assert!(hash.unwrap().is_none());
     }
@@ -678,8 +643,7 @@ mod tests {
             }),
         );
 
-        let block =
-            ReorgDetector::fetch_finalized_block(&transport).await;
+        let block = ReorgDetector::fetch_finalized_block(&transport).await;
         assert!(block.is_ok());
         assert_eq!(block.unwrap(), 500); // 0x1f4 = 500
     }

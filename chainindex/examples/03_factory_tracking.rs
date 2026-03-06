@@ -72,9 +72,7 @@ fn main() {
         if let Some(child) = registry.process_event(event) {
             println!(
                 "NEW CHILD: factory {} discovered at block {} — address: {}",
-                child.factory_address,
-                child.discovered_at_block,
-                child.address
+                child.factory_address, child.discovered_at_block, child.address
             );
         }
     }

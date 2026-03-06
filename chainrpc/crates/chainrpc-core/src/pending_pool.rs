@@ -136,9 +136,7 @@ impl PendingPoolMonitor {
             vec![Value::String(tx_hash.to_string())],
         );
         let receipt_resp = transport.send(receipt_req).await?;
-        let receipt_value = receipt_resp
-            .into_result()
-            .map_err(TransportError::Rpc)?;
+        let receipt_value = receipt_resp.into_result().map_err(TransportError::Rpc)?;
 
         if !receipt_value.is_null() {
             // Extract blockNumber from the receipt.

@@ -41,10 +41,7 @@ impl std::fmt::Display for HealthStatus {
 #[async_trait]
 pub trait RpcTransport: Send + Sync + 'static {
     /// Send a single JSON-RPC request and return the response.
-    async fn send(
-        &self,
-        req: JsonRpcRequest,
-    ) -> Result<JsonRpcResponse, TransportError>;
+    async fn send(&self, req: JsonRpcRequest) -> Result<JsonRpcResponse, TransportError>;
 
     /// Send a batch of JSON-RPC requests.
     ///

@@ -372,8 +372,7 @@ impl ProgramLogParser {
     /// Minimal base-64 decoder (standard alphabet, no padding required).
     fn base64_decode(input: &str) -> Option<Vec<u8>> {
         use std::collections::HashMap;
-        const CHARS: &[u8] =
-            b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        const CHARS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
         let table: HashMap<u8, u8> = CHARS
             .iter()
             .enumerate()
@@ -446,18 +445,13 @@ impl AccountFilter {
     /// Returns `true` if `log` passes this filter.
     pub fn matches(&self, log: &ProgramLog) -> bool {
         // Program ID filter
-        if !self.program_ids.is_empty()
-            && !self.program_ids.iter().any(|p| p == &log.program_id)
-        {
+        if !self.program_ids.is_empty() && !self.program_ids.iter().any(|p| p == &log.program_id) {
             return false;
         }
 
         // Account key filter
         if !self.account_keys.is_empty() {
-            let has_key = log
-                .accounts
-                .iter()
-                .any(|a| self.account_keys.contains(a));
+            let has_key = log.accounts.iter().any(|a| self.account_keys.contains(a));
             if !has_key {
                 return false;
             }
@@ -644,7 +638,11 @@ impl SolanaIndexerBuilder {
         // Map commitment level to confirmation_depth:
         //   confirmed  -> 0 (already confirmed by supermajority)
         //   finalized  -> 32 (typically 32 slots past confirmed)
-        let confirmation_depth = if self.confirmation == "confirmed" { 0 } else { 32 };
+        let confirmation_depth = if self.confirmation == "confirmed" {
+            0
+        } else {
+            32
+        };
 
         IndexerConfig {
             id: self.id.clone(),
@@ -933,11 +931,13 @@ mod tests {
             "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 4736 of 200000 compute units".to_string(),
             "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success".to_string(),
         ];
-        let parsed =
-            ProgramLogParser::parse_transaction_logs(&logs, "sig_abc123");
+        let parsed = ProgramLogParser::parse_transaction_logs(&logs, "sig_abc123");
         assert_eq!(parsed.len(), 1);
         let log = &parsed[0];
-        assert_eq!(log.program_id, "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
+        assert_eq!(
+            log.program_id,
+            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        );
         assert!(log.success);
         assert_eq!(log.compute_units, 4736);
         assert_eq!(log.log_messages, vec!["Instruction: Transfer"]);
@@ -949,11 +949,12 @@ mod tests {
         let logs = vec![
             "Program 11111111111111111111111111111111 invoke [1]".to_string(),
             "Program log: Error: insufficient funds".to_string(),
-            "Program 11111111111111111111111111111111 consumed 1500 of 200000 compute units".to_string(),
-            "Program 11111111111111111111111111111111 failed: custom program error: 0x1".to_string(),
+            "Program 11111111111111111111111111111111 consumed 1500 of 200000 compute units"
+                .to_string(),
+            "Program 11111111111111111111111111111111 failed: custom program error: 0x1"
+                .to_string(),
         ];
-        let parsed =
-            ProgramLogParser::parse_transaction_logs(&logs, "sig_fail");
+        let parsed = ProgramLogParser::parse_transaction_logs(&logs, "sig_fail");
         assert_eq!(parsed.len(), 1);
         assert!(!parsed[0].success);
         assert_eq!(parsed[0].compute_units, 1500);
@@ -971,8 +972,7 @@ mod tests {
             "Program Prog2222222222222222222222222222222222222 consumed 2000 of 200000 compute units".to_string(),
             "Program Prog2222222222222222222222222222222222222 success".to_string(),
         ];
-        let parsed =
-            ProgramLogParser::parse_transaction_logs(&logs, "sig_multi");
+        let parsed = ProgramLogParser::parse_transaction_logs(&logs, "sig_multi");
         assert_eq!(parsed.len(), 2);
         assert_eq!(parsed[0].instruction_index, 0);
         assert_eq!(parsed[1].instruction_index, 1);
@@ -990,15 +990,20 @@ mod tests {
             "Program OuterProg11111111111111111111111111111111 consumed 3000 of 200000 compute units".to_string(),
             "Program OuterProg11111111111111111111111111111111 success".to_string(),
         ];
-        let parsed =
-            ProgramLogParser::parse_transaction_logs(&logs, "sig_cpi");
+        let parsed = ProgramLogParser::parse_transaction_logs(&logs, "sig_cpi");
         assert_eq!(parsed.len(), 2);
         // Inner finished first (LIFO stack)
         let inner = &parsed[0];
-        assert_eq!(inner.program_id, "InnerProg11111111111111111111111111111111");
+        assert_eq!(
+            inner.program_id,
+            "InnerProg11111111111111111111111111111111"
+        );
         assert_eq!(inner.inner_instruction_index, Some(0));
         let outer = &parsed[1];
-        assert_eq!(outer.program_id, "OuterProg11111111111111111111111111111111");
+        assert_eq!(
+            outer.program_id,
+            "OuterProg11111111111111111111111111111111"
+        );
         assert_eq!(outer.inner_instruction_index, None);
     }
 
@@ -1010,8 +1015,7 @@ mod tests {
             "Program AnchorProg1111111111111111111111111111111 consumed 800 of 200000 compute units".to_string(),
             "Program AnchorProg1111111111111111111111111111111 success".to_string(),
         ];
-        let parsed =
-            ProgramLogParser::parse_transaction_logs(&logs, "sig_data");
+        let parsed = ProgramLogParser::parse_transaction_logs(&logs, "sig_data");
         assert_eq!(parsed.len(), 1);
         assert_eq!(parsed[0].data.as_deref(), Some("SGVsbG8gV29ybGQ="));
     }
@@ -1022,9 +1026,9 @@ mod tests {
     fn parse_anchor_event_valid_json() {
         // 8-byte discriminator (zeros) + JSON payload
         let discriminator = "AAAAAAAA"; // 6 bytes of 0x00 in base64 isn't quite 8 bytes;
-        // build manually: 8 zero bytes = "AAAAAAAA" (6 bytes) — use a longer prefix
-        // Correct: 8 zero bytes in base64 = "AAAAAAAAAAA=" (not divisible — use 9 zeros)
-        // Let's build "{ }" preceded by 8 zero bytes encoded together:
+                                        // build manually: 8 zero bytes = "AAAAAAAA" (6 bytes) — use a longer prefix
+                                        // Correct: 8 zero bytes in base64 = "AAAAAAAAAAA=" (not divisible — use 9 zeros)
+                                        // Let's build "{ }" preceded by 8 zero bytes encoded together:
         let payload = b"\x00\x00\x00\x00\x00\x00\x00\x00{\"amount\":42}";
         let b64 = encode_base64(payload);
         let result = ProgramLogParser::parse_anchor_event(&b64);
@@ -1044,8 +1048,7 @@ mod tests {
 
     #[test]
     fn system_program_log_success() {
-        let log =
-            "Program 11111111111111111111111111111111 success";
+        let log = "Program 11111111111111111111111111111111 success";
         let result = ProgramLogParser::parse_system_program_log(log);
         assert!(result.is_some());
         let pl = result.unwrap();
@@ -1098,8 +1101,7 @@ mod tests {
             exclude_vote_txs: true,
             ..Default::default()
         };
-        let vote_log =
-            sample_log("Vote111111111111111111111111111111111111111", true, 300);
+        let vote_log = sample_log("Vote111111111111111111111111111111111111111", true, 300);
         assert!(!filter.matches(&vote_log));
     }
 
@@ -1230,8 +1232,7 @@ mod tests {
             success: false,
             ..Default::default()
         };
-        let event =
-            SolanaEventDecoder::decode_program_log(&log, 1, "sig1", "solana-devnet");
+        let event = SolanaEventDecoder::decode_program_log(&log, 1, "sig1", "solana-devnet");
         assert_eq!(event.schema, "ShortID");
         assert_eq!(event.chain, "solana-devnet");
     }
@@ -1331,8 +1332,7 @@ mod tests {
 
     /// Minimal base-64 encoder for tests only.
     fn encode_base64(input: &[u8]) -> String {
-        const CHARS: &[u8] =
-            b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        const CHARS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
         let mut out = String::new();
         let mut i = 0;
         while i + 2 < input.len() {

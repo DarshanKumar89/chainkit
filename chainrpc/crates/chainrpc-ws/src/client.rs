@@ -23,7 +23,8 @@ use chainrpc_core::transport::{HealthStatus, RpcTransport};
 
 use crate::subscriptions::{SubscriptionId, SubscriptionManager};
 
-type PendingMap = Arc<Mutex<HashMap<u64, oneshot::Sender<Result<JsonRpcResponse, TransportError>>>>>;
+type PendingMap =
+    Arc<Mutex<HashMap<u64, oneshot::Sender<Result<JsonRpcResponse, TransportError>>>>>;
 
 /// Configuration for the WebSocket client.
 #[derive(Debug, Clone)]
@@ -188,7 +189,7 @@ async fn ws_task(
                         "id": 0
                     });
                     if let Ok(msg) = serde_json::to_string(&resubscribe_req) {
-                        let _ = sink.send(Message::Text(msg.into())).await;
+                        let _ = sink.send(Message::Text(msg)).await;
                     }
                 }
 
@@ -203,7 +204,7 @@ async fn ws_task(
                                     let id = match &req.id { RpcId::Number(n) => *n, _ => 0 };
                                     pending.lock().unwrap().insert(id, tx);
                                     if let Ok(msg) = serde_json::to_string(&req) {
-                                        if sink.send(Message::Text(msg.into())).await.is_err() {
+                                        if sink.send(Message::Text(msg)).await.is_err() {
                                             // Connection dropped — break to reconnect
                                             break;
                                         }

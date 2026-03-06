@@ -131,7 +131,11 @@ mod tests {
     fn rewind_to() {
         let mut tracker = BlockTracker::new(10);
         for i in 100..=110 {
-            let prev = if i == 100 { "0x0".to_string() } else { format!("0x{}", i - 1) };
+            let prev = if i == 100 {
+                "0x0".to_string()
+            } else {
+                format!("0x{}", i - 1)
+            };
             tracker.push(block(i, &format!("0x{i}"), &prev)).unwrap();
         }
         assert_eq!(tracker.head().unwrap().number, 110);
@@ -143,7 +147,11 @@ mod tests {
     fn window_size_enforced() {
         let mut tracker = BlockTracker::new(5);
         for i in 0..10 {
-            let prev = if i == 0 { "0x0".to_string() } else { format!("0x{}", i - 1) };
+            let prev = if i == 0 {
+                "0x0".to_string()
+            } else {
+                format!("0x{}", i - 1)
+            };
             tracker.push(block(i, &format!("0x{i}"), &prev)).unwrap();
         }
         assert_eq!(tracker.len(), 5); // oldest blocks evicted

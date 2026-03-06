@@ -117,19 +117,15 @@ impl SqliteStorage {
         .map_err(|e| IndexerError::Storage(e.to_string()))?;
 
         // Indexes for common query patterns
-        sqlx::query(
-            "CREATE INDEX IF NOT EXISTS idx_events_schema ON events (schema);",
-        )
-        .execute(&self.pool)
-        .await
-        .map_err(|e| IndexerError::Storage(e.to_string()))?;
+        sqlx::query("CREATE INDEX IF NOT EXISTS idx_events_schema ON events (schema);")
+            .execute(&self.pool)
+            .await
+            .map_err(|e| IndexerError::Storage(e.to_string()))?;
 
-        sqlx::query(
-            "CREATE INDEX IF NOT EXISTS idx_events_block ON events (block_number);",
-        )
-        .execute(&self.pool)
-        .await
-        .map_err(|e| IndexerError::Storage(e.to_string()))?;
+        sqlx::query("CREATE INDEX IF NOT EXISTS idx_events_block ON events (block_number);")
+            .execute(&self.pool)
+            .await
+            .map_err(|e| IndexerError::Storage(e.to_string()))?;
 
         Ok(())
     }
@@ -258,14 +254,12 @@ impl SqliteStorage {
             .await
             .map_err(|e| IndexerError::Storage(e.to_string()))?;
 
-        sqlx::query(
-            "DELETE FROM block_hashes WHERE chain_id = ? AND block_number > ?",
-        )
-        .bind(chain_id)
-        .bind(block_number as i64)
-        .execute(&self.pool)
-        .await
-        .map_err(|e| IndexerError::Storage(e.to_string()))?;
+        sqlx::query("DELETE FROM block_hashes WHERE chain_id = ? AND block_number > ?")
+            .bind(chain_id)
+            .bind(block_number as i64)
+            .execute(&self.pool)
+            .await
+            .map_err(|e| IndexerError::Storage(e.to_string()))?;
 
         debug!(chain_id, block_number, "rolled back storage");
         Ok(())
@@ -325,14 +319,12 @@ impl CheckpointStore for SqliteStorage {
     }
 
     async fn delete(&self, chain_id: &str, indexer_id: &str) -> Result<(), IndexerError> {
-        sqlx::query(
-            "DELETE FROM checkpoints WHERE chain_id = ? AND indexer_id = ?",
-        )
-        .bind(chain_id)
-        .bind(indexer_id)
-        .execute(&self.pool)
-        .await
-        .map_err(|e| IndexerError::Storage(e.to_string()))?;
+        sqlx::query("DELETE FROM checkpoints WHERE chain_id = ? AND indexer_id = ?")
+            .bind(chain_id)
+            .bind(indexer_id)
+            .execute(&self.pool)
+            .await
+            .map_err(|e| IndexerError::Storage(e.to_string()))?;
 
         Ok(())
     }
@@ -376,7 +368,11 @@ mod tests {
 
         store.save(cp.clone()).await.unwrap();
 
-        let loaded = store.load("ethereum", "test-indexer").await.unwrap().unwrap();
+        let loaded = store
+            .load("ethereum", "test-indexer")
+            .await
+            .unwrap()
+            .unwrap();
         assert_eq!(loaded.block_number, 1_000);
         assert_eq!(loaded.block_hash, "0xabcdef");
         assert_eq!(loaded.updated_at, 1_700_000_000);
@@ -413,7 +409,10 @@ mod tests {
     #[tokio::test]
     async fn checkpoint_missing_returns_none() {
         let store = SqliteStorage::in_memory().await.unwrap();
-        let result = store.load("unknown-chain", "unknown-indexer").await.unwrap();
+        let result = store
+            .load("unknown-chain", "unknown-indexer")
+            .await
+            .unwrap();
         assert!(result.is_none());
     }
 
@@ -441,9 +440,18 @@ mod tests {
     async fn event_insert_and_query() {
         let store = SqliteStorage::in_memory().await.unwrap();
 
-        store.insert_event(&sample_event("ERC20Transfer", 100)).await.unwrap();
-        store.insert_event(&sample_event("ERC20Transfer", 101)).await.unwrap();
-        store.insert_event(&sample_event("UniswapV3Swap", 102)).await.unwrap();
+        store
+            .insert_event(&sample_event("ERC20Transfer", 100))
+            .await
+            .unwrap();
+        store
+            .insert_event(&sample_event("ERC20Transfer", 101))
+            .await
+            .unwrap();
+        store
+            .insert_event(&sample_event("UniswapV3Swap", 102))
+            .await
+            .unwrap();
 
         assert_eq!(store.event_count().await.unwrap(), 3);
 
@@ -464,7 +472,10 @@ mod tests {
 
         let loaded = store.events_by_schema("ERC20Transfer").await.unwrap();
         assert_eq!(loaded[0].fields_json["value"], "999");
-        assert_eq!(loaded[0].fields_json["from"], "0x1111111111111111111111111111111111111111");
+        assert_eq!(
+            loaded[0].fields_json["from"],
+            "0x1111111111111111111111111111111111111111"
+        );
     }
 
     // ── Block hash storage ────────────────────────────────────────────────────
@@ -473,8 +484,14 @@ mod tests {
     async fn block_hash_insert_and_query() {
         let store = SqliteStorage::in_memory().await.unwrap();
 
-        store.insert_block_hash("ethereum", 100, "0xAAA").await.unwrap();
-        store.insert_block_hash("ethereum", 101, "0xBBB").await.unwrap();
+        store
+            .insert_block_hash("ethereum", 100, "0xAAA")
+            .await
+            .unwrap();
+        store
+            .insert_block_hash("ethereum", 101, "0xBBB")
+            .await
+            .unwrap();
 
         let h100 = store.get_block_hash("ethereum", 100).await.unwrap();
         assert_eq!(h100.unwrap(), "0xAAA");
@@ -482,18 +499,32 @@ mod tests {
         let h101 = store.get_block_hash("ethereum", 101).await.unwrap();
         assert_eq!(h101.unwrap(), "0xBBB");
 
-        assert!(store.get_block_hash("ethereum", 999).await.unwrap().is_none());
+        assert!(store
+            .get_block_hash("ethereum", 999)
+            .await
+            .unwrap()
+            .is_none());
     }
 
     #[tokio::test]
     async fn block_hash_chain_isolation() {
         let store = SqliteStorage::in_memory().await.unwrap();
 
-        store.insert_block_hash("ethereum", 100, "0xETH").await.unwrap();
-        store.insert_block_hash("polygon", 100, "0xPOL").await.unwrap();
+        store
+            .insert_block_hash("ethereum", 100, "0xETH")
+            .await
+            .unwrap();
+        store
+            .insert_block_hash("polygon", 100, "0xPOL")
+            .await
+            .unwrap();
 
         assert_eq!(
-            store.get_block_hash("ethereum", 100).await.unwrap().unwrap(),
+            store
+                .get_block_hash("ethereum", 100)
+                .await
+                .unwrap()
+                .unwrap(),
             "0xETH"
         );
         assert_eq!(
@@ -509,8 +540,14 @@ mod tests {
         let store = SqliteStorage::in_memory().await.unwrap();
 
         for i in 100u64..=105 {
-            store.insert_event(&sample_event("Transfer", i)).await.unwrap();
-            store.insert_block_hash("ethereum", i, &format!("0x{i:064x}")).await.unwrap();
+            store
+                .insert_event(&sample_event("Transfer", i))
+                .await
+                .unwrap();
+            store
+                .insert_block_hash("ethereum", i, &format!("0x{i:064x}"))
+                .await
+                .unwrap();
         }
         assert_eq!(store.event_count().await.unwrap(), 6);
 
@@ -518,21 +555,39 @@ mod tests {
 
         // 100, 101, 102 remain; 103–105 purged
         assert_eq!(store.event_count().await.unwrap(), 3);
-        assert!(store.get_block_hash("ethereum", 103).await.unwrap().is_none());
-        assert!(store.get_block_hash("ethereum", 102).await.unwrap().is_some());
+        assert!(store
+            .get_block_hash("ethereum", 103)
+            .await
+            .unwrap()
+            .is_none());
+        assert!(store
+            .get_block_hash("ethereum", 102)
+            .await
+            .unwrap()
+            .is_some());
     }
 
     #[tokio::test]
     async fn rollback_does_not_affect_other_chains() {
         let store = SqliteStorage::in_memory().await.unwrap();
 
-        store.insert_block_hash("ethereum", 200, "0xETH200").await.unwrap();
-        store.insert_block_hash("polygon", 200, "0xPOL200").await.unwrap();
+        store
+            .insert_block_hash("ethereum", 200, "0xETH200")
+            .await
+            .unwrap();
+        store
+            .insert_block_hash("polygon", 200, "0xPOL200")
+            .await
+            .unwrap();
 
         // Rollback ethereum at 100 — polygon hashes at 200 must survive
         store.rollback_after("ethereum", 100).await.unwrap();
 
-        assert!(store.get_block_hash("ethereum", 200).await.unwrap().is_none());
+        assert!(store
+            .get_block_hash("ethereum", 200)
+            .await
+            .unwrap()
+            .is_none());
         assert_eq!(
             store.get_block_hash("polygon", 200).await.unwrap().unwrap(),
             "0xPOL200"

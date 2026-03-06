@@ -11,13 +11,13 @@ use std::time::Duration;
 pub struct IndexerMetrics {
     // Block processing
     blocks_processed: AtomicU64,
-    blocks_per_second: Mutex<f64>,
+    _blocks_per_second: Mutex<f64>,
     last_processed_block: AtomicU64,
     chain_head_block: AtomicU64,
 
     // Event processing
     events_processed: AtomicU64,
-    events_per_second: Mutex<f64>,
+    _events_per_second: Mutex<f64>,
 
     // Reorg tracking
     reorgs_detected: AtomicU64,
@@ -47,11 +47,11 @@ impl IndexerMetrics {
     pub fn new() -> Self {
         Self {
             blocks_processed: AtomicU64::new(0),
-            blocks_per_second: Mutex::new(0.0),
+            _blocks_per_second: Mutex::new(0.0),
             last_processed_block: AtomicU64::new(0),
             chain_head_block: AtomicU64::new(0),
             events_processed: AtomicU64::new(0),
-            events_per_second: Mutex::new(0.0),
+            _events_per_second: Mutex::new(0.0),
             reorgs_detected: AtomicU64::new(0),
             total_reorg_depth: AtomicU64::new(0),
             max_reorg_depth: AtomicU64::new(0),
@@ -92,8 +92,7 @@ impl IndexerMetrics {
         self.handler_calls.fetch_add(1, Ordering::Relaxed);
         self.handler_total_latency_us
             .fetch_add(us, Ordering::Relaxed);
-        self.handler_max_latency_us
-            .fetch_max(us, Ordering::Relaxed);
+        self.handler_max_latency_us.fetch_max(us, Ordering::Relaxed);
     }
 
     pub fn record_rpc_call(&self, latency: Duration, success: bool) {
@@ -112,8 +111,7 @@ impl IndexerMetrics {
     }
 
     pub fn set_chain_head(&self, block_number: u64) {
-        self.chain_head_block
-            .store(block_number, Ordering::Relaxed);
+        self.chain_head_block.store(block_number, Ordering::Relaxed);
     }
 
     /// Block lag = chain_head - last_processed

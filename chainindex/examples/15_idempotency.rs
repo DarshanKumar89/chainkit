@@ -52,7 +52,10 @@ fn main() {
     println!("\nReplay context (after reorg at block 19_000_090):");
     println!("  is_replay: {}", replay_ctx.is_replay);
     println!("  reorg_from_block: {:?}", replay_ctx.reorg_from_block);
-    println!("  original_block_hash: {:?}", replay_ctx.original_block_hash);
+    println!(
+        "  original_block_hash: {:?}",
+        replay_ctx.original_block_hash
+    );
 
     // 3. Side-effect guard
     println!("\n--- Side-Effect Guard ---");

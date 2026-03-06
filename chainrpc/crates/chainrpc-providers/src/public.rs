@@ -22,7 +22,7 @@ fn conservative_config() -> HttpClientConfig {
             success_threshold: 2,
         },
         rate_limiter: RateLimiterConfig {
-            capacity: 5.0,   // conservative: 5 req/s
+            capacity: 5.0, // conservative: 5 req/s
             refill_rate: 5.0,
         },
         request_timeout: Duration::from_secs(30),

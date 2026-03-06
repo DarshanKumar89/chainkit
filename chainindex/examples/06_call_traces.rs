@@ -133,8 +133,7 @@ fn main() {
     );
 
     // Filter by selector (ERC-20 transfer)
-    let transfer_filter = TraceFilter::new()
-        .with_selector("0xa9059cbb");
+    let transfer_filter = TraceFilter::new().with_selector("0xa9059cbb");
 
     let transfers: Vec<_> = all_traces
         .iter()
@@ -143,8 +142,7 @@ fn main() {
     println!("Transfer traces (0xa9059cbb): {}", transfers.len());
 
     // Filter by call type
-    let delegate_filter = TraceFilter::new()
-        .with_call_type(CallType::DelegateCall);
+    let delegate_filter = TraceFilter::new().with_call_type(CallType::DelegateCall);
 
     let delegates: Vec<_> = all_traces
         .iter()

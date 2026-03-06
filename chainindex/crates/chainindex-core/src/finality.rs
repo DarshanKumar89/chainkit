@@ -54,7 +54,7 @@ impl FinalityRegistry {
             "ethereum".into(),
             FinalityConfig {
                 chain: "ethereum".into(),
-                safe_confirmations: 32,     // ~6.4 min
+                safe_confirmations: 32,      // ~6.4 min
                 finalized_confirmations: 64, // ~12.8 min (2 epochs)
                 block_time: Duration::from_secs(12),
                 reorg_window: 128,
@@ -158,7 +158,7 @@ impl FinalityRegistry {
             "solana".into(),
             FinalityConfig {
                 chain: "solana".into(),
-                safe_confirmations: 1,      // "confirmed" = 66% voted
+                safe_confirmations: 1,       // "confirmed" = 66% voted
                 finalized_confirmations: 32, // "finalized" = 31+ confirmations
                 block_time: Duration::from_millis(400),
                 reorg_window: 256,

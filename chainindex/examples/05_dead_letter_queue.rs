@@ -51,11 +51,7 @@ fn main() {
 
     // Push failed events
     for event in &events {
-        dlq.push(
-            event.clone(),
-            "my_handler",
-            "connection timeout",
-        );
+        dlq.push(event.clone(), "my_handler", "connection timeout");
         println!(
             "Pushed to DLQ: {} at block {} (handler: my_handler)",
             event.schema, event.block_number

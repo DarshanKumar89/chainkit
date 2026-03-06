@@ -79,10 +79,7 @@ struct SeedStateHandler;
 #[async_trait]
 impl SetupHandler for SeedStateHandler {
     async fn setup(&self, ctx: &IndexContext) -> Result<(), IndexerError> {
-        println!(
-            "  [Setup] Seeding initial state for chain '{}'",
-            ctx.chain
-        );
+        println!("  [Setup] Seeding initial state for chain '{}'", ctx.chain);
         Ok(())
     }
 

@@ -79,7 +79,10 @@ async fn main() {
                 data: [
                     ("pool".into(), serde_json::json!("0xPool1")),
                     ("amount0".into(), serde_json::json!(1000 * (i + 1))),
-                    ("amount1".into(), serde_json::json!(-500i64 * (i as i64 + 1))),
+                    (
+                        "amount1".into(),
+                        serde_json::json!(-500i64 * (i as i64 + 1)),
+                    ),
                     ("sender".into(), serde_json::json!(format!("0xUser{}", i))),
                 ]
                 .into_iter()

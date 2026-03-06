@@ -55,10 +55,7 @@ impl DedupTransport {
     }
 
     /// Send a request, deduplicating identical in-flight requests.
-    pub async fn send(
-        &self,
-        req: JsonRpcRequest,
-    ) -> Result<JsonRpcResponse, TransportError> {
+    pub async fn send(&self, req: JsonRpcRequest) -> Result<JsonRpcResponse, TransportError> {
         let key = dedup_key(&req.method, &req.params);
 
         // Fast path: check if there is already an in-flight request.
@@ -194,10 +191,7 @@ mod tests {
 
     #[async_trait]
     impl RpcTransport for SlowCountingTransport {
-        async fn send(
-            &self,
-            _req: JsonRpcRequest,
-        ) -> Result<JsonRpcResponse, TransportError> {
+        async fn send(&self, _req: JsonRpcRequest) -> Result<JsonRpcResponse, TransportError> {
             self.call_count.fetch_add(1, Ordering::SeqCst);
             tokio::time::sleep(self.delay).await;
             Ok(JsonRpcResponse {

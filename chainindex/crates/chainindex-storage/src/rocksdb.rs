@@ -86,15 +86,14 @@ pub trait KvStore: Send + Sync {
     /// Return all key-value pairs whose keys start with `prefix` in `cf`.
     ///
     /// Results are returned in lexicographic key order.
-    fn prefix_scan(
-        &self,
-        cf: &str,
-        prefix: &[u8],
-    ) -> Result<Vec<(Vec<u8>, Vec<u8>)>, IndexerError>;
+    #[allow(clippy::type_complexity)]
+    fn prefix_scan(&self, cf: &str, prefix: &[u8])
+        -> Result<Vec<(Vec<u8>, Vec<u8>)>, IndexerError>;
 
     /// Return all key-value pairs in `cf` where `start <= key < end`.
     ///
     /// Results are returned in lexicographic key order.
+    #[allow(clippy::type_complexity)]
     fn range_scan(
         &self,
         cf: &str,
@@ -126,6 +125,7 @@ pub trait KvStore: Send + Sync {
 #[derive(Default)]
 pub struct BTreeKvStore {
     // HashMap<cf_name, BTreeMap<key, value>>
+    #[allow(clippy::type_complexity)]
     inner: RwLock<HashMap<String, BTreeMap<Vec<u8>, Vec<u8>>>>,
 }
 
@@ -139,7 +139,7 @@ impl BTreeKvStore {
     /// exists.
     pub fn create_cf(&self, name: &str) {
         let mut guard = self.inner.write().unwrap();
-        guard.entry(name.to_string()).or_insert_with(BTreeMap::new);
+        guard.entry(name.to_string()).or_default();
     }
 
     /// Flush all pending writes to the underlying store.
@@ -278,10 +278,10 @@ impl Default for CompactionConfig {
     fn default() -> Self {
         Self {
             max_open_files: 256,
-            write_buffer_size: 64 * 1024 * 1024,       // 64 MiB
+            write_buffer_size: 64 * 1024 * 1024, // 64 MiB
             max_write_buffer_number: 3,
-            target_file_size_base: 64 * 1024 * 1024,   // 64 MiB
-            block_cache_size: 256 * 1024 * 1024,        // 256 MiB
+            target_file_size_base: 64 * 1024 * 1024, // 64 MiB
+            block_cache_size: 256 * 1024 * 1024,     // 256 MiB
         }
     }
 }
@@ -306,9 +306,8 @@ impl StorageStats {
     pub fn collect(storage: &RocksDbStorage) -> Self {
         let kv = &storage.kv;
 
-        let count_cf = |cf: &str| -> u64 {
-            kv.prefix_scan(cf, b"").unwrap_or_default().len() as u64
-        };
+        let count_cf =
+            |cf: &str| -> u64 { kv.prefix_scan(cf, b"").unwrap_or_default().len() as u64 };
 
         let byte_usage_cf = |cf: &str| -> u64 {
             kv.prefix_scan(cf, b"")
@@ -343,8 +342,7 @@ impl StorageStats {
 /// ordering of keys matches chronological ordering of events, which makes
 /// range scans over block windows efficient.
 fn encode_event_key(block_number: u64, log_index: u32, tx_hash: &str) -> Vec<u8> {
-    format!("{block_number:08x}:{log_index:08x}:{tx_hash}")
-        .into_bytes()
+    format!("{block_number:08x}:{log_index:08x}:{tx_hash}").into_bytes()
 }
 
 /// Encode a block-hash key: `{chain_id}:{block_number:08x}`.
@@ -589,11 +587,7 @@ impl RocksDbStorage {
     /// recent entries.
     ///
     /// Returns the number of pruned entries.
-    pub fn prune_block_hashes(
-        &self,
-        chain_id: &str,
-        keep_last: u64,
-    ) -> Result<u64, IndexerError> {
+    pub fn prune_block_hashes(&self, chain_id: &str, keep_last: u64) -> Result<u64, IndexerError> {
         // Collect all entries for this chain, ordered by key (= by block number
         // because of zero-padded hex encoding).
         let prefix = format!("{chain_id}:");
@@ -617,7 +611,11 @@ impl RocksDbStorage {
             .collect();
 
         self.kv.write_batch(ops)?;
-        debug!(chain_id, pruned = prune_count, "rocksdb: pruned block hashes");
+        debug!(
+            chain_id,
+            pruned = prune_count,
+            "rocksdb: pruned block hashes"
+        );
         Ok(prune_count)
     }
 
@@ -655,9 +653,8 @@ impl CheckpointStore for RocksDbStorage {
         let key = encode_checkpoint_key(chain_id, indexer_id);
         match self.kv.get(CF_CHECKPOINTS, &key)? {
             Some(bytes) => {
-                let cp: Checkpoint = serde_json::from_slice(&bytes).map_err(|e| {
-                    IndexerError::Storage(format!("deserialize checkpoint: {e}"))
-                })?;
+                let cp: Checkpoint = serde_json::from_slice(&bytes)
+                    .map_err(|e| IndexerError::Storage(format!("deserialize checkpoint: {e}")))?;
                 Ok(Some(cp))
             }
             None => Ok(None),
@@ -757,14 +754,8 @@ mod tests {
         kv.put("cf_a", b"shared_key", b"value_a").unwrap();
         kv.put("cf_b", b"shared_key", b"value_b").unwrap();
 
-        assert_eq!(
-            kv.get("cf_a", b"shared_key").unwrap().unwrap(),
-            b"value_a"
-        );
-        assert_eq!(
-            kv.get("cf_b", b"shared_key").unwrap().unwrap(),
-            b"value_b"
-        );
+        assert_eq!(kv.get("cf_a", b"shared_key").unwrap().unwrap(), b"value_a");
+        assert_eq!(kv.get("cf_b", b"shared_key").unwrap().unwrap(), b"value_b");
     }
 
     // ── 3. Prefix scan ────────────────────────────────────────────────────────
@@ -832,15 +823,9 @@ mod tests {
 
         kv.write_batch(ops).unwrap();
 
-        assert_eq!(
-            kv.get("cf", b"new_key").unwrap().unwrap(),
-            b"new_val"
-        );
+        assert_eq!(kv.get("cf", b"new_key").unwrap().unwrap(), b"new_val");
         assert!(kv.get("cf", b"existing").unwrap().is_none());
-        assert_eq!(
-            kv.get("cf", b"another").unwrap().unwrap(),
-            b"another_val"
-        );
+        assert_eq!(kv.get("cf", b"another").unwrap().unwrap(), b"another_val");
     }
 
     // ── 6. In-memory constructor ──────────────────────────────────────────────
@@ -899,11 +884,7 @@ mod tests {
     #[tokio::test]
     async fn checkpoint_missing_returns_none() {
         let store = RocksDbStorage::in_memory();
-        assert!(store
-            .load("unknown", "unknown")
-            .await
-            .unwrap()
-            .is_none());
+        assert!(store.load("unknown", "unknown").await.unwrap().is_none());
     }
 
     // ── 10. CheckpointStore — delete ─────────────────────────────────────────
@@ -916,19 +897,11 @@ mod tests {
             .await
             .unwrap();
 
-        assert!(store
-            .load("ethereum", "del-test")
-            .await
-            .unwrap()
-            .is_some());
+        assert!(store.load("ethereum", "del-test").await.unwrap().is_some());
 
         store.delete("ethereum", "del-test").await.unwrap();
 
-        assert!(store
-            .load("ethereum", "del-test")
-            .await
-            .unwrap()
-            .is_none());
+        assert!(store.load("ethereum", "del-test").await.unwrap().is_none());
     }
 
     // ── 11. Event insert and query by schema ──────────────────────────────────
@@ -1040,9 +1013,7 @@ mod tests {
 
         let remaining = store.events_in_block_range(100, 110).unwrap();
         assert_eq!(remaining.len(), 6); // 100–105 survive
-        assert!(remaining
-            .iter()
-            .all(|e| e.block_number <= 105));
+        assert!(remaining.iter().all(|e| e.block_number <= 105));
     }
 
     // ── 17. Block hash CRUD ───────────────────────────────────────────────────
@@ -1051,12 +1022,8 @@ mod tests {
     fn block_hash_crud() {
         let store = RocksDbStorage::in_memory();
 
-        store
-            .insert_block_hash("ethereum", 100, "0xAAA")
-            .unwrap();
-        store
-            .insert_block_hash("ethereum", 101, "0xBBB")
-            .unwrap();
+        store.insert_block_hash("ethereum", 100, "0xAAA").unwrap();
+        store.insert_block_hash("ethereum", 101, "0xBBB").unwrap();
 
         assert_eq!(
             store.get_block_hash("ethereum", 100).unwrap().unwrap(),
@@ -1075,12 +1042,8 @@ mod tests {
     fn block_hash_chain_isolation() {
         let store = RocksDbStorage::in_memory();
 
-        store
-            .insert_block_hash("ethereum", 100, "0xETH")
-            .unwrap();
-        store
-            .insert_block_hash("polygon", 100, "0xPOL")
-            .unwrap();
+        store.insert_block_hash("ethereum", 100, "0xETH").unwrap();
+        store.insert_block_hash("polygon", 100, "0xPOL").unwrap();
 
         assert_eq!(
             store.get_block_hash("ethereum", 100).unwrap().unwrap(),
@@ -1201,7 +1164,10 @@ mod tests {
         let block_numbers: Vec<u64> = events.iter().map(|e| e.block_number).collect();
         let mut sorted = block_numbers.clone();
         sorted.sort();
-        assert_eq!(block_numbers, sorted, "events must be in ascending block order");
+        assert_eq!(
+            block_numbers, sorted,
+            "events must be in ascending block order"
+        );
     }
 
     // ── 24. Empty queries return empty results ────────────────────────────────
@@ -1212,7 +1178,10 @@ mod tests {
 
         assert!(store.events_by_schema("NonExistent").unwrap().is_empty());
         assert!(store.events_by_address("0x0000").unwrap().is_empty());
-        assert!(store.events_in_block_range(0, 1_000_000).unwrap().is_empty());
+        assert!(store
+            .events_in_block_range(0, 1_000_000)
+            .unwrap()
+            .is_empty());
     }
 
     // ── 25. Multiple log indices in same block are all stored ─────────────────
@@ -1233,7 +1202,10 @@ mod tests {
         let log_indices: Vec<u32> = events.iter().map(|e| e.log_index).collect();
         let mut sorted = log_indices.clone();
         sorted.sort();
-        assert_eq!(log_indices, sorted, "log indices must be in ascending order");
+        assert_eq!(
+            log_indices, sorted,
+            "log indices must be in ascending order"
+        );
     }
 
     // ── 26. BTreeKvStore flush is a no-op ─────────────────────────────────────

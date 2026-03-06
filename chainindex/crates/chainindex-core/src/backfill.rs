@@ -258,7 +258,10 @@ pub trait BlockDataProvider: Send + Sync {
 
     /// Fetch a single block summary by number.  Returns `None` if the block
     /// does not exist on the node (e.g. beyond the chain head).
-    async fn get_block(&self, number: u64) -> Result<Option<crate::types::BlockSummary>, IndexerError>;
+    async fn get_block(
+        &self,
+        number: u64,
+    ) -> Result<Option<crate::types::BlockSummary>, IndexerError>;
 }
 
 // ─── Internal shared state ────────────────────────────────────────────────────
@@ -412,7 +415,10 @@ impl BackfillEngine {
 
                 let (from_block, to_block) = {
                     let guard = state.lock().await;
-                    (guard.segments[seg_id].from_block, guard.segments[seg_id].to_block)
+                    (
+                        guard.segments[seg_id].from_block,
+                        guard.segments[seg_id].to_block,
+                    )
                 };
 
                 let seg_start = Instant::now();
@@ -423,8 +429,7 @@ impl BackfillEngine {
                 for attempt in 0..=config.retry_attempts {
                     if attempt > 0 {
                         // Exponential back-off: base * 2^(attempt-1)
-                        let backoff =
-                            config.retry_delay * 2u32.pow(attempt - 1);
+                        let backoff = config.retry_delay * 2u32.pow(attempt - 1);
                         warn!(
                             chain = %chain,
                             seg = seg_id,
@@ -579,10 +584,7 @@ impl SegmentMerger {
     ///
     /// Only segments with [`SegmentStatus::Complete`] contribute events.
     /// `segments` and `events` must be parallel slices of the same length.
-    pub fn merge(
-        segments: &[BackfillSegment],
-        events: &[Vec<DecodedEvent>],
-    ) -> Vec<DecodedEvent> {
+    pub fn merge(segments: &[BackfillSegment], events: &[Vec<DecodedEvent>]) -> Vec<DecodedEvent> {
         assert_eq!(
             segments.len(),
             events.len(),
@@ -982,8 +984,7 @@ mod tests {
             retry_delay: Duration::from_millis(10),
         };
         let provider = Arc::new(MockProvider::new());
-        let engine =
-            BackfillEngine::new(cfg, provider, EventFilter::default(), "ethereum");
+        let engine = BackfillEngine::new(cfg, provider, EventFilter::default(), "ethereum");
         let result = engine.run().await.unwrap();
 
         assert_eq!(result.segments.len(), 10);
@@ -1009,8 +1010,7 @@ mod tests {
             retry_delay: Duration::from_millis(1),
         };
         let provider = Arc::new(MockProvider::new());
-        let engine =
-            BackfillEngine::new(cfg, provider.clone(), EventFilter::default(), "ethereum");
+        let engine = BackfillEngine::new(cfg, provider.clone(), EventFilter::default(), "ethereum");
         let result = engine.run().await.unwrap();
 
         // 500 blocks → 10 segments; all should complete.
@@ -1033,8 +1033,7 @@ mod tests {
         };
         // Fail the first call; subsequent calls succeed.
         let provider = Arc::new(MockProvider::with_failures(1));
-        let engine =
-            BackfillEngine::new(cfg, provider, EventFilter::default(), "ethereum");
+        let engine = BackfillEngine::new(cfg, provider, EventFilter::default(), "ethereum");
         let result = engine.run().await.unwrap();
 
         assert_eq!(result.segments.len(), 1);
@@ -1057,8 +1056,7 @@ mod tests {
         };
         // Fail more times than retry_attempts allows.
         let provider = Arc::new(MockProvider::with_failures(10));
-        let engine =
-            BackfillEngine::new(cfg, provider, EventFilter::default(), "ethereum");
+        let engine = BackfillEngine::new(cfg, provider, EventFilter::default(), "ethereum");
         let result = engine.run().await.unwrap();
 
         assert_eq!(result.segments.len(), 1);
@@ -1079,8 +1077,7 @@ mod tests {
             retry_delay: Duration::from_millis(1),
         };
         let provider = Arc::new(MockProvider::new());
-        let engine =
-            BackfillEngine::new(cfg, provider, EventFilter::default(), "ethereum");
+        let engine = BackfillEngine::new(cfg, provider, EventFilter::default(), "ethereum");
         let result = engine.run().await.unwrap();
 
         assert_eq!(result.segments.len(), 10);
@@ -1100,8 +1097,7 @@ mod tests {
             retry_delay: Duration::from_millis(1),
         };
         let provider = Arc::new(MockProvider::new());
-        let engine =
-            BackfillEngine::new(cfg, provider, EventFilter::default(), "ethereum");
+        let engine = BackfillEngine::new(cfg, provider, EventFilter::default(), "ethereum");
 
         // Snapshot before run (nothing processed yet).
         let pre = engine.progress().await;

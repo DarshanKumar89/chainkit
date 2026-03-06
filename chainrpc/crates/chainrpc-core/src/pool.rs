@@ -48,10 +48,7 @@ pub struct ProviderPool {
 
 impl ProviderPool {
     /// Build a pool from a list of transports.
-    pub fn new(
-        transports: Vec<Arc<dyn RpcTransport>>,
-        config: ProviderPoolConfig,
-    ) -> Self {
+    pub fn new(transports: Vec<Arc<dyn RpcTransport>>, config: ProviderPoolConfig) -> Self {
         let slots = transports
             .into_iter()
             .map(|t| ProviderSlot {
@@ -143,13 +140,31 @@ impl ProviderPool {
                 if let Some(ref m) = s.metrics {
                     let snap = m.snapshot();
                     let obj = report.as_object_mut().unwrap();
-                    obj.insert("total_requests".into(), serde_json::json!(snap.total_requests));
-                    obj.insert("successful_requests".into(), serde_json::json!(snap.successful_requests));
-                    obj.insert("failed_requests".into(), serde_json::json!(snap.failed_requests));
+                    obj.insert(
+                        "total_requests".into(),
+                        serde_json::json!(snap.total_requests),
+                    );
+                    obj.insert(
+                        "successful_requests".into(),
+                        serde_json::json!(snap.successful_requests),
+                    );
+                    obj.insert(
+                        "failed_requests".into(),
+                        serde_json::json!(snap.failed_requests),
+                    );
                     obj.insert("success_rate".into(), serde_json::json!(snap.success_rate));
-                    obj.insert("avg_latency_ms".into(), serde_json::json!(snap.avg_latency_ms));
-                    obj.insert("rate_limit_hits".into(), serde_json::json!(snap.rate_limit_hits));
-                    obj.insert("circuit_open_count".into(), serde_json::json!(snap.circuit_open_count));
+                    obj.insert(
+                        "avg_latency_ms".into(),
+                        serde_json::json!(snap.avg_latency_ms),
+                    );
+                    obj.insert(
+                        "rate_limit_hits".into(),
+                        serde_json::json!(snap.rate_limit_hits),
+                    );
+                    obj.insert(
+                        "circuit_open_count".into(),
+                        serde_json::json!(snap.circuit_open_count),
+                    );
                 }
                 report
             })
@@ -177,9 +192,7 @@ impl ProviderPool {
 #[async_trait]
 impl RpcTransport for ProviderPool {
     async fn send(&self, req: JsonRpcRequest) -> Result<JsonRpcResponse, TransportError> {
-        let slot = self
-            .next_slot()
-            .ok_or(TransportError::AllProvidersDown)?;
+        let slot = self.next_slot().ok_or(TransportError::AllProvidersDown)?;
 
         let timeout = self.config.request_timeout;
         let start = std::time::Instant::now();
@@ -192,27 +205,29 @@ impl RpcTransport for ProviderPool {
         match result {
             Ok(resp) => {
                 slot.circuit.record_success();
-                if let Some(ref m) = slot.metrics { m.record_success(start.elapsed()); }
+                if let Some(ref m) = slot.metrics {
+                    m.record_success(start.elapsed());
+                }
                 Ok(resp)
             }
             Err(e) if e.is_retryable() => {
                 slot.circuit.record_failure();
-                if let Some(ref m) = slot.metrics { m.record_failure(); }
+                if let Some(ref m) = slot.metrics {
+                    m.record_failure();
+                }
                 Err(e)
             }
             Err(e) => {
-                if let Some(ref m) = slot.metrics { m.record_failure(); }
+                if let Some(ref m) = slot.metrics {
+                    m.record_failure();
+                }
                 Err(e)
             }
         }
     }
 
     fn health(&self) -> HealthStatus {
-        let healthy_count = self
-            .slots
-            .iter()
-            .filter(|s| s.circuit.is_allowed())
-            .count();
+        let healthy_count = self.slots.iter().filter(|s| s.circuit.is_allowed()).count();
         match healthy_count {
             0 => HealthStatus::Unhealthy,
             n if n == self.slots.len() => HealthStatus::Healthy,
@@ -255,7 +270,10 @@ mod tests {
     }
 
     fn mock(url: &str, fail: bool) -> Arc<dyn RpcTransport> {
-        Arc::new(MockTransport { url: url.to_string(), should_fail: fail })
+        Arc::new(MockTransport {
+            url: url.to_string(),
+            should_fail: fail,
+        })
     }
 
     #[test]
@@ -278,10 +296,7 @@ mod tests {
 
     #[test]
     fn health_all_down() {
-        let pool = ProviderPool::new(
-            vec![],
-            ProviderPoolConfig::default(),
-        );
+        let pool = ProviderPool::new(vec![], ProviderPoolConfig::default());
         // No providers → AllProvidersDown (next_slot returns None)
         assert!(pool.next_slot().is_none());
     }

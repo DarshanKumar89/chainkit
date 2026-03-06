@@ -86,10 +86,7 @@ fn main() {
     println!("\n--- Consumer 1: Resume from cursor ---");
     let resumed = StreamCursor::decode(&encoded).unwrap();
     let batch2 = stream.next_batch(&resumed, 10).unwrap();
-    println!(
-        "New events since last read: {}",
-        batch2.events.len()
-    );
+    println!("New events since last read: {}", batch2.events.len());
     for event in &batch2.events {
         println!(
             "  [Block {}] {} on {}",
@@ -103,14 +100,8 @@ fn main() {
     stream.register_consumer("notifications");
     let consumer_a = stream.get_consumer_cursor("analytics").unwrap();
     let consumer_b = stream.get_consumer_cursor("notifications").unwrap();
-    println!(
-        "Consumer A cursor: block {}",
-        consumer_a.block_number
-    );
-    println!(
-        "Consumer B cursor: block {}",
-        consumer_b.block_number
-    );
+    println!("Consumer A cursor: block {}", consumer_a.block_number);
+    println!("Consumer B cursor: block {}", consumer_b.block_number);
 
     // 6. Reorg invalidation
     println!("\n--- Reorg Invalidation ---");
