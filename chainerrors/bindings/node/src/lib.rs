@@ -41,8 +41,8 @@ pub struct JsDecodedError {
     pub message: Option<String>,
     /// For custom_error: the error name (e.g. "InsufficientBalance")
     pub error_name: Option<String>,
-    /// For custom_error: decoded inputs as JSON object { param: value, ... }
-    pub inputs: Option<serde_json::Value>,
+    /// For custom_error: decoded inputs as JSON string { param: value, ... }
+    pub inputs: Option<String>,
     /// For panic: the panic code as a number
     pub panic_code: Option<f64>,
     /// For panic: human-readable explanation of the panic code
@@ -114,21 +114,10 @@ impl EvmErrorDecoder {
 
         let result = self
             .inner
-            .decode(&bytes, Some(&context))
+            .decode(&bytes, Some(context))
             .map_err(|e| Error::from_reason(e.to_string()))?;
 
         Ok(decoded_error_to_js(result))
-    }
-
-    /// Check if raw revert data is a known error selector.
-    #[napi]
-    pub fn is_known_error(&self, data: String) -> Result<bool> {
-        let bytes = hex_to_bytes(&data)?;
-        if bytes.len() < 4 {
-            return Ok(false);
-        }
-        let selector: [u8; 4] = bytes[..4].try_into().unwrap();
-        Ok(self.inner.is_known_selector(selector))
     }
 
     /// Get the human-readable panic description for a panic code.
@@ -172,7 +161,7 @@ fn decoded_error_to_js(
             confidence: result.confidence as f64,
         },
         ErrorKind::CustomError { name, inputs } => {
-            let inputs_json = serde_json::to_value(inputs).ok();
+            let inputs_json = serde_json::to_string(inputs).ok();
             JsDecodedError {
                 kind: "custom_error".into(),
                 message: None,
@@ -198,7 +187,7 @@ fn decoded_error_to_js(
             suggestion: result.suggestion.clone(),
             confidence: result.confidence as f64,
         },
-        ErrorKind::RawRevert { data: _ } => JsDecodedError {
+        ErrorKind::RawRevert { .. } => JsDecodedError {
             kind: "raw_revert".into(),
             message: None,
             error_name: None,
@@ -221,6 +210,30 @@ fn decoded_error_to_js(
             selector: None,
             suggestion: Some("No revert data — likely out of gas or plain revert()".into()),
             confidence: 1.0,
+        },
+        ErrorKind::OutOfGas => JsDecodedError {
+            kind: "out_of_gas".into(),
+            message: Some("out of gas".into()),
+            error_name: None,
+            inputs: None,
+            panic_code: None,
+            panic_meaning: None,
+            raw_data: raw_hex,
+            selector: selector_hex,
+            suggestion: result.suggestion.clone(),
+            confidence: result.confidence as f64,
+        },
+        ErrorKind::ContractNotDeployed => JsDecodedError {
+            kind: "contract_not_deployed".into(),
+            message: Some("contract not deployed".into()),
+            error_name: None,
+            inputs: None,
+            panic_code: None,
+            panic_meaning: None,
+            raw_data: raw_hex,
+            selector: selector_hex,
+            suggestion: result.suggestion.clone(),
+            confidence: result.confidence as f64,
         },
     }
 }
