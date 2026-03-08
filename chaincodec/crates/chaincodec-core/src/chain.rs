@@ -93,6 +93,8 @@ pub mod chains {
     pub fn base() -> ChainId { ChainId::evm("base", 8453) }
     pub fn polygon() -> ChainId { ChainId::evm("polygon", 137) }
     pub fn optimism() -> ChainId { ChainId::evm("optimism", 10) }
+    pub fn avalanche() -> ChainId { ChainId::evm("avalanche", 43114) }
+    pub fn bsc() -> ChainId { ChainId::evm("bsc", 56) }
     pub fn solana_mainnet() -> ChainId { ChainId::solana("solana-mainnet") }
 }
 

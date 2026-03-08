@@ -247,14 +247,16 @@ mod normalizer_coverage {
 
     #[test]
     fn int_positive() {
+        // 256-bit ints go through BigInt path (bits > 128)
         let v = normalize(DynSolValue::Int(I256::try_from(42i64).unwrap(), 256));
-        assert_eq!(v, NormalizedValue::Int(42));
+        assert_eq!(v, NormalizedValue::BigInt("42".into()));
     }
 
     #[test]
     fn int_negative() {
+        // 256-bit ints go through BigInt path (bits > 128)
         let v = normalize(DynSolValue::Int(I256::try_from(-1i64).unwrap(), 256));
-        assert_eq!(v, NormalizedValue::Int(-1));
+        assert_eq!(v, NormalizedValue::BigInt("-1".into()));
     }
 
     #[test]

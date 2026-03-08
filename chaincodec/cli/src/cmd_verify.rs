@@ -36,7 +36,7 @@ struct ReceiptLog {
 // ─── Entry point ─────────────────────────────────────────────────────────────
 
 pub async fn run(schema: &str, chain: &str, tx: &str, rpc: Option<&str>) -> Result<()> {
-    use chaincodec_core::{decoder::ChainDecoder, event::RawEvent};
+    use chaincodec_core::{decoder::ChainDecoder, event::RawEvent, schema::SchemaRegistry};
     use chaincodec_evm::EvmDecoder;
     use chaincodec_registry::MemoryRegistry;
 

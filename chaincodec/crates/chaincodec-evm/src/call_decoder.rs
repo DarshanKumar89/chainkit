@@ -296,11 +296,11 @@ mod tests {
         assert_eq!(result.inputs[0].0, "to");
         assert_eq!(result.inputs[1].0, "amount");
 
-        // Amount should decode to 1000000
-        if let NormalizedValue::Uint(v) = &result.inputs[1].1 {
-            assert_eq!(*v, 1_000_000u128);
+        // uint256 normalizes to BigUint (bits > 128)
+        if let NormalizedValue::BigUint(v) = &result.inputs[1].1 {
+            assert_eq!(v.parse::<u128>().unwrap(), 1_000_000u128);
         } else {
-            panic!("expected Uint for amount");
+            panic!("expected BigUint for uint256 amount, got {:?}", result.inputs[1].1);
         }
     }
 

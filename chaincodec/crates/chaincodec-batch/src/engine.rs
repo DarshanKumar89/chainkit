@@ -2,13 +2,13 @@
 
 use crate::request::BatchRequest;
 use chaincodec_core::{
-    decoder::{ChainDecoder, ErrorMode},
+    decoder::ChainDecoder,
     error::{BatchDecodeError, DecodeError},
     event::DecodedEvent,
     schema::SchemaRegistry,
 };
 use std::sync::Arc;
-use tracing::{info, warn};
+use tracing::info;
 
 /// Result of a batch decode job.
 pub struct BatchResult {
@@ -71,7 +71,7 @@ impl BatchEngine {
             decoded_so_far += result.events.len();
 
             if let Some(cb) = &req.on_progress {
-                cb(decoded_so_far, total_input);
+                cb.on_progress(decoded_so_far, total_input);
             }
 
             all_events.extend(result.events);

@@ -114,12 +114,12 @@ fn main() -> Result<()> {
 
     // ── 3. Look up by fingerprint (how decoders route events) ─────────────────
     let transfer_fp = EventFingerprint::new(
-        "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef".into(),
+        "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef".to_string(),
     );
     let swap_fp = EventFingerprint::new(
-        "0xc42079f94a6350d7e6235f29174924f928cc2ac818eb64fed8004e115fbcca67".into(),
+        "0xc42079f94a6350d7e6235f29174924f928cc2ac818eb64fed8004e115fbcca67".to_string(),
     );
-    let unknown_fp = EventFingerprint::new("0xdeadbeefdeadbeef".into());
+    let unknown_fp = EventFingerprint::new("0xdeadbeefdeadbeef".to_string());
 
     println!("\n─── Fingerprint Lookup ──────────────────────────────");
     for (label, fp) in [

@@ -21,7 +21,7 @@
 //! }
 //! ```
 
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::path::Path;
@@ -56,7 +56,7 @@ pub async fn run(
     schema_filter: Option<&str>,
     verbose: bool,
 ) -> Result<()> {
-    use chaincodec_core::{chain::chains, decoder::ChainDecoder, event::RawEvent};
+    use chaincodec_core::{chain::chains, decoder::ChainDecoder, event::RawEvent, schema::SchemaRegistry};
     use chaincodec_evm::EvmDecoder;
     use chaincodec_registry::MemoryRegistry;
 

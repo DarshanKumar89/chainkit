@@ -17,11 +17,11 @@
 
 use chaincodec_core::{
     chain::ChainFamily,
-    decoder::{BatchDecodeResult, ChainDecoder, ErrorMode, ProgressCallback},
-    error::{BatchDecodeError, DecodeError},
+    decoder::ChainDecoder,
+    error::DecodeError,
     event::{DecodedEvent, EventFingerprint, RawEvent},
-    schema::{CanonicalType, Schema, SchemaRegistry},
-    types::NormalizedValue,
+    schema::Schema,
+    types::{CanonicalType, NormalizedValue},
 };
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
@@ -139,12 +139,14 @@ impl<'a> BorshReader<'a> {
 
     fn read_slice(&mut self, n: usize) -> Result<&'a [u8], DecodeError> {
         if self.pos + n > self.data.len() {
-            return Err(DecodeError::AbiDecodeFailed(format!(
-                "Borsh EOF: need {} bytes at pos {}, have {}",
-                n,
-                self.pos,
-                self.data.len()
-            )));
+            return Err(DecodeError::AbiDecodeFailed {
+                reason: format!(
+                    "Borsh EOF: need {} bytes at pos {}, have {}",
+                    n,
+                    self.pos,
+                    self.data.len()
+                ),
+            });
         }
         let s = &self.data[self.pos..self.pos + n];
         self.pos += n;
@@ -203,7 +205,7 @@ impl<'a> BorshReader<'a> {
         let len = self.read_u32_le()? as usize;
         let bytes = self.read_slice(len)?;
         String::from_utf8(bytes.to_vec())
-            .map_err(|e| DecodeError::AbiDecodeFailed(format!("invalid UTF-8: {e}")))
+            .map_err(|e| DecodeError::AbiDecodeFailed { reason: format!("invalid UTF-8: {e}") })
     }
 
     fn read_pubkey(&mut self) -> Result<String, DecodeError> {
@@ -235,10 +237,9 @@ fn decode_borsh_field(
                 let b = reader.read_slice(32)?;
                 Ok(NormalizedValue::BigUint(u256_le_bytes_to_decimal(b)))
             }
-            _ => Err(DecodeError::AbiDecodeFailed(format!(
-                "unsupported uint width: {}",
-                bits
-            ))),
+            _ => Err(DecodeError::AbiDecodeFailed {
+                reason: format!("unsupported uint width: {}", bits),
+            }),
         },
 
         CanonicalType::Int(bits) => match bits {
@@ -247,10 +248,9 @@ fn decode_borsh_field(
             32 => Ok(NormalizedValue::Int(reader.read_i32_le()? as i128)),
             64 => Ok(NormalizedValue::Int(reader.read_i64_le()? as i128)),
             128 => Ok(NormalizedValue::Int(reader.read_i128_le()?)),
-            _ => Err(DecodeError::AbiDecodeFailed(format!(
-                "unsupported int width: {}",
-                bits
-            ))),
+            _ => Err(DecodeError::AbiDecodeFailed {
+                reason: format!("unsupported int width: {}", bits),
+            }),
         },
 
         CanonicalType::Bytes(n) => {

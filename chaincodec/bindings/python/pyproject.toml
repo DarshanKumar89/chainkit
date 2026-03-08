@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "chaincodec"
-version = "0.1.0"
+version = "0.2.0"
 description = "Universal blockchain ABI decoder — production-grade EVM event & call decoding"
 readme = "README.md"
 license = { text = "MIT" }

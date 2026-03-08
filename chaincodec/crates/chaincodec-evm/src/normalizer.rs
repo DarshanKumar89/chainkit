@@ -93,9 +93,10 @@ mod tests {
 
     #[test]
     fn normalize_uint256_small() {
+        // 256-bit uints always go through BigUint path (bits > 128)
         let u = DynSolValue::Uint(U256::from(42u64), 256);
         let v = normalize(u);
-        assert_eq!(v, NormalizedValue::Uint(42));
+        assert_eq!(v, NormalizedValue::BigUint("42".into()));
     }
 
     #[test]

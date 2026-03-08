@@ -27,8 +27,8 @@ use chaincodec_core::{
     decoder::ChainDecoder,
     error::DecodeError,
     event::{DecodedEvent, EventFingerprint, RawEvent},
-    schema::{CanonicalType, Schema},
-    types::NormalizedValue,
+    schema::Schema,
+    types::{CanonicalType, NormalizedValue},
 };
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
@@ -125,7 +125,7 @@ fn parse_attributes(data: &[u8]) -> Result<HashMap<String, String>, DecodeError>
     }
 
     let v: serde_json::Value = serde_json::from_slice(data)
-        .map_err(|e| DecodeError::AbiDecodeFailed(format!("invalid JSON in raw.data: {e}")))?;
+        .map_err(|e| DecodeError::AbiDecodeFailed { reason: format!("invalid JSON in raw.data: {e}") })?;
 
     match v {
         serde_json::Value::Array(items) => {
@@ -135,7 +135,7 @@ fn parse_attributes(data: &[u8]) -> Result<HashMap<String, String>, DecodeError>
                     .get("key")
                     .and_then(|k| k.as_str())
                     .ok_or_else(|| {
-                        DecodeError::AbiDecodeFailed("missing 'key' in attribute".into())
+                        DecodeError::AbiDecodeFailed { reason: "missing 'key' in attribute".into() }
                     })?
                     .to_string();
                 let value = match item.get("value") {
@@ -158,9 +158,9 @@ fn parse_attributes(data: &[u8]) -> Result<HashMap<String, String>, DecodeError>
             }
             Ok(map)
         }
-        _ => Err(DecodeError::AbiDecodeFailed(
-            "raw.data must be a JSON array or object".into(),
-        )),
+        _ => Err(DecodeError::AbiDecodeFailed {
+            reason: "raw.data must be a JSON array or object".into(),
+        }),
     }
 }
 
@@ -177,9 +177,9 @@ fn decode_cosmos_field(
             match s.to_lowercase().as_str() {
                 "true" | "1" | "yes" => Ok(NormalizedValue::Bool(true)),
                 "false" | "0" | "no" => Ok(NormalizedValue::Bool(false)),
-                _ => Err(DecodeError::AbiDecodeFailed(format!(
-                    "invalid bool: {s:?}"
-                ))),
+                _ => Err(DecodeError::AbiDecodeFailed {
+                    reason: format!("invalid bool: {s:?}"),
+                }),
             }
         }
 
@@ -189,7 +189,7 @@ fn decode_cosmos_field(
             let numeric = strip_denom(s);
             if let Some(hex) = numeric.strip_prefix("0x").or_else(|| numeric.strip_prefix("0X")) {
                 let v = u128::from_str_radix(hex, 16).map_err(|e| {
-                    DecodeError::AbiDecodeFailed(format!("invalid uint hex {numeric:?}: {e}"))
+                    DecodeError::AbiDecodeFailed { reason: format!("invalid uint hex {numeric:?}: {e}") }
                 })?;
                 Ok(NormalizedValue::Uint(v))
             } else {
@@ -198,9 +198,9 @@ fn decode_cosmos_field(
                     Err(_) if numeric.chars().all(|c| c.is_ascii_digit()) => {
                         Ok(NormalizedValue::BigUint(numeric.to_string()))
                     }
-                    Err(_) => Err(DecodeError::AbiDecodeFailed(format!(
-                        "invalid uint: {s:?}"
-                    ))),
+                    Err(_) => Err(DecodeError::AbiDecodeFailed {
+                        reason: format!("invalid uint: {s:?}"),
+                    }),
                 }
             }
         }
@@ -215,7 +215,7 @@ fn decode_cosmos_field(
                     if digits.chars().all(|c| c.is_ascii_digit()) {
                         Ok(NormalizedValue::BigInt(numeric.to_string()))
                     } else {
-                        Err(DecodeError::AbiDecodeFailed(format!("invalid int: {s:?}")))
+                        Err(DecodeError::AbiDecodeFailed { reason: format!("invalid int: {s:?}") })
                     }
                 }
             }
@@ -247,12 +247,11 @@ fn decode_cosmos_field(
             let s = require_attr(raw)?;
             let hex_str = s.strip_prefix("0x").or_else(|| s.strip_prefix("0X")).unwrap_or(s);
             let bytes = hex::decode(hex_str)
-                .map_err(|e| DecodeError::AbiDecodeFailed(format!("invalid hex bytes: {e}")))?;
+                .map_err(|e| DecodeError::AbiDecodeFailed { reason: format!("invalid hex bytes: {e}") })?;
             if bytes.len() != *n as usize {
-                return Err(DecodeError::AbiDecodeFailed(format!(
-                    "expected {n} bytes, got {}",
-                    bytes.len()
-                )));
+                return Err(DecodeError::AbiDecodeFailed {
+                    reason: format!("expected {n} bytes, got {}", bytes.len()),
+                });
             }
             Ok(NormalizedValue::Bytes(bytes))
         }
@@ -281,7 +280,7 @@ fn decode_cosmos_field(
             let s = require_attr(raw)?;
             let numeric = strip_denom(s);
             let t: i64 = numeric.parse().map_err(|e| {
-                DecodeError::AbiDecodeFailed(format!("invalid timestamp {numeric:?}: {e}"))
+                DecodeError::AbiDecodeFailed { reason: format!("invalid timestamp {numeric:?}: {e}") }
             })?;
             Ok(NormalizedValue::Timestamp(t))
         }
@@ -295,9 +294,9 @@ fn decode_cosmos_field(
                     if let Ok(f) = numeric.parse::<f64>() {
                         Ok(NormalizedValue::BigUint(format!("{:.0}", f)))
                     } else {
-                        Err(DecodeError::AbiDecodeFailed(format!(
-                            "invalid decimal: {s:?}"
-                        )))
+                        Err(DecodeError::AbiDecodeFailed {
+                            reason: format!("invalid decimal: {s:?}"),
+                        })
                     }
                 }
             }
@@ -324,9 +323,9 @@ fn decode_cosmos_field(
         CanonicalType::Tuple(tuple_fields) => {
             let s = raw.unwrap_or("{}");
             let json: serde_json::Value = serde_json::from_str(s)
-                .map_err(|e| DecodeError::AbiDecodeFailed(format!("invalid tuple JSON: {e}")))?;
+                .map_err(|e| DecodeError::AbiDecodeFailed { reason: format!("invalid tuple JSON: {e}") })?;
             let obj = json.as_object().ok_or_else(|| {
-                DecodeError::AbiDecodeFailed("expected JSON object for tuple".into())
+                DecodeError::AbiDecodeFailed { reason: "expected JSON object for tuple".into() }
             })?;
             let mut result = Vec::with_capacity(tuple_fields.len());
             for (name, field_ty) in tuple_fields {
@@ -347,7 +346,7 @@ fn decode_cosmos_field(
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 fn require_attr(raw: Option<&str>) -> Result<&str, DecodeError> {
-    raw.ok_or_else(|| DecodeError::AbiDecodeFailed("missing required attribute".into()))
+    raw.ok_or_else(|| DecodeError::AbiDecodeFailed { reason: "missing required attribute".into() })
 }
 
 /// Strip trailing Cosmos denomination suffix.
@@ -365,16 +364,15 @@ fn parse_json_array(
     expected_len: Option<usize>,
 ) -> Result<Vec<Option<String>>, DecodeError> {
     let json: serde_json::Value = serde_json::from_str(s)
-        .map_err(|e| DecodeError::AbiDecodeFailed(format!("invalid JSON array: {e}")))?;
+        .map_err(|e| DecodeError::AbiDecodeFailed { reason: format!("invalid JSON array: {e}") })?;
     let arr = json
         .as_array()
-        .ok_or_else(|| DecodeError::AbiDecodeFailed("expected JSON array".into()))?;
+        .ok_or_else(|| DecodeError::AbiDecodeFailed { reason: "expected JSON array".into() })?;
     if let Some(len) = expected_len {
         if arr.len() != len {
-            return Err(DecodeError::AbiDecodeFailed(format!(
-                "expected array length {len}, got {}",
-                arr.len()
-            )));
+            return Err(DecodeError::AbiDecodeFailed {
+                reason: format!("expected array length {len}, got {}", arr.len()),
+            });
         }
     }
     Ok(arr

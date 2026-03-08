@@ -17,7 +17,6 @@
 
 use anyhow::{anyhow, Context, Result};
 use clap::{Parser, Subcommand};
-use std::path::PathBuf;
 
 mod cmd_parse;
 mod cmd_test;
@@ -226,8 +225,8 @@ async fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Parse { file, verbose } => {
-            cmd_parse::run(&file, verbose)
+        Commands::Parse { file, verbose: _ } => {
+            cmd_parse::run(&file)
         }
 
         Commands::DecodeLog { topics, data, schema_dir, chain, json } => {
@@ -283,7 +282,7 @@ fn cmd_decode_log(
     chain: &str,
     as_json: bool,
 ) -> Result<()> {
-    use chaincodec_core::{chain::chains, decoder::ChainDecoder, event::RawEvent};
+    use chaincodec_core::{chain::chains, decoder::ChainDecoder, event::RawEvent, schema::SchemaRegistry};
     use chaincodec_evm::EvmDecoder;
     use chaincodec_registry::MemoryRegistry;
 
@@ -449,7 +448,7 @@ async fn cmd_fetch_abi(
 
 async fn cmd_detect_proxy(address: &str, rpc: Option<&str>, as_json: bool) -> Result<()> {
     use chaincodec_evm::proxy::{
-        classify_from_storage, detect_eip1167_clone, proxy_detection_slots, storage_to_address,
+        classify_from_storage, detect_eip1167_clone, proxy_detection_slots,
     };
 
     let slots = proxy_detection_slots();
@@ -654,7 +653,7 @@ schema ERC20Transfer:
 fn cmd_schemas_list(dir: &str) -> Result<()> {
     use chaincodec_registry::MemoryRegistry;
 
-    let mut registry = MemoryRegistry::new();
+    let registry = MemoryRegistry::new();
     let count = registry.load_directory(std::path::Path::new(dir))?;
 
     println!("Loaded {} schemas from '{}'", count, dir);
@@ -674,7 +673,7 @@ fn cmd_schemas_search(
 ) -> Result<()> {
     use chaincodec_registry::MemoryRegistry;
 
-    let mut registry = MemoryRegistry::new();
+    let registry = MemoryRegistry::new();
     registry.load_directory(std::path::Path::new(dir))?;
 
     let all = registry.all_schemas();
@@ -711,7 +710,6 @@ fn cmd_schemas_search(
 
 fn cmd_schemas_validate(dir: &str) -> Result<()> {
     use chaincodec_registry::CsdlParser;
-    use std::path::Path;
 
     let mut ok = 0;
     let mut errors = 0;

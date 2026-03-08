@@ -261,10 +261,11 @@ mod tests {
         let decoded = decoder.decode_call(&calldata, None).unwrap();
         assert_eq!(decoded.function_name, "transfer");
 
-        if let NormalizedValue::Uint(amount) = &decoded.inputs[1].1 {
-            assert_eq!(*amount, original_amount);
+        // uint256 normalizes to BigUint (bits > 128)
+        if let NormalizedValue::BigUint(amount_str) = &decoded.inputs[1].1 {
+            assert_eq!(amount_str.parse::<u128>().unwrap(), original_amount);
         } else {
-            panic!("expected Uint for amount");
+            panic!("expected BigUint for uint256 amount, got {:?}", decoded.inputs[1].1);
         }
     }
 }

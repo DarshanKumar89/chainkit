@@ -21,6 +21,7 @@
 use anyhow::Result;
 use chaincodec_core::{
     chain::chains,
+    decoder::ChainDecoder,
     event::{EventFingerprint, RawEvent},
     schema::SchemaRegistry,
 };
