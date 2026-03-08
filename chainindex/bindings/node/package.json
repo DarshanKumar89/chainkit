@@ -1,6 +1,6 @@
 {
   "name": "@chainfoundry/chainindex",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "High-performance EVM indexer with reorg detection and pluggable storage",
   "main": "index.js",
   "types": "index.d.ts",

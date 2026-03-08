@@ -17,7 +17,7 @@ exclude = [
 ]
 
 [workspace.package]
-version      = "0.1.1"
+version      = "0.2.0"
 edition      = "2021"
 license      = "MIT"
 repository   = "https://github.com/DarshanKumar89/chainkit"
@@ -53,10 +53,10 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tokio-retry = "0.3"
 
 # Internal crates
-chainrpc-core      = { path = "crates/chainrpc-core", version = "0.1.1" }
-chainrpc-http      = { path = "crates/chainrpc-http", version = "0.1.1" }
-chainrpc-ws        = { path = "crates/chainrpc-ws", version = "0.1.1" }
-chainrpc-providers = { path = "crates/chainrpc-providers", version = "0.1.1" }
+chainrpc-core      = { path = "crates/chainrpc-core", version = "0.2.0" }
+chainrpc-http      = { path = "crates/chainrpc-http", version = "0.2.0" }
+chainrpc-ws        = { path = "crates/chainrpc-ws", version = "0.2.0" }
+chainrpc-providers = { path = "crates/chainrpc-providers", version = "0.2.0" }
 
 [profile.release]
 opt-level     = 3
