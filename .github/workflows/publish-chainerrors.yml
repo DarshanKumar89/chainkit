@@ -1,15 +1,9 @@
-name: Publish chainindex
+name: Publish chainerrors
 
-# Triggered by:
-#   1. Pushing a chainindex version tag:
-#        git tag chainindex-v0.1.0 && git push --tags
-#   2. Manual via Actions -> "Run workflow" (pick any branch):
-#        dry_run=true  -> build only, skip publish steps
-#        ref           -> optional branch/tag to check out (default: current branch)
 on:
   push:
     tags:
-      - 'chainindex-v[0-9]+.[0-9]+.[0-9]+'
+      - 'chainerrors-v[0-9]+.[0-9]+.[0-9]+'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -19,7 +13,7 @@ on:
         type: choice
         options: ['true', 'false']
       ref:
-        description: 'Branch or tag to build from (e.g. main, chainindex-v0.1.0)'
+        description: 'Branch or tag to build from (e.g. main, chainerrors-v0.1.0)'
         required: false
         default: ''
 
@@ -31,13 +25,9 @@ jobs:
   # ─────────────────────────────────────────────────────────────────────────────
   # Job 1: Publish Rust crates to crates.io in dependency order
   #
-  #   chainindex-core
-  #     ├─ chainindex-storage  (depends on core)
-  #     │    └─ chainindex-evm (depends on core + storage)
-  #     └─ chainindex-solana   (depends on core)
-  #
-  # 30-second sleeps let crates.io finish indexing before dependent crates
-  # resolve the freshly published version.
+  #   chainerrors-core
+  #     ├─ chainerrors-evm    (depends on chainerrors-core)
+  #     └─ chainerrors-solana (depends on chainerrors-core)
   # ─────────────────────────────────────────────────────────────────────────────
   publish-rust:
     name: Publish Rust crates to crates.io
@@ -57,125 +47,47 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-          key: ${{ runner.os }}-cargo-publish-chainindex-${{ hashFiles('chainindex/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-publish-chainerrors-${{ hashFiles('chainerrors/Cargo.lock') }}
 
-      - name: Publish chainindex-core
+      - name: Publish chainerrors-core
         if: github.event.inputs.dry_run != 'true'
-        working-directory: chainindex
+        working-directory: chainerrors
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
-          if ! cargo publish -p chainindex-core 2>&1 | tee /tmp/pub_out; then
+          if ! cargo publish -p chainerrors-core 2>&1 | tee /tmp/pub_out; then
             grep -q "already exists" /tmp/pub_out || { cat /tmp/pub_out; exit 1; }
-            echo "chainindex-core already published – skip"
+            echo "chainerrors-core already published – skip"
           fi
 
-      - name: Wait for crates.io to index chainindex-core
+      - name: Wait for crates.io to index chainerrors-core
         if: github.event.inputs.dry_run != 'true'
         run: sleep 30
 
-      - name: Publish chainindex-storage
+      - name: Publish chainerrors-evm
         if: github.event.inputs.dry_run != 'true'
-        working-directory: chainindex
+        working-directory: chainerrors
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
-          if ! cargo publish -p chainindex-storage 2>&1 | tee /tmp/pub_out; then
+          if ! cargo publish -p chainerrors-evm 2>&1 | tee /tmp/pub_out; then
             grep -q "already exists" /tmp/pub_out || { cat /tmp/pub_out; exit 1; }
-            echo "chainindex-storage already published – skip"
+            echo "chainerrors-evm already published – skip"
           fi
 
-      - name: Publish chainindex-solana
+      - name: Publish chainerrors-solana
         if: github.event.inputs.dry_run != 'true'
-        working-directory: chainindex
+        working-directory: chainerrors
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
-          if ! cargo publish -p chainindex-solana 2>&1 | tee /tmp/pub_out; then
+          if ! cargo publish -p chainerrors-solana 2>&1 | tee /tmp/pub_out; then
             grep -q "already exists" /tmp/pub_out || { cat /tmp/pub_out; exit 1; }
-            echo "chainindex-solana already published – skip"
-          fi
-
-      - name: Publish chainindex-cosmos
-        if: github.event.inputs.dry_run != 'true'
-        working-directory: chainindex
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: |
-          if ! cargo publish -p chainindex-cosmos 2>&1 | tee /tmp/pub_out; then
-            grep -q "already exists" /tmp/pub_out || { cat /tmp/pub_out; exit 1; }
-            echo "chainindex-cosmos already published – skip"
-          fi
-
-      - name: Publish chainindex-substrate
-        if: github.event.inputs.dry_run != 'true'
-        working-directory: chainindex
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: |
-          if ! cargo publish -p chainindex-substrate 2>&1 | tee /tmp/pub_out; then
-            grep -q "already exists" /tmp/pub_out || { cat /tmp/pub_out; exit 1; }
-            echo "chainindex-substrate already published – skip"
-          fi
-
-      - name: Publish chainindex-bitcoin
-        if: github.event.inputs.dry_run != 'true'
-        working-directory: chainindex
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: |
-          if ! cargo publish -p chainindex-bitcoin 2>&1 | tee /tmp/pub_out; then
-            grep -q "already exists" /tmp/pub_out || { cat /tmp/pub_out; exit 1; }
-            echo "chainindex-bitcoin already published – skip"
-          fi
-
-      - name: Publish chainindex-aptos
-        if: github.event.inputs.dry_run != 'true'
-        working-directory: chainindex
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: |
-          if ! cargo publish -p chainindex-aptos 2>&1 | tee /tmp/pub_out; then
-            grep -q "already exists" /tmp/pub_out || { cat /tmp/pub_out; exit 1; }
-            echo "chainindex-aptos already published – skip"
-          fi
-
-      - name: Publish chainindex-sui
-        if: github.event.inputs.dry_run != 'true'
-        working-directory: chainindex
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: |
-          if ! cargo publish -p chainindex-sui 2>&1 | tee /tmp/pub_out; then
-            grep -q "already exists" /tmp/pub_out || { cat /tmp/pub_out; exit 1; }
-            echo "chainindex-sui already published – skip"
-          fi
-
-      - name: Wait for crates.io to index chain indexer crates
-        if: github.event.inputs.dry_run != 'true'
-        run: sleep 30
-
-      - name: Publish chainindex-evm
-        if: github.event.inputs.dry_run != 'true'
-        working-directory: chainindex
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: |
-          if ! cargo publish -p chainindex-evm 2>&1 | tee /tmp/pub_out; then
-            grep -q "already exists" /tmp/pub_out || { cat /tmp/pub_out; exit 1; }
-            echo "chainindex-evm already published – skip"
+            echo "chainerrors-solana already published – skip"
           fi
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Job 2: Build Node.js native .node files for all supported platforms
-  #
-  # Matrix targets:
-  #   linux-x64-gnu   — Ubuntu / most Linux servers
-  #   linux-x64-musl  — Alpine / Docker-minimal images
-  #   linux-arm64-gnu — AWS Graviton, Raspberry Pi 4
-  #   macos-x64       — Intel Macs
-  #   macos-arm64     — Apple Silicon (M1/M2/M3)
-  #   windows-x64     — Windows servers / desktops
   # ─────────────────────────────────────────────────────────────────────────────
   build-node-bindings:
     name: Build Node bindings · ${{ matrix.settings.name }}
@@ -188,7 +100,7 @@ jobs:
             host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             build: >
-              cd chainindex/bindings/node &&
+              cd chainerrors/bindings/node &&
               npx napi build --platform --release --target x86_64-unknown-linux-gnu
 
           - name: linux-x64-musl
@@ -197,7 +109,7 @@ jobs:
             build: |
               sudo apt-get install -y musl-tools
               rustup target add x86_64-unknown-linux-musl
-              cd chainindex/bindings/node
+              cd chainerrors/bindings/node
               npx napi build --platform --release --target x86_64-unknown-linux-musl
 
           - name: linux-arm64-gnu
@@ -206,7 +118,7 @@ jobs:
             build: |
               sudo apt-get install -y gcc-aarch64-linux-gnu
               rustup target add aarch64-unknown-linux-gnu
-              cd chainindex/bindings/node
+              cd chainerrors/bindings/node
               CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc \
                 npx napi build --platform --release --target aarch64-unknown-linux-gnu
 
@@ -215,7 +127,7 @@ jobs:
             target: x86_64-apple-darwin
             build: |
               rustup target add x86_64-apple-darwin
-              cd chainindex/bindings/node
+              cd chainerrors/bindings/node
               RUSTFLAGS="-C link-arg=-undefined -C link-arg=dynamic_lookup" \
                 npx napi build --platform --release --target x86_64-apple-darwin
 
@@ -224,7 +136,7 @@ jobs:
             target: aarch64-apple-darwin
             build: |
               rustup target add aarch64-apple-darwin
-              cd chainindex/bindings/node
+              cd chainerrors/bindings/node
               RUSTFLAGS="-C link-arg=-undefined -C link-arg=dynamic_lookup" \
                 npx napi build --platform --release --target aarch64-apple-darwin
 
@@ -232,7 +144,7 @@ jobs:
             host: windows-latest
             target: x86_64-pc-windows-msvc
             build: >
-              cd chainindex/bindings/node &&
+              cd chainerrors/bindings/node &&
               npx napi build --platform --release --target x86_64-pc-windows-msvc
 
     steps:
@@ -250,10 +162,10 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: chainindex/bindings/node/package.json
+          cache-dependency-path: chainerrors/bindings/node/package.json
 
       - name: Install napi-rs CLI and dependencies
-        working-directory: chainindex/bindings/node
+        working-directory: chainerrors/bindings/node
         run: npm install
 
       - name: Build native module
@@ -264,14 +176,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bindings-${{ matrix.settings.name }}
-          path: chainindex/bindings/node/*.node
+          path: chainerrors/bindings/node/*.node
           if-no-files-found: error
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Job 3: Collect all .node files and publish @chainfoundry/chainindex to npm
+  # Job 3: Collect all .node files and publish @chainfoundry/chainerrors to npm
   # ─────────────────────────────────────────────────────────────────────────────
   publish-npm:
-    name: Publish @chainfoundry/chainindex to npm
+    name: Publish @chainfoundry/chainerrors to npm
     runs-on: ubuntu-latest
     needs: [build-node-bindings]
     environment: Prod
@@ -289,38 +201,35 @@ jobs:
       - name: Download all platform .node artifacts
         uses: actions/download-artifact@v4
         with:
-          path: chainindex/bindings/node/artifacts
+          path: chainerrors/bindings/node/artifacts
 
       - name: Move .node files into package root
-        working-directory: chainindex/bindings/node
+        working-directory: chainerrors/bindings/node
         run: |
           find artifacts -name '*.node' -exec mv {} . \;
           echo "Collected binaries:"
           ls -la *.node
 
       - name: Copy README into package
-        run: cp chainindex/README.md chainindex/bindings/node/README.md
+        run: cp chainerrors/README.md chainerrors/bindings/node/README.md
 
       - name: Install package dependencies
-        working-directory: chainindex/bindings/node
+        working-directory: chainerrors/bindings/node
         run: npm install
 
       - name: Publish to npm
         if: github.event.inputs.dry_run != 'true'
-        working-directory: chainindex/bindings/node
+        working-directory: chainerrors/bindings/node
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --access public
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Job 4: Build Python wheels for all supported platforms (maturin)
-  #
-  # Produces manylinux2014, musllinux, macOS (x64 + arm64), Windows wheels
-  # for the chainindex Python package.
   # ─────────────────────────────────────────────────────────────────────────────
   build-python-wheels:
     name: Build Python wheel · ${{ matrix.platform.name }}
-    if: startsWith(github.ref, 'refs/tags/chainindex-v') || github.event_name == 'workflow_dispatch'
+    if: startsWith(github.ref, 'refs/tags/chainerrors-v') || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       fail-fast: false
@@ -374,21 +283,19 @@ jobs:
         with:
           targets: ${{ matrix.platform.target }}
 
-      - name: Build wheels (Linux manylinux via docker — x86_64 + arm64)
+      - name: Build wheels (Linux manylinux via docker)
         if: runner.os == 'Linux' && matrix.platform.manylinux != 'musllinux_1_1'
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
           manylinux: ${{ matrix.platform.manylinux }}
-          working-directory: chainindex/bindings/python
+          working-directory: chainerrors/bindings/python
           args: --release --out dist
           sccache: true
 
-      # musl: the musllinux Docker cross-image has no Python interpreters.
-      # Build directly on the host after installing musl-tools instead.
       - name: Build wheels (Linux musl — direct maturin, no Docker)
         if: runner.os == 'Linux' && matrix.platform.manylinux == 'musllinux_1_1'
-        working-directory: chainindex/bindings/python
+        working-directory: chainerrors/bindings/python
         run: |
           sudo apt-get update -q && sudo apt-get install -y -q musl-tools
           rustup target add x86_64-unknown-linux-musl
@@ -399,7 +306,7 @@ jobs:
         shell: bash
         run: |
           maturin build --release --out dist \
-            --manifest-path chainindex/bindings/python/Cargo.toml \
+            --manifest-path chainerrors/bindings/python/Cargo.toml \
             --target ${{ matrix.platform.target }}
 
       - name: Upload wheel artifact (Linux)
@@ -407,7 +314,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: python-wheel-${{ matrix.platform.name }}
-          path: chainindex/bindings/python/dist/*.whl
+          path: chainerrors/bindings/python/dist/*.whl
           if-no-files-found: error
 
       - name: Upload wheel artifact (macOS / Windows)
@@ -421,16 +328,16 @@ jobs:
   # ─────────────────────────────────────────────────────────────────────────────
   # Job 5: Publish Python wheels to PyPI (OIDC trusted publishing)
   # ─────────────────────────────────────────────────────────────────────────────
-  publish-pypi-chainindex:
-    name: Publish chainindex to PyPI
+  publish-pypi:
+    name: Publish chainerrors to PyPI
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/chainindex-v') || github.event_name == 'workflow_dispatch'
+    if: startsWith(github.ref, 'refs/tags/chainerrors-v') || github.event_name == 'workflow_dispatch'
     needs: [build-python-wheels]
     environment:
       name: pypi
-      url: https://pypi.org/p/chainindex
+      url: https://pypi.org/p/chainerrors
     permissions:
-      id-token: write  # OIDC trusted publishing
+      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -462,12 +369,12 @@ jobs:
           skip-existing: true
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Job 6: Create a GitHub Release with install instructions
+  # Job 6: Create a GitHub Release
   # ─────────────────────────────────────────────────────────────────────────────
   github-release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
-    needs: [publish-rust, publish-npm, publish-pypi-chainindex]
+    needs: [publish-rust, publish-npm, publish-pypi]
     permissions:
       contents: write
     steps:
@@ -479,8 +386,8 @@ jobs:
         id: version
         shell: bash
         run: |
-          if [[ "$GITHUB_REF_NAME" == chainindex-v* ]]; then
-            echo "version=${GITHUB_REF_NAME#chainindex-v}" >> "$GITHUB_OUTPUT"
+          if [[ "$GITHUB_REF_NAME" == chainerrors-v* ]]; then
+            echo "version=${GITHUB_REF_NAME#chainerrors-v}" >> "$GITHUB_OUTPUT"
           else
             echo "version=0.0.0-manual" >> "$GITHUB_OUTPUT"
           fi
@@ -488,45 +395,43 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: chainindex v${{ steps.version.outputs.version }}
+          name: chainerrors v${{ steps.version.outputs.version }}
           generate_release_notes: true
           draft: false
           prerelease: false
           body: |
-            ## chainindex v${{ steps.version.outputs.version }}
+            ## chainerrors v${{ steps.version.outputs.version }}
 
-            High-performance blockchain indexer with reorg detection and pluggable storage
-            for Rust, TypeScript/Node.js, and Python.
+            Blockchain error decoder for EVM and Solana — decode reverts, panics,
+            custom errors, and program failures.
 
             ### Install
 
             **Rust (Cargo.toml)**
             ```toml
             [dependencies]
-            chainindex-core    = "${{ steps.version.outputs.version }}"
-            chainindex-storage = "${{ steps.version.outputs.version }}"
-            chainindex-evm     = "${{ steps.version.outputs.version }}"
-            chainindex-solana  = "${{ steps.version.outputs.version }}"
+            chainerrors-core   = "${{ steps.version.outputs.version }}"
+            chainerrors-evm    = "${{ steps.version.outputs.version }}"
+            chainerrors-solana = "${{ steps.version.outputs.version }}"
             ```
 
             **npm / Node.js**
             ```bash
-            npm install @chainfoundry/chainindex
+            npm install @chainfoundry/chainerrors
             ```
 
             **Python (pip)**
             ```bash
-            pip install chainindex
+            pip install chainerrors
             ```
 
             ### Published crates
 
             | Crate | crates.io |
             |-------|-----------|
-            | chainindex-core | https://crates.io/crates/chainindex-core |
-            | chainindex-storage | https://crates.io/crates/chainindex-storage |
-            | chainindex-evm | https://crates.io/crates/chainindex-evm |
-            | chainindex-solana | https://crates.io/crates/chainindex-solana |
+            | chainerrors-core | https://crates.io/crates/chainerrors-core |
+            | chainerrors-evm | https://crates.io/crates/chainerrors-evm |
+            | chainerrors-solana | https://crates.io/crates/chainerrors-solana |
 
-            **npm:** https://www.npmjs.com/package/@chainfoundry/chainindex
-            **PyPI:** https://pypi.org/project/chainindex/
+            **npm:** https://www.npmjs.com/package/@chainfoundry/chainerrors
+            **PyPI:** https://pypi.org/project/chainerrors/

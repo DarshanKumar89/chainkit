@@ -1,6 +1,5 @@
 //! Schema types — the in-memory representation of a parsed CSDL schema.
 
-use crate::chain::ChainId;
 use crate::event::EventFingerprint;
 use crate::types::CanonicalType;
 use serde::{Deserialize, Serialize};

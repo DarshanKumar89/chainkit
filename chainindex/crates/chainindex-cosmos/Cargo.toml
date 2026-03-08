@@ -1,0 +1,24 @@
+[package]
+name        = "chainindex-cosmos"
+description = "Cosmos (Tendermint/CometBFT) indexer for ChainIndex — block tracking, event parsing, and IBC monitoring"
+readme      = "../../README.md"
+keywords    = ["cosmos", "indexer", "blockchain", "tendermint", "ibc"]
+categories  = ["cryptography::cryptocurrencies"]
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+repository.workspace = true
+
+[dependencies]
+chainindex-core = { workspace = true }
+tokio       = { workspace = true }
+async-trait = { workspace = true }
+futures     = { workspace = true }
+serde       = { workspace = true }
+serde_json  = { workspace = true }
+thiserror   = { workspace = true }
+tracing     = { workspace = true }
+chrono      = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }

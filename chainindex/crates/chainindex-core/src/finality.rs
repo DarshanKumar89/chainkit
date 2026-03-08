@@ -228,6 +228,111 @@ impl FinalityRegistry {
             },
         );
 
+        // Cosmos Hub
+        configs.insert(
+            "cosmoshub".into(),
+            FinalityConfig {
+                chain: "cosmoshub".into(),
+                safe_confirmations: 1, // BFT instant finality
+                finalized_confirmations: 1,
+                block_time: Duration::from_secs(6),
+                reorg_window: 32,
+                allows_slot_skipping: false,
+                has_sequencer: false,
+                settlement_chain: None,
+            },
+        );
+
+        // Osmosis
+        configs.insert(
+            "osmosis".into(),
+            FinalityConfig {
+                chain: "osmosis".into(),
+                safe_confirmations: 1,
+                finalized_confirmations: 1,
+                block_time: Duration::from_secs(6),
+                reorg_window: 32,
+                allows_slot_skipping: false,
+                has_sequencer: false,
+                settlement_chain: None,
+            },
+        );
+
+        // Polkadot
+        configs.insert(
+            "polkadot".into(),
+            FinalityConfig {
+                chain: "polkadot".into(),
+                safe_confirmations: 1, // GRANDPA finality
+                finalized_confirmations: 1,
+                block_time: Duration::from_secs(6),
+                reorg_window: 32,
+                allows_slot_skipping: true, // BABE can skip slots
+                has_sequencer: false,
+                settlement_chain: None,
+            },
+        );
+
+        // Kusama
+        configs.insert(
+            "kusama".into(),
+            FinalityConfig {
+                chain: "kusama".into(),
+                safe_confirmations: 1,
+                finalized_confirmations: 1,
+                block_time: Duration::from_secs(6),
+                reorg_window: 32,
+                allows_slot_skipping: true,
+                has_sequencer: false,
+                settlement_chain: None,
+            },
+        );
+
+        // Bitcoin
+        configs.insert(
+            "bitcoin".into(),
+            FinalityConfig {
+                chain: "bitcoin".into(),
+                safe_confirmations: 3,
+                finalized_confirmations: 6, // 6 confirmations standard
+                block_time: Duration::from_secs(600), // ~10 minutes
+                reorg_window: 12,
+                allows_slot_skipping: false,
+                has_sequencer: false,
+                settlement_chain: None,
+            },
+        );
+
+        // Aptos
+        configs.insert(
+            "aptos".into(),
+            FinalityConfig {
+                chain: "aptos".into(),
+                safe_confirmations: 1, // BFT instant finality
+                finalized_confirmations: 1,
+                block_time: Duration::from_secs(4),
+                reorg_window: 32,
+                allows_slot_skipping: false,
+                has_sequencer: false,
+                settlement_chain: None,
+            },
+        );
+
+        // Sui
+        configs.insert(
+            "sui".into(),
+            FinalityConfig {
+                chain: "sui".into(),
+                safe_confirmations: 1, // BFT instant finality
+                finalized_confirmations: 1,
+                block_time: Duration::from_millis(500), // ~500ms checkpoint time
+                reorg_window: 64,
+                allows_slot_skipping: false,
+                has_sequencer: false,
+                settlement_chain: None,
+            },
+        );
+
         Self { configs }
     }
 

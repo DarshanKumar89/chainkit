@@ -1,9 +1,10 @@
 {
   "name": "@chainfoundry/chainerrors",
   "version": "0.1.0",
-  "description": "EVM revert decoder — decode require(), custom errors, and Panic codes",
+  "description": "EVM + Solana error decoder — decode reverts, panics, custom errors, and program failures",
   "main": "index.js",
   "types": "index.d.ts",
+  "files": ["index.js", "index.d.ts", "*.node", "README.md"],
   "license": "MIT",
   "keywords": ["ethereum", "evm", "revert", "error", "decoder", "blockchain", "solidity"],
   "repository": {

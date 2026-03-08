@@ -25,7 +25,7 @@ pub fn decode_error_string(data: &[u8]) -> Option<String> {
     // ABI-decode as a single `string` type
     let ty = DynSolType::String;
     match ty.abi_decode(payload) {
-        Ok(DynSolValue::String(s)) => Some(s),
+        Ok(DynSolValue::String(s)) => Some(s.trim_end_matches('\0').to_string()),
         _ => None,
     }
 }

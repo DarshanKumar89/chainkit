@@ -6,6 +6,11 @@ members = [
     "crates/chainindex-evm",
     "crates/chainindex-storage",
     "crates/chainindex-solana",
+    "crates/chainindex-cosmos",
+    "crates/chainindex-substrate",
+    "crates/chainindex-bitcoin",
+    "crates/chainindex-aptos",
+    "crates/chainindex-sui",
     "cli",
 ]
 
@@ -52,7 +57,12 @@ chrono = { version = "0.4", features = ["serde"] }
 chainindex-core    = { path = "crates/chainindex-core", version = "0.1.1" }
 chainindex-evm     = { path = "crates/chainindex-evm", version = "0.1.1" }
 chainindex-storage = { path = "crates/chainindex-storage", version = "0.1.1" }
-chainindex-solana  = { path = "crates/chainindex-solana", version = "0.1.1" }
+chainindex-solana    = { path = "crates/chainindex-solana", version = "0.1.1" }
+chainindex-cosmos    = { path = "crates/chainindex-cosmos", version = "0.1.1" }
+chainindex-substrate = { path = "crates/chainindex-substrate", version = "0.1.1" }
+chainindex-bitcoin   = { path = "crates/chainindex-bitcoin", version = "0.1.1" }
+chainindex-aptos     = { path = "crates/chainindex-aptos", version = "0.1.1" }
+chainindex-sui       = { path = "crates/chainindex-sui", version = "0.1.1" }
 
 [profile.release]
 opt-level     = 3

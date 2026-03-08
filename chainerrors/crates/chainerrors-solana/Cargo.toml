@@ -1,13 +1,15 @@
 [package]
 name        = "chainerrors-solana"
-description = "Solana program error decoder for ChainErrors (Phase 3 stub)"
+description = "Solana program error decoder — system, SPL Token, and Anchor errors"
 keywords    = ["solana", "error", "decoder", "blockchain"]
 categories  = ["cryptography::cryptocurrencies"]
 version.workspace    = true
 edition.workspace    = true
 license.workspace    = true
 repository.workspace = true
+readme    = "../../README.md"
 
 [dependencies]
 chainerrors-core = { workspace = true }
 thiserror        = { workspace = true }
+hex              = { workspace = true }

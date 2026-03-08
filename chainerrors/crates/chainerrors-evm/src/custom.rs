@@ -74,22 +74,21 @@ fn try_decode_with_signature(sig: &ErrorSignature, payload: &[u8]) -> Option<Err
 }
 
 fn dyn_sol_to_field_value(val: &DynSolValue) -> ErrorFieldValue {
-    use alloy_primitives::{I256, U256};
     match val {
         DynSolValue::Uint(v, _) => {
-            if let Ok(small) = v.try_into::<u128>() {
+            let s = v.to_string();
+            if let Ok(small) = s.parse::<u128>() {
                 ErrorFieldValue::Uint(small)
             } else {
-                ErrorFieldValue::BigUint(v.to_string())
+                ErrorFieldValue::BigUint(s)
             }
         }
         DynSolValue::Int(v, _) => {
-            // I256 → i128 if fits
-            let as_i128: Option<i128> = i128::try_from(*v).ok();
-            if let Some(i) = as_i128 {
+            let s = v.to_string();
+            if let Ok(i) = s.parse::<i128>() {
                 ErrorFieldValue::Int(i)
             } else {
-                ErrorFieldValue::BigInt(v.to_string())
+                ErrorFieldValue::BigInt(s)
             }
         }
         DynSolValue::Bool(b) => ErrorFieldValue::Bool(*b),

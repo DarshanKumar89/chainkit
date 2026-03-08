@@ -186,17 +186,9 @@ impl EvmErrorDecoder {
     }
 
     /// Register additional error signatures at runtime (e.g. from a project ABI).
-    pub fn register_signature(&self, sig: ErrorSignature) {
-        // Only MemoryErrorRegistry supports dynamic registration; this is a best-effort cast.
-        if let Some(mem) = Arc::as_ptr(&self.registry)
-            .cast::<MemoryErrorRegistry>()
-            .as_ref()
-        {
-            // SAFETY: only valid if registry was created as MemoryErrorRegistry.
-            // If using a custom registry, this no-ops gracefully.
-            // In practice use with_registry() + manual registration.
-            let _ = mem;
-        }
+    pub fn register_signature(&self, _sig: ErrorSignature) {
+        // Only MemoryErrorRegistry supports dynamic registration.
+        // In practice, use with_registry() + manual registration on the registry directly.
     }
 }
 
@@ -352,7 +344,7 @@ mod tests {
              4e6f7420656e6f75676820746f6b656e73000000000000000000000000000000",
         )
         .unwrap();
-        let result = d.decode(&data, None).unwrap();
+        let result = decoder().decode(&data, None).unwrap();
         match &result.kind {
             ErrorKind::RevertString { message } => assert_eq!(message, "Not enough tokens"),
             _ => panic!("expected RevertString, got {:?}", result.kind),

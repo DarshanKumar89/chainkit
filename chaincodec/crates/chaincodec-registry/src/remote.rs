@@ -43,11 +43,11 @@ mod imp {
         #[error("Etherscan API error: {message}")]
         EtherscanError { message: String },
 
-        #[error("Invalid ABI JSON returned from {source}: {reason}")]
-        InvalidAbi { source: String, reason: String },
+        #[error("Invalid ABI JSON returned from {provider}: {reason}")]
+        InvalidAbi { provider: String, reason: String },
 
-        #[error("Rate limited by {source}")]
-        RateLimited { source: String },
+        #[error("Rate limited by {provider}")]
+        RateLimited { provider: String },
     }
 
     // ─── Sourcify ─────────────────────────────────────────────────────────────
@@ -186,7 +186,7 @@ mod imp {
                     Ok(r) if r.status() == 404 => continue,
                     Ok(r) if r.status() == 429 => {
                         return Err(RemoteError::RateLimited {
-                            source: "Sourcify".into(),
+                            provider: "Sourcify".into(),
                         })
                     }
                     Ok(_) | Err(_) => {}
@@ -204,7 +204,7 @@ mod imp {
                 if r.status() == 200 {
                     let files: SourcifyFilesResponse = r.json().await.map_err(|e| {
                         RemoteError::InvalidAbi {
-                            source: "Sourcify".into(),
+                            provider: "Sourcify".into(),
                             reason: e.to_string(),
                         }
                     })?;
@@ -216,7 +216,7 @@ mod imp {
                                 let metadata: serde_json::Value =
                                     serde_json::from_str(&file.content).map_err(|e| {
                                         RemoteError::InvalidAbi {
-                                            source: "Sourcify".into(),
+                                            provider: "Sourcify".into(),
                                             reason: e.to_string(),
                                         }
                                     })?;
@@ -264,7 +264,7 @@ mod imp {
 
             if resp.status() == 429 {
                 return Err(RemoteError::RateLimited {
-                    source: "Etherscan".into(),
+                    provider: "Etherscan".into(),
                 });
             }
 
@@ -279,7 +279,7 @@ mod imp {
             // Validate it's valid JSON
             serde_json::from_str::<serde_json::Value>(&body.result).map_err(|e| {
                 RemoteError::InvalidAbi {
-                    source: "Etherscan".into(),
+                    provider: "Etherscan".into(),
                     reason: e.to_string(),
                 }
             })?;
@@ -325,7 +325,7 @@ mod imp {
 
             if resp.status() == 429 {
                 return Err(RemoteError::RateLimited {
-                    source: "4byte.directory".into(),
+                    provider: "4byte.directory".into(),
                 });
             }
 

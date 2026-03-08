@@ -7,6 +7,7 @@ version.workspace    = true
 edition.workspace    = true
 license.workspace    = true
 repository.workspace = true
+readme    = "../../README.md"
 
 [dependencies]
 chainerrors-core = { workspace = true }
@@ -20,6 +21,7 @@ serde_json = { workspace = true }
 thiserror  = { workspace = true }
 hex        = { workspace = true }
 tracing    = { workspace = true }
+tiny-keccak = { workspace = true }
 
 # 4byte.directory integration (behind feature flag for no-std compat)
 reqwest = { workspace = true, optional = true }

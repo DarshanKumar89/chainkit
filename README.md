@@ -12,9 +12,9 @@ ChainKit is a monorepo of four foundational Rust libraries for building blockcha
 | Module | Description | Status | Docs | Examples |
 |--------|-------------|--------|------|----------|
 | [`chaincodec`](./chaincodec/) | Universal ABI decoder — EVM events, calls, EIP-712, proxy detection, 50+ schemas | ✅ v0.1.2 (crates.io + npm) | [docs](./chaincodec/docs/) | [examples](./chaincodec/examples/) |
-| [`chainerrors`](./chainerrors/) | EVM revert / panic / custom error decoder with golden fixtures | ✅ Complete — unpublished | [docs](./chainerrors/docs/) | — |
-| [`chainrpc`](./chainrpc/) | Production RPC transport — circuit breaker, rate limiter, caching, pool, MEV, 27 modules | ✅ v0.1.1 (crates.io + npm) | [docs](./chainrpc/docs/) | [22 examples](./chainrpc/examples/) |
-| [`chainindex`](./chainindex/) | Reorg-safe blockchain indexer with pluggable storage (SQLite/Postgres/RocksDB) | ✅ v0.1.1 (crates.io + npm) | [docs](./chainindex/docs/) | [16 examples](./chainindex/examples/) |
+| [`chainerrors`](./chainerrors/) | EVM + Solana error decoder — reverts, panics, custom errors, program failures | ✅ v0.1.0 (crates.io + npm) | [README](./chainerrors/README.md) | — |
+| [`chainrpc`](./chainrpc/) | Production RPC transport — 7 chains, circuit breaker, rate limiter, caching, pool, MEV | ✅ v0.1.1 (crates.io + npm) | [docs](./chainrpc/docs/) | [31 examples](./chainrpc/examples/) |
+| [`chainindex`](./chainindex/) | Reorg-safe blockchain indexer — 7 chains, pluggable storage (SQLite/Postgres/RocksDB) | ✅ v0.1.1 (crates.io + npm) | [docs](./chainindex/docs/) | [21 examples](./chainindex/examples/) |
 
 ### Language Bindings
 
@@ -32,7 +32,19 @@ All 4 modules ship with native bindings:
 
 ## ChainRPC — Production RPC Transport
 
-**31 modules**, **262 tests**, composable middleware stack for EVM + Solana RPC.
+**31 modules**, **301 tests**, composable middleware stack for 7 blockchain families.
+
+### Chain Support
+
+| Chain Family | Transport | ChainClient | Method Safety | CU Costs | Known Endpoints |
+|-------------|-----------|-------------|---------------|----------|-----------------|
+| EVM (Ethereum, Polygon, Arbitrum, ...) | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Solana | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Cosmos (Cosmos Hub, Osmosis, ...) | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Substrate (Polkadot, Kusama) | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Bitcoin | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Aptos | ✅ | ✅ | — | ✅ | ✅ |
+| Sui | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ```
 DedupTransport → CacheTransport → BackpressureTransport → ProviderPool → HttpRpcClient
@@ -191,16 +203,16 @@ chainkit/
 ├── chainerrors/         # Error decoder
 │   ├── crates/          # core, evm
 │   └── bindings/        # node, python, go, java
-├── chainrpc/            # RPC transport — 31 modules, 262 tests
+├── chainrpc/            # RPC transport — 31 modules, 301 tests, 7 chains
 │   ├── crates/          # core (31 modules), http, ws, providers
 │   ├── bindings/        # node, python, go, java
-│   ├── examples/        # 26 runnable examples
+│   ├── examples/        # 31 runnable examples
 │   ├── docs/            # 5 documentation files
 │   └── cli/
-└── chainindex/          # Blockchain indexer — 324 tests
-    ├── crates/          # core, evm, solana, storage
+└── chainindex/          # Blockchain indexer — 397 tests, 7 chains
+    ├── crates/          # core, evm, solana, cosmos, substrate, bitcoin, aptos, sui, storage
     ├── bindings/        # node, python, go, java
-    └── examples/        # 16 runnable examples
+    └── examples/        # 21 runnable examples
 ```
 
 ---
@@ -267,5 +279,6 @@ Built by [@darshan_aqua](https://x.com/darshan_aqua) — questions, feedback, an
 ## Roadmap
 
 - **v0.1** (done): chaincodec v0.1.2, chainrpc v0.1.1, chainindex v0.1.1 — published to crates.io + npm
-- **v0.2** (next): chainerrors publish to crates.io / npm / PyPI, PyPI wheels for chainrpc + chainindex
-- **v1.0**: E2E integration tests with Anvil, fuzz testing, Cosmos support
+- **v0.2** (done): chainerrors-solana decoder, unified ChainClient trait, 5 new chain transports + indexers
+- **v1.0** (next): E2E integration tests with Anvil, publish chainerrors to crates.io / npm / PyPI
+- **v2.0**: Cross-chain event correlation, WebSocket subscriptions, fuzz testing

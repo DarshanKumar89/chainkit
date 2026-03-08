@@ -12,10 +12,14 @@
 //! - [`policy`] module — retry, circuit breaker, rate limiter
 //! - [`pool`] module — multi-provider failover pool
 
+pub mod aptos;
 pub mod backpressure;
 pub mod batch;
+pub mod bitcoin;
 pub mod cache;
 pub mod cancellation;
+pub mod chain_client;
+pub mod cosmos;
 pub mod cu_tracker;
 pub mod dedup;
 pub mod error;
@@ -38,10 +42,13 @@ pub mod routing;
 pub mod selection;
 pub mod shutdown;
 pub mod solana;
+pub mod substrate;
+pub mod sui;
 pub mod transport;
 pub mod tx;
 pub mod tx_lifecycle;
 
+pub use chain_client::{ChainBlock, ChainClient, EvmChainClient, SolanaChainClient};
 pub use error::TransportError;
 pub use pool::{ProviderPool, ProviderPoolConfig};
 pub use request::{JsonRpcRequest, JsonRpcResponse, RpcId, RpcParam};
