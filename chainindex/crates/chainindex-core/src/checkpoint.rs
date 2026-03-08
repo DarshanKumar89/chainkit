@@ -167,7 +167,7 @@ mod tests {
     #[tokio::test]
     async fn memory_store_roundtrip() {
         let store = Box::new(MemoryCheckpointStore::new());
-        let mut mgr = CheckpointManager::new(store, "ethereum", "my-indexer", 10);
+        let mgr = CheckpointManager::new(store, "ethereum", "my-indexer", 10);
 
         // No checkpoint initially
         assert!(mgr.load().await.unwrap().is_none());

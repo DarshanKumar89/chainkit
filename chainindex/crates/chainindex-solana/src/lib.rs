@@ -1025,7 +1025,7 @@ mod tests {
     #[test]
     fn parse_anchor_event_valid_json() {
         // 8-byte discriminator (zeros) + JSON payload
-        let discriminator = "AAAAAAAA"; // 6 bytes of 0x00 in base64 isn't quite 8 bytes;
+        let _discriminator = "AAAAAAAA"; // 6 bytes of 0x00 in base64 isn't quite 8 bytes;
                                         // build manually: 8 zero bytes = "AAAAAAAA" (6 bytes) — use a longer prefix
                                         // Correct: 8 zero bytes in base64 = "AAAAAAAAAAA=" (not divisible — use 9 zeros)
                                         // Let's build "{ }" preceded by 8 zero bytes encoded together:
@@ -1339,7 +1339,7 @@ mod tests {
             let b0 = input[i] as usize;
             let b1 = input[i + 1] as usize;
             let b2 = input[i + 2] as usize;
-            out.push(CHARS[(b0 >> 2)] as char);
+            out.push(CHARS[b0 >> 2] as char);
             out.push(CHARS[((b0 & 3) << 4) | (b1 >> 4)] as char);
             out.push(CHARS[((b1 & 0xf) << 2) | (b2 >> 6)] as char);
             out.push(CHARS[b2 & 0x3f] as char);

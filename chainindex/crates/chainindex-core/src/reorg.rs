@@ -170,7 +170,7 @@ mod tests {
         let mut det = ReorgDetector::new(12);
         let block_99 = b(99, "0x99", "0x98");
         let block_100 = b(100, "0xa", "0x99");
-        let block_100b = b(100, "0xb", "0x99"); // different block at 100
+        let _block_100b = b(100, "0xb", "0x99"); // different block at 100
 
         // The tracker has [99, 100] but a new block at 101 with parent 0xb (reorg)
         let new_101 = b(101, "0xc", "0xb");
