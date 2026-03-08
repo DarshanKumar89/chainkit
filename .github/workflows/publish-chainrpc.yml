@@ -373,7 +373,7 @@ jobs:
     needs: [build-python-wheels]
     environment:
       name: pypi
-      url: https://pypi.org/p/chainrpc
+      url: https://pypi.org/p/chainfoundry-chainrpc
     permissions:
       id-token: write  # OIDC trusted publishing
     steps:

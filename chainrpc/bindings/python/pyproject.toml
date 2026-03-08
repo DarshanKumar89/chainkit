@@ -3,7 +3,7 @@ requires      = ["maturin>=1.4,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "chainrpc"
+name = "chainfoundry-chainrpc"
 version = "0.2.0"
 description = "High-performance JSON-RPC client — HTTP, WebSocket, provider pool with circuit breaker"
 readme = "../../README.md"

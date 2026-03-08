@@ -486,7 +486,7 @@ jobs:
     needs: [build-python-wheels]
     environment:
       name: pypi
-      url: https://pypi.org/p/chaincodec
+      url: https://pypi.org/p/chainfoundry-chaincodec
     permissions:
       id-token: write  # OIDC trusted publishing
     steps:

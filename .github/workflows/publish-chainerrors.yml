@@ -335,7 +335,7 @@ jobs:
     needs: [build-python-wheels]
     environment:
       name: pypi
-      url: https://pypi.org/p/chainerrors
+      url: https://pypi.org/p/chainfoundry-chainerrors
     permissions:
       id-token: write
     steps:

@@ -3,7 +3,7 @@ requires      = ["maturin>=1.4,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "chainerrors"
+name = "chainfoundry-chainerrors"
 version = "0.1.0"
 description = "EVM revert decoder — decode require(), custom errors, Panic codes from Solidity"
 readme = "../../README.md"
