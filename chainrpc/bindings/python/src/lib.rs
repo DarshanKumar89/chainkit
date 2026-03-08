@@ -4,29 +4,24 @@
 //!
 //! ## Usage
 //! ```python
-//! import asyncio
 //! from chainrpc import HttpRpcClient, ProviderPool
 //!
-//! async def main():
-//!     # Single provider
-//!     client = HttpRpcClient("https://eth-mainnet.g.alchemy.com/v2/YOUR_KEY")
-//!     block = await client.call("eth_blockNumber", "[]")
-//!     print(block)  # "0x12a05f2"
+//! # Single provider
+//! client = HttpRpcClient("https://eth-mainnet.g.alchemy.com/v2/YOUR_KEY")
+//! block = client.call("eth_blockNumber", "[]")
+//! print(block)  # "0x12a05f2"
 //!
-//!     # Multi-provider pool
-//!     pool = ProviderPool([
-//!         "https://eth-mainnet.g.alchemy.com/v2/KEY1",
-//!         "https://mainnet.infura.io/v3/KEY2",
-//!         "https://rpc.ankr.com/eth",
-//!     ])
-//!     balance = await pool.call("eth_getBalance", '["0x...", "latest"]')
-//!     print(balance)
-//!
-//! asyncio.run(main())
+//! # Multi-provider pool
+//! pool = ProviderPool([
+//!     "https://eth-mainnet.g.alchemy.com/v2/KEY1",
+//!     "https://mainnet.infura.io/v3/KEY2",
+//!     "https://rpc.ankr.com/eth",
+//! ])
+//! balance = pool.call("eth_getBalance", '["0x...", "latest"]')
+//! print(balance)
 //! ```
 
 use pyo3::prelude::*;
-use pyo3_asyncio::tokio::future_into_py;
 
 use chainrpc_http::{HttpRpcClient as RustHttpClient, pool_from_urls};
 use chainrpc_core::{
@@ -34,6 +29,11 @@ use chainrpc_core::{
     request::JsonRpcRequest,
     transport::RpcTransport,
 };
+
+fn runtime() -> PyResult<tokio::runtime::Runtime> {
+    tokio::runtime::Runtime::new()
+        .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
+}
 
 // ─── HttpRpcClient ────────────────────────────────────────────────────────────
 
@@ -51,13 +51,14 @@ impl PyHttpRpcClient {
         Ok(Self { inner: std::sync::Arc::new(inner) })
     }
 
-    /// Send a JSON-RPC call (async).
+    /// Send a JSON-RPC call.
     ///
     /// `params_json` is a JSON string like `'["0x...", "latest"]'`.
     /// Returns the result as a JSON string.
-    fn call<'py>(&self, py: Python<'py>, method: String, params_json: String) -> PyResult<&'py PyAny> {
+    fn call(&self, method: String, params_json: String) -> PyResult<String> {
         let inner = self.inner.clone();
-        future_into_py(py, async move {
+        let rt = runtime()?;
+        rt.block_on(async move {
             let params: Vec<serde_json::Value> = serde_json::from_str(&params_json)
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("params parse: {e}")))?;
             let req = JsonRpcRequest::auto(method, params);
@@ -72,12 +73,13 @@ impl PyHttpRpcClient {
         })
     }
 
-    /// Send a batch of JSON-RPC calls (async).
+    /// Send a batch of JSON-RPC calls.
     ///
     /// `requests_json` is a JSON array like `[{"method": "eth_blockNumber", "params": []}]`.
-    fn batch_call<'py>(&self, py: Python<'py>, requests_json: String) -> PyResult<&'py PyAny> {
+    fn batch_call(&self, requests_json: String) -> PyResult<String> {
         let inner = self.inner.clone();
-        future_into_py(py, async move {
+        let rt = runtime()?;
+        rt.block_on(async move {
             let reqs: Vec<serde_json::Value> = serde_json::from_str(&requests_json)
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))?;
 
@@ -126,10 +128,11 @@ impl PyProviderPool {
         Ok(Self { inner: std::sync::Arc::new(inner) })
     }
 
-    /// Send a JSON-RPC call through the pool (async).
-    fn call<'py>(&self, py: Python<'py>, method: String, params_json: String) -> PyResult<&'py PyAny> {
+    /// Send a JSON-RPC call through the pool.
+    fn call(&self, method: String, params_json: String) -> PyResult<String> {
         let inner = self.inner.clone();
-        future_into_py(py, async move {
+        let rt = runtime()?;
+        rt.block_on(async move {
             let params: Vec<serde_json::Value> = serde_json::from_str(&params_json)
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))?;
             let req = JsonRpcRequest::auto(method, params);
@@ -158,8 +161,7 @@ impl PyProviderPool {
 // ─── Module ───────────────────────────────────────────────────────────────────
 
 #[pymodule]
-fn chainrpc(py: Python, m: &PyModule) -> PyResult<()> {
-    pyo3_asyncio::tokio::init_multi_thread_once();
+fn chainrpc(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<PyHttpRpcClient>()?;
     m.add_class::<PyProviderPool>()?;
     Ok(())

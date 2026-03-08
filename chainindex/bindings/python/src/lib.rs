@@ -4,43 +4,42 @@
 //!
 //! ## Usage
 //! ```python
-//! import asyncio
-//! from chainindex import IndexerConfig, InMemoryStorage, EventFilter
+//! from chainindex import IndexerConfig, InMemoryStorage, EventFilter, Checkpoint
 //!
-//! async def main():
-//!     # Build indexer config
-//!     config = IndexerConfig(
-//!         chain="ethereum",
-//!         from_block=19_000_000,
-//!         confirmation_depth=12,
-//!         batch_size=1000,
-//!     )
+//! # Build indexer config
+//! config = IndexerConfig(
+//!     chain="ethereum",
+//!     from_block=19_000_000,
+//!     confirmation_depth=12,
+//!     batch_size=1000,
+//! )
 //!
-//!     # In-memory storage (dev/testing)
-//!     storage = InMemoryStorage()
+//! # In-memory storage (dev/testing)
+//! storage = InMemoryStorage()
 //!
-//!     # Save / load checkpoints
-//!     from chainindex import Checkpoint
-//!     cp = Checkpoint(
-//!         chain_id="ethereum",
-//!         indexer_id="my-indexer",
-//!         block_number=19_001_000,
-//!         block_hash="0xabc...",
-//!     )
-//!     await storage.save_checkpoint(cp)
-//!     loaded = await storage.load_checkpoint("ethereum", "my-indexer")
-//!     print(loaded)
-//!
-//! asyncio.run(main())
+//! # Save / load checkpoints
+//! cp = Checkpoint(
+//!     chain_id="ethereum",
+//!     indexer_id="my-indexer",
+//!     block_number=19_001_000,
+//!     block_hash="0xabc...",
+//! )
+//! storage.save_checkpoint(cp)
+//! loaded = storage.load_checkpoint("ethereum", "my-indexer")
+//! print(loaded)
 //! ```
 
 use pyo3::prelude::*;
-use pyo3_asyncio::tokio::future_into_py;
 use std::sync::Arc;
 
 use chainindex_core::checkpoint::{Checkpoint, CheckpointStore, MemoryCheckpointStore};
-use chainindex_core::indexer::{IndexerConfig, IndexerState};
+use chainindex_core::indexer::IndexerConfig;
 use chainindex_core::types::{BlockSummary, EventFilter};
+
+fn runtime() -> PyResult<tokio::runtime::Runtime> {
+    tokio::runtime::Runtime::new()
+        .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
+}
 
 // ─── Checkpoint ───────────────────────────────────────────────────────────────
 
@@ -272,43 +271,36 @@ impl PyInMemoryStorage {
         Self { inner: Arc::new(MemoryCheckpointStore::new()) }
     }
 
-    /// Load a checkpoint for the given chain and indexer (async).
-    fn load_checkpoint<'py>(
+    /// Load a checkpoint for the given chain and indexer.
+    fn load_checkpoint(
         &self,
-        py: Python<'py>,
         chain_id: String,
         indexer_id: String,
-    ) -> PyResult<&'py PyAny> {
+    ) -> PyResult<Option<PyCheckpoint>> {
         let store = self.inner.clone();
-        future_into_py(py, async move {
+        let rt = runtime()?;
+        rt.block_on(async move {
             let result = store.load(&chain_id, &indexer_id).await
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
             Ok(result.map(PyCheckpoint::from))
         })
     }
 
-    /// Save (upsert) a checkpoint (async).
-    fn save_checkpoint<'py>(
-        &self,
-        py: Python<'py>,
-        checkpoint: PyCheckpoint,
-    ) -> PyResult<&'py PyAny> {
+    /// Save (upsert) a checkpoint.
+    fn save_checkpoint(&self, checkpoint: PyCheckpoint) -> PyResult<()> {
         let store = self.inner.clone();
-        future_into_py(py, async move {
+        let rt = runtime()?;
+        rt.block_on(async move {
             store.save(checkpoint.into()).await
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
         })
     }
 
-    /// Delete a checkpoint (async).
-    fn delete_checkpoint<'py>(
-        &self,
-        py: Python<'py>,
-        chain_id: String,
-        indexer_id: String,
-    ) -> PyResult<&'py PyAny> {
+    /// Delete a checkpoint.
+    fn delete_checkpoint(&self, chain_id: String, indexer_id: String) -> PyResult<()> {
         let store = self.inner.clone();
-        future_into_py(py, async move {
+        let rt = runtime()?;
+        rt.block_on(async move {
             store.delete(&chain_id, &indexer_id).await
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
         })
@@ -374,8 +366,7 @@ impl PyBlockSummary {
 // ─── Module ───────────────────────────────────────────────────────────────────
 
 #[pymodule]
-fn chainindex(py: Python, m: &PyModule) -> PyResult<()> {
-    pyo3_asyncio::tokio::init_multi_thread_once();
+fn chainindex(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<PyCheckpoint>()?;
     m.add_class::<PyIndexerConfig>()?;
     m.add_class::<PyEventFilter>()?;

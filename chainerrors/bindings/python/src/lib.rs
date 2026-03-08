@@ -91,20 +91,10 @@ impl PyEvmErrorDecoder {
 
         let result = self
             .inner
-            .decode(&bytes, Some(&context))
+            .decode(&bytes, Some(context))
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
 
         decoded_to_py(py, result)
-    }
-
-    /// Returns True if this data matches a known error selector in the registry.
-    fn is_known_error(&self, data: &str) -> PyResult<bool> {
-        let bytes = hex_str_to_bytes(data)?;
-        if bytes.len() < 4 {
-            return Ok(false);
-        }
-        let selector: [u8; 4] = bytes[..4].try_into().unwrap();
-        Ok(self.inner.is_known_selector(selector))
     }
 
     fn __repr__(&self) -> &'static str {
@@ -203,7 +193,7 @@ fn decoded_to_py(
             d.set_item("panic_code", *code)?;
             d.set_item("panic_meaning", meaning.to_string())?;
         }
-        ErrorKind::RawRevert { data: _ } => {
+        ErrorKind::RawRevert { .. } => {
             d.set_item("kind", "raw_revert")?;
             d.set_item("message", py.None())?;
             d.set_item("error_name", py.None())?;
@@ -214,6 +204,22 @@ fn decoded_to_py(
         ErrorKind::Empty => {
             d.set_item("kind", "empty")?;
             d.set_item("message", py.None())?;
+            d.set_item("error_name", py.None())?;
+            d.set_item("inputs", py.None())?;
+            d.set_item("panic_code", py.None())?;
+            d.set_item("panic_meaning", py.None())?;
+        }
+        ErrorKind::OutOfGas => {
+            d.set_item("kind", "out_of_gas")?;
+            d.set_item("message", "out of gas")?;
+            d.set_item("error_name", py.None())?;
+            d.set_item("inputs", py.None())?;
+            d.set_item("panic_code", py.None())?;
+            d.set_item("panic_meaning", py.None())?;
+        }
+        ErrorKind::ContractNotDeployed => {
+            d.set_item("kind", "contract_not_deployed")?;
+            d.set_item("message", "contract not deployed")?;
             d.set_item("error_name", py.None())?;
             d.set_item("inputs", py.None())?;
             d.set_item("panic_code", py.None())?;

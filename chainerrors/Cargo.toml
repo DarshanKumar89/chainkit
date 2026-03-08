@@ -8,6 +8,13 @@ members = [
     "cli",
 ]
 
+exclude = [
+    "bindings/node",
+    "bindings/python",
+    "bindings/go",
+    "bindings/java",
+]
+
 [workspace.package]
 version      = "0.1.0"
 edition      = "2021"
