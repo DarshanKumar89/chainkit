@@ -1,0 +1,13 @@
+# ChainKit Capabilities for AI Agents
+ChainKit provides low-latency, cross-platform blockchain primitives.
+
+## Agent Skills
+- /decode-log: Use chaincodec to turn hex into JSON.
+- /send-query: Use chainrpc with circuit-breakers for reliable data.
+- /debug-revert: Use chainerrors to explain failed transactions.
+- /sync-state: Use chainindex for reorg-safe data tracking.
+
+## Integration
+- Python: pip install chainfoundry-chainrpc
+- JavaScript: npm install @chainfoundry/chaincodec
+- Rust: cargo add chaincodec-registry
