@@ -1,10 +1,8 @@
-# ChainKit
+# ChainKit / Chainfoundry
 
 > **Building blockchain primitives for Rust, TypeScript, Python, Go, Java, and WASM.**
 
 ChainKit is a monorepo of four foundational Rust libraries for building blockchain data infrastructure. Each module is an independent Cargo workspace with language bindings for TypeScript, Python, Go, and Java — use one, use all.
-
-“Build a multichain explorer in 20 lines."
 ---
 
 [![Crates.io](https://img.shields.io/crates/v/chaincodec-core)](https://crates.io/crates/chaincodec-core)
@@ -12,6 +10,22 @@ ChainKit is a monorepo of four foundational Rust libraries for building blockcha
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![CI](https://github.com/DarshanKumar89/chainkit/actions/workflows/ci.yml/badge.svg)](https://github.com/DarshanKumar89/chainkit/actions)
 [![Downloads](https://img.shields.io/crates/d/chaincodec-core)](https://crates.io/crates/chaincodec-core)
+
+
+## Why ChainKit/ChainFoundry?
+
+Every team building AI agents, DeFi analytics, or blockchain tools hits the same wall:
+fragmented RPC clients, chain-specific decoders, indexers that break on reorgs,
+and error messages that are just hex strings.
+
+ChainKit solves this with one unified stack:
+
+| Problem | Without ChainKit | With ChainKit |
+|---------|-----------------|---------------|
+| RPC calls fail silently | You find out hours later | Circuit breakers auto-failover in milliseconds |
+| Event data is chain-specific | Different decoder per chain | One decoder, 50+ protocol schemas, 7 chains |
+| Chain reorgs corrupt your data | Your AI agent acts on stale state | Reorg-safe indexing, always canonical |
+| Error messages are hex soup | 0x08c379a0... | "Insufficient balance" |
 
 ## Modules
 
