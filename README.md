@@ -11,6 +11,18 @@ ChainKit is a monorepo of four foundational Rust libraries for building blockcha
 [![CI](https://github.com/DarshanKumar89/chainkit/actions/workflows/ci.yml/badge.svg)](https://github.com/DarshanKumar89/chainkit/actions)
 [![Downloads](https://img.shields.io/crates/d/chaincodec-core)](https://crates.io/crates/chaincodec-core)
 
+<!-- PyPI Badges -->
+[![PyPI - chainindex](https://img.shields.io/pypi/v/chainfoundry-chainindex?label=chainindex&color=blue)](https://pypi.org/project/chainfoundry-chainindex/)
+[![PyPI - chaincodec](https://img.shields.io/pypi/v/chainfoundry-chaincodec?label=chaincodec&color=blue)](https://pypi.org/project/chainfoundry-chaincodec/)
+[![PyPI - chainrpc](https://img.shields.io/pypi/v/chainfoundry-chainrpc?label=chainrpc&color=blue)](https://pypi.org/project/chainfoundry-chainrpc/)
+[![PyPI - chainerrors](https://img.shields.io/pypi/v/chainfoundry-chainerrors?label=chainerrors&color=blue)](https://pypi.org/project/chainfoundry-chainerrors/)
+
+<!-- PyPI Download Badges -->
+[![Downloads - chainindex](https://img.shields.io/pypi/dm/chainfoundry-chainindex?label=chainindex%20downloads)](https://pypi.org/project/chainfoundry-chainindex/)
+[![Downloads - chaincodec](https://img.shields.io/pypi/dm/chainfoundry-chaincodec?label=chaincodec%20downloads)](https://pypi.org/project/chainfoundry-chaincodec/)
+[![Downloads - chainrpc](https://img.shields.io/pypi/dm/chainfoundry-chainrpc?label=chainrpc%20downloads)](https://pypi.org/project/chainfoundry-chainrpc/)
+[![Downloads - chainerrors](https://img.shields.io/pypi/dm/chainfoundry-chainerrors?label=chainerrors%20downloads)](https://pypi.org/project/chainfoundry-chainerrors/)
+
 
 ## Why ChainKit/ChainFoundry?
 
