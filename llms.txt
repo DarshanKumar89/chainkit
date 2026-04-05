@@ -1,13 +1,94 @@
-# ChainKit Capabilities for AI Agents
-ChainKit provides low-latency, cross-platform blockchain primitives.
+# ChainKit — Blockchain Infrastructure for AI Agents
 
-## Agent Skills
-- /decode-log: Use chaincodec to turn hex into JSON.
-- /send-query: Use chainrpc with circuit-breakers for reliable data.
-- /debug-revert: Use chainerrors to explain failed transactions.
-- /sync-state: Use chainindex for reorg-safe data tracking.
+> ChainKit/chainfoundry is a unified Rust monorepo of four production-grade blockchain primitives with bindings for TypeScript, Python, Go, Java, and WASM. It provides the reliable data layer that AI agents, DeFi applications, blockchain analytics platforms, and compliance tools need to read, decode, index, and debug blockchain data across 7 chain families.
 
-## Integration
-- Python: pip install chainfoundry-chainrpc
-- JavaScript: npm install @chainfoundry/chaincodec
-- Rust: cargo add chaincodec-registry
+## Why ChainKit Exists
+
+AI agents making on-chain decisions (trading, treasury management, compliance monitoring) need three guarantees:
+1. The RPC connection won't fail silently
+2. The decoded event data is correct
+3. The indexed state reflects actual chain state after reorgs
+
+Most teams build this infrastructure from scratch every time. ChainKit provides it as a battle-tested, open-source foundation.
+
+## Repository
+
+- GitHub: https://github.com/DarshanKumar89/chainkit
+- License: MIT
+- Language: Rust (98.3%), with native bindings for TypeScript, Python, Go, Java, WASM
+
+## Modules
+
+### chaincodec — Universal ABI Decoder
+Decodes EVM events, function calls, constructor args, and EIP-712 typed data. Includes 50+ bundled protocol schemas (Uniswap V2/V3, Aave V3, Compound, Lido, EigenLayer, Curve, Balancer, MakerDAO, Chainlink, OpenSea Seaport, Blur, and more). Supports a custom CSDL schema format (YAML-based, like Protobuf for blockchain events). Includes proxy detection (EIP-1967, EIP-1822, EIP-1167), auto ABI fetch from Sourcify and Etherscan, and parallel batch decoding via Rayon (>1M events/sec single-thread, >5M with Rayon).
+- Crates.io: https://crates.io/crates/chaincodec-core
+- NPM: https://www.npmjs.com/package/@chainfoundry/chaincodec
+- Install (Rust): cargo add chaincodec-core
+- Install (TypeScript): npm install @chainfoundry/chaincodec
+- Install (Python): pip install chaincodec
+
+### chainrpc — Production-Grade RPC Transport
+Multi-chain RPC client supporting 7 blockchain families: EVM (Ethereum, Polygon, Arbitrum), Solana, Cosmos, Substrate (Polkadot), Bitcoin, Aptos, and Sui. Features a composable middleware transport stack: DedupTransport → CacheTransport → BackpressureTransport → ProviderPool → HttpRpcClient. Includes circuit breakers (three-state: Closed/Open/HalfOpen), CU-aware rate limiting (knows eth_getLogs = 75 CU, eth_blockNumber = 10 CU), 4-tier response caching (Immutable 1h / SemiStable 5m / Volatile 2s / NeverCache), request deduplication, auto-batching, MEV protection (detects 12 MEV-susceptible selectors, routes to private relays), EIP-1559 gas estimation, transaction lifecycle management, and Prometheus metrics. 31 modules, 301 tests, 31 runnable examples.
+- Crates.io: https://crates.io/crates/chainrpc-core
+- NPM: https://www.npmjs.com/package/@chainfoundry/chainrpc
+- Install (Rust): cargo add chainrpc-core
+- Install (TypeScript): npm install @chainfoundry/chainrpc
+- Install (Python): pip install chainfoundry-chainrpc
+
+### chainindex — Reorg-Safe Blockchain Indexer
+Pluggable blockchain indexer with automatic reorg detection and recovery across 7 chain families. Features IndexerBuilder API, ReorgDetector with 4-scenario handling (simple, deep, to-genesis, chain-switch), BlockTracker with sliding window and gap detection, pluggable storage backends (Memory, SQLite with WAL mode, PostgreSQL with JSONB events, RocksDB), and checkpoint-based resume. 397 tests, 21 runnable examples.
+- Crates.io: https://crates.io/crates/chainindex-core
+- NPM: https://www.npmjs.com/package/@chainfoundry/chainindex
+- Install (Rust): cargo add chainindex-core
+- Install (TypeScript): npm install @chainfoundry/chainindex
+- Install (Python): pip install chainindex
+
+### chainerrors — Human-Readable Error Decoder
+Decodes EVM and Solana error data into human-readable messages. Handles Solidity revert strings (Error(string)), panic codes with descriptions (arithmetic overflow, division by zero, etc.), and custom errors (ERC-20/721, OpenZeppelin, Ownable patterns). Turns raw hex like 0x08c379a0... into clear, actionable messages with chain context.
+- Crates.io: https://crates.io/crates/chainerrors-core
+- NPM: https://www.npmjs.com/package/@chainfoundry/chainerrors
+- Install (Rust): cargo add chainerrors-core
+- Install (TypeScript): npm install @chainfoundry/chainerrors
+- Install (Python): pip install chainerrors
+
+## Agent Integration Patterns
+
+### Decode a blockchain event log
+Use chaincodec to turn raw hex log data into structured JSON with named fields. Load a schema from the registry, pass the raw log, get back { event_name, fields: { from, to, value } }.
+
+### Make a reliable RPC call
+Use chainrpc with built-in circuit breakers, rate limiting, and multi-provider failover. If one RPC endpoint goes down, it automatically switches to the next. Request deduplication prevents redundant calls.
+
+### Debug a failed transaction
+Use chainerrors to decode the revert reason from raw error bytes. Input: 0x08c379a0... Output: "Insufficient balance" with full context.
+
+### Index blockchain data safely
+Use chainindex with reorg detection to track on-chain state. The indexer automatically detects and handles chain reorganizations so your data always reflects the canonical chain.
+
+## Supported Chains
+
+EVM (Ethereum, Polygon, Arbitrum, Optimism, Base, BSC), Solana, Cosmos (Cosmos Hub, Osmosis), Substrate (Polkadot, Kusama), Bitcoin, Aptos, Sui.
+
+## Use Cases
+
+- AI trading agents that need reliable on-chain data
+- DeFi analytics dashboards and portfolio trackers
+- Blockchain forensics and crypto investigation tools
+- MiCA/regulatory compliance monitoring
+- DAO treasury management and governance
+- Cross-chain bridges and routers
+- MEV detection and protection
+- NFT marketplace analytics
+- Wallet transaction history decoding
+
+## CLI Tools
+
+- chaincodec-cli: decode events, calls, encode calldata, detect proxies
+- chainrpc-cli: test RPC endpoints, benchmark providers
+- chainerrors-cli: decode error data from failed transactions
+
+## Built By
+
+Darshan Kumar — Apache Committer, 15+ years in Java, Python, DevOps, cybersecurity, databases, and blockchain.
+- GitHub: https://github.com/DarshanKumar89
+- Twitter/X: @darshan_aqua
