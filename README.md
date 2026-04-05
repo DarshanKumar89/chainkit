@@ -8,8 +8,7 @@ ChainKit is a monorepo of four foundational Rust libraries for building blockcha
 [![Crates.io](https://img.shields.io/crates/v/chaincodec-core)](https://crates.io/crates/chaincodec-core)
 [![npm](https://img.shields.io/npm/v/@chainfoundry/chaincodec)](https://www.npmjs.com/package/@chainfoundry/chaincodec)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![CI](https://github.com/DarshanKumar89/chainkit/actions/workflows/ci.yml/badge.svg)](https://github.com/DarshanKumar89/chainkit/actions)
-[![Downloads](https://img.shields.io/crates/d/chaincodec-core)](https://crates.io/crates/chaincodec-core)
+
 
 <!-- PyPI Badges -->
 [![PyPI - chainindex](https://img.shields.io/pypi/v/chainfoundry-chainindex?label=chainindex&color=blue)](https://pypi.org/project/chainfoundry-chainindex/)
