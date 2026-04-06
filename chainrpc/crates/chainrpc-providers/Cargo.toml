@@ -1,8 +1,8 @@
 [package]
 name        = "chainrpc-providers"
-description = "Provider profiles for ChainRPC (Alchemy, Infura, QuickNode, public)"
+description = "Provider profiles for ChainRPC (Alchemy, Chainstack, Infura, QuickNode, public)"
 readme      = "../../README.md"
-keywords    = ["ethereum", "rpc", "alchemy", "infura", "blockchain"]
+keywords    = ["ethereum", "rpc", "alchemy", "chainstack", "blockchain"]
 categories  = ["cryptography::cryptocurrencies"]
 version.workspace    = true
 edition.workspace    = true
