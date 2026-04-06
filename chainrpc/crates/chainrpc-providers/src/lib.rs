@@ -12,6 +12,7 @@
 //! ```
 
 pub mod alchemy;
+pub mod chainstack;
 pub mod infura;
 pub mod public;
 pub mod quicknode;
