@@ -1,8 +1,8 @@
-# ChainKit / Chainfoundry
+# ChainFoundry / Chainfoundry
 
 > **Building blockchain primitives for Rust, TypeScript, Python, Go, Java, and WASM.**
 
-ChainKit is a monorepo of four foundational Rust libraries for building blockchain data infrastructure. Each module is an independent Cargo workspace with language bindings for TypeScript, Python, Go, and Java — use one, use all.
+ChainFoundry is a monorepo of four foundational Rust libraries for building blockchain data infrastructure. Each module is an independent Cargo workspace with language bindings for TypeScript, Python, Go, and Java — use one, use all.
 ---
 
 [![Crates.io](https://img.shields.io/crates/v/chaincodec-core)](https://crates.io/crates/chaincodec-core)
@@ -23,15 +23,15 @@ ChainKit is a monorepo of four foundational Rust libraries for building blockcha
 [![Downloads - chainerrors](https://img.shields.io/pypi/dm/chainfoundry-chainerrors?label=chainerrors%20downloads)](https://pypi.org/project/chainfoundry-chainerrors/)
 
 
-## Why ChainKit/ChainFoundry?
+## Why ChainFoundry/ChainFoundry?
 
 Every team building AI agents, DeFi analytics, or blockchain tools hits the same wall:
 fragmented RPC clients, chain-specific decoders, indexers that break on reorgs,
 and error messages that are just hex strings.
 
-ChainKit solves this with one unified stack:
+ChainFoundry solves this with one unified stack:
 
-| Problem | Without ChainKit | With ChainKit |
+| Problem | Without ChainFoundry | With ChainFoundry |
 |---------|-----------------|---------------|
 | RPC calls fail silently | You find out hours later | Circuit breakers auto-failover in milliseconds |
 | Event data is chain-specific | Different decoder per chain | One decoder, 50+ protocol schemas, 7 chains |
@@ -225,7 +225,7 @@ Pluggable blockchain indexer with automatic reorg detection and recovery.
 ## Architecture
 
 ```
-chainkit/
+chainfoundry/
 ├── chaincodec/          # ABI decoder — v0.1.2 published
 │   ├── crates/          # 8 crates (core, evm, registry, batch, stream, ...)
 │   ├── schemas/         # 50+ bundled CSDL schemas
@@ -278,7 +278,7 @@ chainerrors decode --data 0x08c379a0...
 
 ## Built With
 
-The CI/CD pipeline, publishing workflow, build system, and module testing for ChainKit were developed with the assistance of [Claude](https://claude.ai) (Anthropic) — including crates.io publishing, npm/PyPI release automation, cross-platform Rust builds, and language binding generation. Anything wrong open for suggestions and improvement.
+The CI/CD pipeline, publishing workflow, build system, and module testing for ChainFoundry were developed with the assistance of [Claude](https://claude.ai) (Anthropic) — including crates.io publishing, npm/PyPI release automation, cross-platform Rust builds, and language binding generation. Anything wrong open for suggestions and improvement.
 
 ---
 

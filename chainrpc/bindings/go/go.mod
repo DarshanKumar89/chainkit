@@ -1,3 +1,3 @@
-module github.com/DarshanKumar89/chainkit/chainrpc
+module github.com/DarshanKumar89/chainfoundry/chainrpc
 
 go 1.21

@@ -2,7 +2,7 @@
 
 > **Blockchain error decoder for EVM and Solana — decode reverts, panics, custom errors, and program failures.**
 
-ChainErrors is part of [ChainKit](https://github.com/DarshanKumar89/chainkit), a monorepo of blockchain primitives for Rust, TypeScript, Python, Go, and Java.
+ChainErrors is part of [ChainFoundry](https://github.com/DarshanKumar89/chainfoundry), a monorepo of blockchain primitives for Rust, TypeScript, Python, Go, and Java.
 
 ---
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# test-all.sh — Run cargo test --workspace for every ChainKit module.
+# test-all.sh — Run cargo test --workspace for every ChainFoundry module.
 #
 # Usage:
 #   ./test-all.sh              # test all four modules
@@ -98,7 +98,7 @@ run_module() {
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 echo
-echo -e "${BOLD}ChainKit — Full Test Suite${RESET}"
+echo -e "${BOLD}ChainFoundry — Full Test Suite${RESET}"
 echo -e "Repo: $REPO_ROOT"
 echo -e "Date: $(date)"
 echo

@@ -109,6 +109,6 @@ events = decoder.decode_batch(raw_logs, registry)
 
 ## Links
 
-- **GitHub**: https://github.com/DarshanKumar89/chainkit
+- **GitHub**: https://github.com/DarshanKumar89/chainfoundry
 - **Rust crates**: https://crates.io/crates/chaincodec-core
 - **npm (Node.js)**: https://www.npmjs.com/package/@chainfoundry/chaincodec

@@ -1,3 +1,3 @@
-module github.com/DarshanKumar89/chainkit/chaincodec
+module github.com/DarshanKumar89/chainfoundry/chaincodec
 
 go 1.21

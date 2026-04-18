@@ -1,4 +1,4 @@
-# ChainKit / ChainCodec — Complete Implementation Reference
+# ChainFoundry / ChainCodec — Complete Implementation Reference
 
 > What is implemented, why it exists, the logic behind each decision, and real-world use cases.
 
@@ -37,7 +37,7 @@ Today every indexer, analytics tool, wallet, and dApp solves this themselves:
 ## Repository Layout
 
 ```
-chainkit/
+chainfoundry/
 ├── chaincodec/          # Universal ABI decoder — COMPLETE
 │   ├── crates/
 │   │   ├── chaincodec-core/          # Shared types, traits, error taxonomy
@@ -445,7 +445,7 @@ The `SqliteRegistry` + a thin HTTP wrapper becomes a hosted schema registry for 
 
 ---
 
-## The Broader ChainKit Vision
+## The Broader ChainFoundry Vision
 
 ChainCodec is the first of four modules. The full stack:
 

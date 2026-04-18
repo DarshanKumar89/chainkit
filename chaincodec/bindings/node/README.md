@@ -377,4 +377,4 @@ interface BatchDecodeResult {
 
 ## License
 
-MIT — see [LICENSE](https://github.com/DarshanKumar89/chainkit/blob/main/LICENSE)
+MIT — see [LICENSE](https://github.com/DarshanKumar89/chainfoundry/blob/main/LICENSE)

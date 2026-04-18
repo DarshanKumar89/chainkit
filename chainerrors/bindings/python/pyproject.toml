@@ -20,8 +20,8 @@ classifiers = [
 keywords = ["ethereum", "evm", "revert", "error", "decoder", "blockchain", "solidity"]
 
 [project.urls]
-Homepage      = "https://github.com/DarshanKumar89/chainkit"
-Repository    = "https://github.com/DarshanKumar89/chainkit"
+Homepage      = "https://github.com/DarshanKumar89/chainfoundry"
+Repository    = "https://github.com/DarshanKumar89/chainfoundry"
 Documentation = "https://docs.rs/chainerrors-core"
 
 [tool.maturin]

@@ -19,9 +19,9 @@ exclude = [
 version      = "0.1.0"
 edition      = "2021"
 license      = "MIT"
-repository   = "https://github.com/DarshanKumar89/chainkit"
-homepage     = "https://github.com/DarshanKumar89/chainkit"
-authors      = ["ChainKit Contributors"]
+repository   = "https://github.com/DarshanKumar89/chainfoundry"
+homepage     = "https://github.com/DarshanKumar89/chainfoundry"
+authors      = ["ChainFoundry Contributors"]
 rust-version = "1.75"
 
 [workspace.dependencies]

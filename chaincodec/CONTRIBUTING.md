@@ -11,8 +11,8 @@ rustup target add wasm32-unknown-unknown
 cargo install cargo-watch cargo-criterion cargo-audit
 
 # Clone and build
-git clone https://github.com/DarshanKumar89/chainkit.git
-cd chainkit/chaincodec
+git clone https://github.com/DarshanKumar89/chainfoundry.git
+cd chainfoundry/chaincodec
 cargo build --workspace
 
 # Run all tests

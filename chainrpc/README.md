@@ -181,7 +181,7 @@ chainrpc/
 |----------|---------|---------|
 | TypeScript | `@chainfoundry/chainrpc` | `npm install @chainfoundry/chainrpc` |
 | Python | `chainrpc` | `pip install chainrpc` |
-| Go | `chainrpc` | `go get github.com/DarshanKumar89/chainkit/chainrpc` |
+| Go | `chainrpc` | `go get github.com/DarshanKumar89/chainfoundry/chainrpc` |
 | Java | `chainrpc` | Maven / Gradle |
 
 ---

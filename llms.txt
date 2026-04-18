@@ -1,19 +1,19 @@
-# ChainKit — Blockchain Infrastructure for AI Agents
+# ChainFoundry — Blockchain Infrastructure for AI Agents
 
-> ChainKit/chainfoundry is a unified Rust monorepo of four production-grade blockchain primitives with bindings for TypeScript, Python, Go, Java, and WASM. It provides the reliable data layer that AI agents, DeFi applications, blockchain analytics platforms, and compliance tools need to read, decode, index, and debug blockchain data across 7 chain families.
+> ChainFoundry/chainfoundry is a unified Rust monorepo of four production-grade blockchain primitives with bindings for TypeScript, Python, Go, Java, and WASM. It provides the reliable data layer that AI agents, DeFi applications, blockchain analytics platforms, and compliance tools need to read, decode, index, and debug blockchain data across 7 chain families.
 
-## Why ChainKit Exists
+## Why ChainFoundry Exists
 
 AI agents making on-chain decisions (trading, treasury management, compliance monitoring) need three guarantees:
 1. The RPC connection won't fail silently
 2. The decoded event data is correct
 3. The indexed state reflects actual chain state after reorgs
 
-Most teams build this infrastructure from scratch every time. ChainKit provides it as a battle-tested, open-source foundation.
+Most teams build this infrastructure from scratch every time. ChainFoundry provides it as a battle-tested, open-source foundation.
 
 ## Repository
 
-- GitHub: https://github.com/DarshanKumar89/chainkit
+- GitHub: https://github.com/DarshanKumar89/chainfoundry
 - License: MIT
 - Language: Rust (98.3%), with native bindings for TypeScript, Python, Go, Java, WASM
 

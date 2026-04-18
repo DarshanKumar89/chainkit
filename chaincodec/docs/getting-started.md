@@ -427,8 +427,8 @@ let decoded = match raw.chain.family {
 The `chaincodec/examples/` directory contains 13 runnable Rust programs, one for each major feature area. Clone the repo and run any of them:
 
 ```bash
-git clone https://github.com/DarshanKumar89/chainkit
-cd chainkit/chaincodec
+git clone https://github.com/DarshanKumar89/chainfoundry
+cd chainfoundry/chaincodec
 
 # Basic ERC-20 decode
 cargo run --bin decode_erc20

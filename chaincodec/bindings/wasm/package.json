@@ -27,9 +27,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/DarshanKumar89/chainkit.git"
+    "url": "https://github.com/DarshanKumar89/chainfoundry.git"
   },
-  "homepage": "https://github.com/DarshanKumar89/chainkit/tree/main/chaincodec",
+  "homepage": "https://github.com/DarshanKumar89/chainfoundry/tree/main/chaincodec",
   "files": [
     "chaincodec_wasm_bg.wasm",
     "chaincodec_wasm.js",

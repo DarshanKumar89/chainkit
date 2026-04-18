@@ -27,9 +27,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/DarshanKumar89/chainkit"
+    "url": "https://github.com/DarshanKumar89/chainfoundry"
   },
-  "homepage": "https://github.com/DarshanKumar89/chainkit/tree/main/chaincodec",
+  "homepage": "https://github.com/DarshanKumar89/chainfoundry/tree/main/chaincodec",
   "main": "index.js",
   "types": "index.d.ts",
   "napi": {

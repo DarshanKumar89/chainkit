@@ -105,7 +105,7 @@ mod imp {
         pub fn new() -> Self {
             let client = Client::builder()
                 .timeout(Duration::from_secs(15))
-                .user_agent("chaincodec/0.1 (https://github.com/DarshanKumar89/chainkit)")
+                .user_agent("chaincodec/0.1 (https://github.com/DarshanKumar89/chainfoundry)")
                 .build()
                 .expect("failed to build HTTP client");
 

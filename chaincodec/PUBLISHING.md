@@ -17,7 +17,7 @@ Set in **Repository → Settings → Secrets → Actions**:
 **PyPI** uses **OIDC trusted publishing** — no token needed. Configure once at
 https://pypi.org/manage/account/publishing/ with:
 - Owner: `DarshanKumar89`
-- Repo: `chainkit`
+- Repo: `chainfoundry`
 - Workflow: `publish.yml`
 - Environment: `pypi`
 

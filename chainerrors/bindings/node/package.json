@@ -9,7 +9,7 @@
   "keywords": ["ethereum", "evm", "revert", "error", "decoder", "blockchain", "solidity"],
   "repository": {
     "type": "git",
-    "url": "https://github.com/DarshanKumar89/chainkit"
+    "url": "https://github.com/DarshanKumar89/chainfoundry"
   },
   "napi": {
     "name": "chainerrors",

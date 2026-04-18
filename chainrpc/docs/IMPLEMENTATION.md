@@ -37,7 +37,7 @@ fn unsafe_methods() -> &'static HashSet<&'static str> {
 
 ### 4. Standalone Cargo Workspace (Not Root Workspace)
 
-ChainRPC is a standalone Cargo workspace at `chainkit/chainrpc/`, not a member of a root `chainkit/Cargo.toml`. This was an explicit user requirement — each module (chaincodec, chainerrors, chainrpc, chainindex) is independently buildable, testable, and publishable.
+ChainRPC is a standalone Cargo workspace at `chainfoundry/chainrpc/`, not a member of a root `chainfoundry/Cargo.toml`. This was an explicit user requirement — each module (chaincodec, chainerrors, chainrpc, chainindex) is independently buildable, testable, and publishable.
 
 ---
 

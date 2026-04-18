@@ -1,6 +1,6 @@
-# Contributing to ChainKit
+# Contributing to ChainFoundry
 
-Thank you for contributing! ChainKit is a monorepo of four independent Rust
+Thank you for contributing! ChainFoundry is a monorepo of four independent Rust
 modules. This guide covers setup, conventions, and the pull request process
 that applies across all modules.
 
@@ -9,7 +9,7 @@ that applies across all modules.
 ## Repository layout
 
 ```
-chainkit/
+chainfoundry/
 ├── chaincodec/     # Universal ABI decoder (EVM events, calls, EIP-712)
 ├── chainerrors/    # EVM revert / panic / custom error decoder
 ├── chainrpc/       # Resilient RPC transport with circuit breaker
@@ -32,8 +32,8 @@ rustup target add wasm32-unknown-unknown
 cargo install cargo-watch cargo-criterion cargo-audit
 
 # Clone
-git clone https://github.com/DarshanKumar89/chainkit.git
-cd chainkit
+git clone https://github.com/DarshanKumar89/chainfoundry.git
+cd chainfoundry
 
 # Build a specific module
 cd chaincodec && cargo build --workspace

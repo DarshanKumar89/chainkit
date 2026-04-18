@@ -8,9 +8,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/DarshanKumar89/chainkit.git"
+    "url": "https://github.com/DarshanKumar89/chainfoundry.git"
   },
-  "homepage": "https://github.com/DarshanKumar89/chainkit",
+  "homepage": "https://github.com/DarshanKumar89/chainfoundry",
   "keywords": [
     "ethereum",
     "indexer",

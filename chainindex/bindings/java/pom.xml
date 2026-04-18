@@ -12,7 +12,7 @@
 
   <name>ChainIndex Java Bindings</name>
   <description>JNI bindings for the chainindex Rust library</description>
-  <url>https://github.com/DarshanKumar89/chainkit</url>
+  <url>https://github.com/DarshanKumar89/chainfoundry</url>
 
   <licenses>
     <license><name>MIT</name></license>

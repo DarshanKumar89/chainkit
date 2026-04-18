@@ -20,8 +20,8 @@ classifiers = [
 keywords = ["ethereum", "indexer", "blockchain", "evm", "reorg", "web3", "events"]
 
 [project.urls]
-Homepage      = "https://github.com/DarshanKumar89/chainkit"
-Repository    = "https://github.com/DarshanKumar89/chainkit"
+Homepage      = "https://github.com/DarshanKumar89/chainfoundry"
+Repository    = "https://github.com/DarshanKumar89/chainfoundry"
 Documentation = "https://docs.rs/chainindex-core"
 
 [tool.maturin]

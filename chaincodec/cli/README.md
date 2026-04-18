@@ -16,8 +16,8 @@ cargo install chaincodec-cli
 Or build from source:
 
 ```bash
-git clone https://github.com/DarshanKumar89/chainkit
-cd chainkit/chaincodec
+git clone https://github.com/DarshanKumar89/chainfoundry
+cd chainfoundry/chaincodec
 cargo build --release -p chaincodec-cli
 # binary: target/release/chaincodec
 ```

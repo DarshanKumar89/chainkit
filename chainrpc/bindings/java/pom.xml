@@ -12,7 +12,7 @@
 
   <name>ChainRpc Java Bindings</name>
   <description>JNI bindings for the chainrpc Rust library</description>
-  <url>https://github.com/DarshanKumar89/chainkit</url>
+  <url>https://github.com/DarshanKumar89/chainfoundry</url>
 
   <licenses>
     <license><name>MIT</name></license>

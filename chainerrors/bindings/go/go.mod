@@ -1,3 +1,3 @@
-module github.com/DarshanKumar89/chainkit/chainerrors
+module github.com/DarshanKumar89/chainfoundry/chainerrors
 
 go 1.21
