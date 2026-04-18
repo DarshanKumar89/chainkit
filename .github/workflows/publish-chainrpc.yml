@@ -331,13 +331,16 @@ jobs:
 
       # musl: the musllinux Docker cross-image has no Python interpreters.
       # Build directly on the host after installing musl-tools instead.
+      # Pin to python3.11 (from setup-python step above) — without this,
+      # --find-interpreter picks up system Python 3.13 which exceeds
+      # pyo3 0.21's supported version ceiling.
       - name: Build wheels (Linux musl — direct maturin, no Docker)
         if: runner.os == 'Linux' && matrix.platform.manylinux == 'musllinux_1_1'
         working-directory: chainrpc/bindings/python
         run: |
           sudo apt-get update -q && sudo apt-get install -y -q musl-tools
           rustup target add x86_64-unknown-linux-musl
-          maturin build --release --out dist --target x86_64-unknown-linux-musl --find-interpreter
+          maturin build --release --out dist --target x86_64-unknown-linux-musl -i python3.11
 
       - name: Build wheels (macOS / Windows — native)
         if: runner.os != 'Linux'
@@ -463,7 +466,7 @@ jobs:
 
             **Python (pip)**
             ```bash
-            pip install chainrpc
+            pip install chainfoundry-chainrpc
             ```
 
             ### Published crates
@@ -476,4 +479,4 @@ jobs:
             | chainrpc-providers | https://crates.io/crates/chainrpc-providers |
 
             **npm:** https://www.npmjs.com/package/@chainfoundry/chainrpc
-            **PyPI:** https://pypi.org/project/chainrpc/
+            **PyPI:** https://pypi.org/project/chainfoundry-chainrpc/

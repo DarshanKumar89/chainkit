@@ -134,7 +134,7 @@ chainrpc/
     chainrpc-core/       # 31 modules — trait, types, all middleware
     chainrpc-http/       # HTTP transport (reqwest) with retry loop
     chainrpc-ws/         # WebSocket transport (tokio-tungstenite)
-    chainrpc-providers/  # Pre-configured Alchemy, Infura, Ankr profiles
+    chainrpc-providers/  # Pre-configured Alchemy, Infura, QuickNode, Chainstack, public profiles
   bindings/
     node/                # TypeScript (napi-rs)
     python/              # Python (PyO3 + maturin)

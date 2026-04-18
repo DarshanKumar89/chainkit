@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "chainfoundry-chainrpc"
-version = "0.2.1"
+version = "0.2.2"
 description = "High-performance JSON-RPC client — HTTP, WebSocket, provider pool with circuit breaker"
 readme = "../../README.md"
 license = { text = "MIT" }

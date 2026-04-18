@@ -1,8 +1,10 @@
-# ChainFoundry / Chainfoundry
+# ChainFoundry
 
 > **Building blockchain primitives for Rust, TypeScript, Python, Go, Java, and WASM.**
 
 ChainFoundry is a monorepo of four foundational Rust libraries for building blockchain data infrastructure. Each module is an independent Cargo workspace with language bindings for TypeScript, Python, Go, and Java — use one, use all.
+
+> **Note:** this project was previously known as **ChainKit**; the repo was renamed on 2026-04-18. Package names on crates.io, npm (`@chainfoundry/*`), PyPI (`chainfoundry-*`), and Maven (`io.chainfoundry`) are unchanged.
 ---
 
 [![Crates.io](https://img.shields.io/crates/v/chaincodec-core)](https://crates.io/crates/chaincodec-core)
@@ -44,7 +46,7 @@ ChainFoundry solves this with one unified stack:
 |--------|-------------|--------|------|----------|
 | [`chaincodec`](./chaincodec/) | Universal ABI decoder — EVM events, calls, EIP-712, proxy detection, 50+ schemas | ✅ v0.1.2 (crates.io + npm) | [docs](./chaincodec/docs/) | [examples](./chaincodec/examples/) |
 | [`chainerrors`](./chainerrors/) | EVM + Solana error decoder — reverts, panics, custom errors, program failures | ✅ v0.1.0 (crates.io + npm) | [README](./chainerrors/README.md) | — |
-| [`chainrpc`](./chainrpc/) | Production RPC transport — 7 chains, circuit breaker, rate limiter, caching, pool, MEV | ✅ v0.1.1 (crates.io + npm) | [docs](./chainrpc/docs/) | [31 examples](./chainrpc/examples/) |
+| [`chainrpc`](./chainrpc/) | Production RPC transport — 7 chains, circuit breaker, rate limiter, caching, pool, MEV, 5 provider profiles (Alchemy, Infura, QuickNode, Chainstack, public) | ✅ v0.2.1 (crates.io + npm) | [docs](./chainrpc/docs/) | [31 examples](./chainrpc/examples/) |
 | [`chainindex`](./chainindex/) | Reorg-safe blockchain indexer — 7 chains, pluggable storage (SQLite/Postgres/RocksDB) | ✅ v0.1.1 (crates.io + npm) | [docs](./chainindex/docs/) | [21 examples](./chainindex/examples/) |
 
 ### Language Bindings

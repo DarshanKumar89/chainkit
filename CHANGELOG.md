@@ -8,6 +8,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Released — 2026-04-18 — `chainrpc-v0.2.2` (PyPI catch-up)
+
+v0.2.1 landed on crates.io and npm but PyPI failed because the musl wheel build used `--find-interpreter`, which picked up Python 3.13 from the runner (exceeding `pyo3` 0.21's 3.12 ceiling). v0.2.2 pins the musl job to `-i python3.11` and is otherwise identical to v0.2.1 content-wise.
+
+- Workflow fix: [.github/workflows/publish-chainrpc.yml](.github/workflows/publish-chainrpc.yml) — musl maturin step now uses `-i python3.11` instead of `--find-interpreter`
+- Release notes body: corrected `pip install chainrpc` → `pip install chainfoundry-chainrpc` and fixed PyPI project URL
+- READMEs: [README.md](README.md) removed duplicate title artifact, added rename note; [chainrpc/README.md](chainrpc/README.md) updated crate structure comment to list all 5 providers (Alchemy, Infura, QuickNode, Chainstack, public)
+
 ### Released — 2026-04-18 — `chainrpc-v0.2.1` (retagged)
 
 Ships PR [#3](https://github.com/DarshanKumar89/chainfoundry/pull/3) (Chainstack provider) to crates.io, npm, and PyPI.
@@ -30,7 +38,7 @@ Ships PR [#3](https://github.com/DarshanKumar89/chainfoundry/pull/3) (Chainstack
 
 Brought the GitHub repo name in line with the package-registry identity (npm `@chainfoundry/*`, PyPI `chainfoundry-*`, Maven `io.chainfoundry`) which was already `chainfoundry`.
 
-**New URL:** https://github.com/DarshanKumar89/chainfoundry
+**New URL:** <https://github.com/DarshanKumar89/chainfoundry>
 
 **Files touched (38 total, 76 insertions / 76 deletions):**
 
