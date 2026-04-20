@@ -10,6 +10,7 @@ ChainFoundry is a monorepo of four foundational Rust libraries for building bloc
 [![Crates.io](https://img.shields.io/crates/v/chaincodec-core)](https://crates.io/crates/chaincodec-core)
 [![npm](https://img.shields.io/npm/v/@chainfoundry/chaincodec)](https://www.npmjs.com/package/@chainfoundry/chaincodec)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Discord](https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?logo=discord&logoColor=white)](https://discord.gg/mad7PMnbZP)
 
 
 <!-- PyPI Badges -->
@@ -17,12 +18,6 @@ ChainFoundry is a monorepo of four foundational Rust libraries for building bloc
 [![PyPI - chaincodec](https://img.shields.io/pypi/v/chainfoundry-chaincodec?label=chaincodec&color=blue)](https://pypi.org/project/chainfoundry-chaincodec/)
 [![PyPI - chainrpc](https://img.shields.io/pypi/v/chainfoundry-chainrpc?label=chainrpc&color=blue)](https://pypi.org/project/chainfoundry-chainrpc/)
 [![PyPI - chainerrors](https://img.shields.io/pypi/v/chainfoundry-chainerrors?label=chainerrors&color=blue)](https://pypi.org/project/chainfoundry-chainerrors/)
-
-<!-- PyPI Download Badges -->
-[![Downloads - chainindex](https://img.shields.io/pypi/dm/chainfoundry-chainindex?label=chainindex%20downloads)](https://pypi.org/project/chainfoundry-chainindex/)
-[![Downloads - chaincodec](https://img.shields.io/pypi/dm/chainfoundry-chaincodec?label=chaincodec%20downloads)](https://pypi.org/project/chainfoundry-chaincodec/)
-[![Downloads - chainrpc](https://img.shields.io/pypi/dm/chainfoundry-chainrpc?label=chainrpc%20downloads)](https://pypi.org/project/chainfoundry-chainrpc/)
-[![Downloads - chainerrors](https://img.shields.io/pypi/dm/chainfoundry-chainerrors?label=chainerrors%20downloads)](https://pypi.org/project/chainfoundry-chainerrors/)
 
 
 ## Why ChainFoundry/ChainFoundry?
@@ -46,7 +41,7 @@ ChainFoundry solves this with one unified stack:
 |--------|-------------|--------|------|----------|
 | [`chaincodec`](./chaincodec/) | Universal ABI decoder — EVM events, calls, EIP-712, proxy detection, 50+ schemas | ✅ v0.1.2 (crates.io + npm) | [docs](./chaincodec/docs/) | [examples](./chaincodec/examples/) |
 | [`chainerrors`](./chainerrors/) | EVM + Solana error decoder — reverts, panics, custom errors, program failures | ✅ v0.1.0 (crates.io + npm) | [README](./chainerrors/README.md) | — |
-| [`chainrpc`](./chainrpc/) | Production RPC transport — 7 chains, circuit breaker, rate limiter, caching, pool, MEV, 5 provider profiles (Alchemy, Infura, QuickNode, Chainstack, public) | ✅ v0.2.1 (crates.io + npm) | [docs](./chainrpc/docs/) | [31 examples](./chainrpc/examples/) |
+| [`chainrpc`](./chainrpc/) | Production RPC transport — 7 chains, circuit breaker, rate limiter, caching, pool, MEV, 5 provider profiles (Alchemy, Infura, QuickNode, Chainstack, public) | ✅ v0.2.2 (crates.io + npm + PyPI) | [docs](./chainrpc/docs/) | [31 examples](./chainrpc/examples/) |
 | [`chainindex`](./chainindex/) | Reorg-safe blockchain indexer — 7 chains, pluggable storage (SQLite/Postgres/RocksDB) | ✅ v0.1.1 (crates.io + npm) | [docs](./chainindex/docs/) | [21 examples](./chainindex/examples/) |
 
 ### Language Bindings
@@ -303,9 +298,15 @@ MIT — see [LICENSE](./LICENSE)
 
 ---
 
+## Community
+
+Join the ChainFoundry Discord to ask questions, share what you're building, and contribute: **[discord.gg/mad7PMnbZP](https://discord.gg/mad7PMnbZP)**
+
+---
+
 ## Contact
 
-Built by [@darshan_aqua](https://x.com/darshan_aqua) — questions, feedback, and contributions welcome.
+Built by [@darshan_aqua](https://x.com/darshan_aqua) — questions, feedback, and contributions welcome. For community discussion, join us on [Discord](https://discord.gg/mad7PMnbZP).
 
 ---
 
@@ -313,5 +314,6 @@ Built by [@darshan_aqua](https://x.com/darshan_aqua) — questions, feedback, an
 
 - **v0.1** (done): chaincodec v0.1.2, chainrpc v0.1.1, chainindex v0.1.1 — published to crates.io + npm
 - **v0.2** (done): chainerrors-solana decoder, unified ChainClient trait, 5 new chain transports + indexers
+- **v0.2.2** (latest): chainrpc v0.2.2 — PyPI catch-up, Chainstack provider profile, README updates
 - **v1.0** (next): E2E integration tests with Anvil, publish chainerrors to crates.io / npm / PyPI
 - **v2.0**: Cross-chain event correlation, WebSocket subscriptions, fuzz testing
